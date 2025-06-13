@@ -3,16 +3,91 @@ import { useLocation } from "wouter";
 import { WebPageRenderer } from "@/components/web-page-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download, Search, X, FileCode } from "lucide-react";
+import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, downloadJson, formatJson } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export default function FullscreenJson() {
   const [, setLocation] = useLocation();
   const [jsonData, setJsonData] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+
+  // Extract navigation structure from JSON data
+  const getNavigationStructure = (data: any, path: string = ""): any[] => {
+    if (!data || typeof data !== 'object') return [];
+    
+    const items: any[] = [];
+    
+    if (Array.isArray(data)) {
+      items.push({
+        label: `Items (${data.length})`,
+        path: path,
+        type: 'array',
+        icon: <List className="w-4 h-4" />
+      });
+      data.forEach((item, index) => {
+        if (typeof item === 'object' && item !== null) {
+          const subPath = `${path}[${index}]`;
+          items.push({
+            label: `Item ${index + 1}`,
+            path: subPath,
+            type: 'object',
+            icon: <Hash className="w-4 h-4" />,
+            children: getNavigationStructure(item, subPath)
+          });
+        }
+      });
+    } else {
+      Object.entries(data).forEach(([key, value]) => {
+        const subPath = path ? `${path}.${key}` : key;
+        const lowerKey = key.toLowerCase();
+        
+        let icon = <Hash className="w-4 h-4" />;
+        if (lowerKey.includes('user') || lowerKey.includes('person')) {
+          icon = <User className="w-4 h-4" />;
+        } else if (lowerKey.includes('company') || lowerKey.includes('organization')) {
+          icon = <Building2 className="w-4 h-4" />;
+        } else if (lowerKey.includes('contact') || lowerKey.includes('email')) {
+          icon = <Mail className="w-4 h-4" />;
+        } else if (lowerKey.includes('address') || lowerKey.includes('location')) {
+          icon = <MapPin className="w-4 h-4" />;
+        }
+        
+        items.push({
+          label: key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          path: subPath,
+          type: typeof value === 'object' ? (Array.isArray(value) ? 'array' : 'object') : 'primitive',
+          icon,
+          children: typeof value === 'object' ? getNavigationStructure(value, subPath) : []
+        });
+      });
+    }
+    
+    return items;
+  };
+
+  const navigationItems = jsonData ? getNavigationStructure(jsonData) : [];
+
+  const scrollToSection = (path: string) => {
+    const element = document.getElementById(`section-${path.replace(/[\[\]\.]/g, '-')}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Highlight the section briefly
+      element.style.backgroundColor = 'rgba(147, 51, 234, 0.1)';
+      setTimeout(() => {
+        element.style.backgroundColor = '';
+      }, 1000);
+    }
+  };
 
   useEffect(() => {
     // Get JSON data from URL hash or sessionStorage
@@ -147,6 +222,85 @@ export default function FullscreenJson() {
           </div>
         </div>
       </header>
+
+      {/* Navigation Bar */}
+      {navigationItems.length > 0 && (
+        <nav className="glass-panel border-b border-white/20 dark:border-white/10 sticky top-[72px] z-40">
+          <div className="max-w-7xl mx-auto px-6 py-3">
+            <div className="flex items-center space-x-6 overflow-x-auto">
+              {navigationItems.slice(0, 8).map((item, index) => (
+                <DropdownMenu key={index}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="glass-button flex items-center space-x-2 whitespace-nowrap"
+                    >
+                      {item.icon}
+                      <span>{item.label}</span>
+                      {item.children.length > 0 && <ChevronDown className="w-3 h-3" />}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  {item.children.length > 0 && (
+                    <DropdownMenuContent className="w-56 glass-panel border-white/20 dark:border-white/10">
+                      <DropdownMenuItem
+                        onClick={() => scrollToSection(item.path)}
+                        className="flex items-center space-x-2"
+                      >
+                        {item.icon}
+                        <span>Go to {item.label}</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-white/20 dark:bg-white/10" />
+                      {item.children.slice(0, 10).map((child: any, childIndex: number) => (
+                        <DropdownMenuItem
+                          key={childIndex}
+                          onClick={() => scrollToSection(child.path)}
+                          className="flex items-center space-x-2 text-sm"
+                        >
+                          {child.icon}
+                          <span>{child.label}</span>
+                        </DropdownMenuItem>
+                      ))}
+                      {item.children.length > 10 && (
+                        <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                          +{item.children.length - 10} more items...
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  )}
+                </DropdownMenu>
+              ))}
+              {navigationItems.length > 8 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="glass-button flex items-center space-x-2"
+                    >
+                      <Hash className="w-4 h-4" />
+                      <span>More</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56 glass-panel border-white/20 dark:border-white/10">
+                    {navigationItems.slice(8).map((item, index) => (
+                      <DropdownMenuItem
+                        key={index}
+                        onClick={() => scrollToSection(item.path)}
+                        className="flex items-center space-x-2"
+                      >
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </div>
+        </nav>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">

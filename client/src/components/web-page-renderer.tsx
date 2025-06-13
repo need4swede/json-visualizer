@@ -271,7 +271,7 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
   );
 }
 
-function renderCompleteData(data: any, searchQuery?: string, level: number = 0): React.ReactNode {
+function renderCompleteData(data: any, searchQuery?: string, level: number = 0, path: string = ""): React.ReactNode {
   const { toast } = useToast();
   
   const handleCopyValue = async (val: any) => {
@@ -432,17 +432,36 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0):
   if (Array.isArray(data)) {
     return (
       <div className="space-y-4">
-        {data.map((item, index) => (
-          <div key={index} className={cn(
-            "p-4 rounded-xl border",
-            level === 0 ? "bg-white/50 dark:bg-black/20 border-white/30 dark:border-white/10" : "bg-white/30 dark:bg-black/10 border-white/20 dark:border-white/5"
-          )}>
-            <div className="font-medium text-purple-700 dark:text-purple-300 mb-3">
-              Item {index + 1}
+        {data.map((item, index) => {
+          const itemPath = path ? `${path}[${index}]` : `[${index}]`;
+          return (
+            <div 
+              key={index} 
+              id={`section-${itemPath.replace(/[\[\]\.]/g, '-')}`}
+              className={cn(
+                "p-5 rounded-xl border transition-all duration-300",
+                level === 0 ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-blue-800/50" : 
+                level === 1 ? "bg-gradient-to-r from-green-50/50 to-teal-50/50 dark:from-green-900/20 dark:to-teal-900/20 border-green-200/50 dark:border-green-800/50" :
+                "bg-white/40 dark:bg-black/10 border-white/30 dark:border-white/10"
+              )}
+            >
+              <div className="font-semibold text-lg mb-4 flex items-center space-x-2">
+                <div className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white",
+                  level === 0 ? "bg-gradient-to-r from-blue-500 to-purple-600" :
+                  level === 1 ? "bg-gradient-to-r from-green-500 to-teal-600" :
+                  "bg-gradient-to-r from-orange-500 to-red-600"
+                )}>
+                  {index + 1}
+                </div>
+                <span className="text-purple-700 dark:text-purple-300">
+                  Item {index + 1}
+                </span>
+              </div>
+              {renderCompleteData(item, searchQuery, level + 1, itemPath)}
             </div>
-            {renderCompleteData(item, searchQuery, level + 1)}
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   }
@@ -451,16 +470,24 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0):
   const entries = Object.entries(data);
   return (
     <div className="space-y-4">
-      {entries.map(([key, value]) => (
-        <div key={key} className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground capitalize block">
-            {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
-          </label>
-          <div className={cn("pl-3", level > 0 && "pl-2")}>
-            {renderCompleteData(value, searchQuery, level + 1)}
+      {entries.map(([key, value]) => {
+        const fieldPath = path ? `${path}.${key}` : key;
+        return (
+          <div 
+            key={key} 
+            id={`section-${fieldPath.replace(/[\[\]\.]/g, '-')}`}
+            className="space-y-3 p-4 rounded-lg bg-white/20 dark:bg-black/10 border border-white/20 dark:border-white/5"
+          >
+            <label className="text-sm font-semibold text-purple-600 dark:text-purple-400 capitalize block flex items-center space-x-2">
+              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <span>{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}</span>
+            </label>
+            <div className={cn("pl-4 border-l-2 border-purple-200 dark:border-purple-800", level > 0 && "pl-3")}>
+              {renderCompleteData(value, searchQuery, level + 1, fieldPath)}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -504,7 +531,7 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
       </div>
       
       <div className="bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-white/10 p-6">
-        {renderCompleteData(data, searchQuery, 0)}
+        {renderCompleteData(data, searchQuery, 0, "")}
       </div>
     </div>
   );
