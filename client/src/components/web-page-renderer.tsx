@@ -490,7 +490,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
   if (Array.isArray(data)) {
     return (
       <div className="space-y-6">
-        {data.map((item, index) => {
+        {data.filter((item) => matchesSearchData(item)).map((item, index) => {
           const itemPath = path ? `${path}[${index}]` : `[${index}]`;
           return (
             <div 
@@ -542,7 +542,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
   const entries = Object.entries(data);
   return (
     <div className="space-y-4">
-      {entries.map(([key, value]) => {
+      {entries.filter(([key, value]) => matchesSearchData(value, key)).map(([key, value]) => {
         const fieldPath = path ? `${path}.${key}` : key;
         const isObject = typeof value === 'object' && value !== null;
         const isArray = Array.isArray(value);
@@ -598,7 +598,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   colorParts[2], 
                   colorParts[3]
                 )}>
-                  {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
+                  {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
                 </h4>
                 {isArray && (
                   <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
