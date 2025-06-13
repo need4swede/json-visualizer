@@ -3,7 +3,7 @@ import { ChevronRight, ChevronDown, Copy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { copyToClipboard } from "@/lib/json-utils";
+import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery } from "@/lib/json-utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface JsonRendererProps {
@@ -47,11 +47,17 @@ function JsonProperty({ label, value, level, path, searchQuery }: JsonPropertyPr
 
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
-    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'));
-    return parts.map((part, i) => 
-      part.toLowerCase() === searchQuery.toLowerCase() ? 
+    
+    const regex = createSearchRegex(searchQuery);
+    const parts = text.split(regex);
+    
+    return parts.map((part, i) => {
+      const normalizedPart = normalizeSearchText(part);
+      const normalizedQuery = normalizeSearchText(searchQuery);
+      
+      return normalizedPart === normalizedQuery ? 
         <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
-    );
+    });
   };
 
   const renderValue = () => {
