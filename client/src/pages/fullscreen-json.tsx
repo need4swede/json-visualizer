@@ -118,7 +118,9 @@ export default function FullscreenJson() {
     // Set navigation flag to prevent closing during navigation
     isNavigatingRef.current = true;
     
-    const element = document.getElementById(`section-${path.replace(/[\[\]\.]/g, '-')}`);
+    // Use the same ID generation as in web-page-renderer
+    const sectionId = createSectionId(path);
+    const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       // Add stronger highlighting with animation
@@ -126,6 +128,8 @@ export default function FullscreenJson() {
       setTimeout(() => {
         element.classList.remove('highlight-section');
       }, 2000);
+    } else {
+      console.warn('Section not found:', sectionId, 'for path:', path);
     }
     
     // Clear navigation flag after a longer delay to ensure click-outside doesn't interfere

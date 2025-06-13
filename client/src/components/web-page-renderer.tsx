@@ -367,8 +367,9 @@ function DataCard({ title, data, searchQuery, icon, path }: DataCardProps) {
   );
 }
 
-function renderCompleteData(data: any, searchQuery?: string, level: number = 0, path: string = "", onCopy?: (val: any) => void): React.ReactNode {
+function renderCompleteData(data: any, searchQuery?: string, level: number = 0, path: string = "", onCopy?: (val: any) => void, onToast?: (title: string, description: string) => void): React.ReactNode {
   const handleCopyValue = onCopy || (() => {});
+  const handleToast = onToast || (() => {});
 
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
@@ -577,30 +578,64 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                 "bg-gradient-to-br from-slate-50/80 to-gray-50/80 dark:from-slate-800/30 dark:to-gray-800/30 border-slate-200/60 dark:border-slate-700/50"
               )}
             >
-              <div className="flex items-center space-x-3 mb-5">
-                <div className={cn(
-                  "w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-lg",
-                  level === 0 ? "bg-gradient-to-r from-indigo-500 to-purple-600" :
-                  level === 1 ? "bg-gradient-to-r from-emerald-500 to-teal-600" :
-                  level === 2 ? "bg-gradient-to-r from-amber-500 to-orange-600" :
-                  "bg-gradient-to-r from-slate-500 to-gray-600"
-                )}>
-                  {index + 1}
-                </div>
-                <div>
-                  <h3 className={cn(
-                    "font-bold",
-                    level === 0 ? "text-lg text-indigo-700 dark:text-indigo-300" :
-                    level === 1 ? "text-base text-emerald-700 dark:text-emerald-300" :
-                    "text-sm text-amber-700 dark:text-amber-300"
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center space-x-3">
+                  <div className={cn(
+                    "w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-lg",
+                    level === 0 ? "bg-gradient-to-r from-indigo-500 to-purple-600" :
+                    level === 1 ? "bg-gradient-to-r from-emerald-500 to-teal-600" :
+                    level === 2 ? "bg-gradient-to-r from-amber-500 to-orange-600" :
+                    "bg-gradient-to-r from-slate-500 to-gray-600"
                   )}>
-                    Item {index + 1}
-                  </h3>
-                  {typeof item === 'object' && Object.keys(item).length > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      {Object.keys(item).length} properties
-                    </p>
-                  )}
+                    {index + 1}
+                  </div>
+                  <div>
+                    <h3 className={cn(
+                      "font-bold",
+                      level === 0 ? "text-lg text-indigo-700 dark:text-indigo-300" :
+                      level === 1 ? "text-base text-emerald-700 dark:text-emerald-300" :
+                      "text-sm text-amber-700 dark:text-amber-300"
+                    )}>
+                      Item {index + 1}
+                    </h3>
+                    {typeof item === 'object' && Object.keys(item).length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {Object.keys(item).length} properties
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Copy and Anchor buttons for array items */}
+                <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (onCopy) {
+                        onCopy(item);
+                      }
+                    }}
+                    className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                    title="Copy value"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const sectionId = createSectionId(itemPath);
+                      const url = new URL(window.location.href);
+                      url.hash = sectionId;
+                      navigator.clipboard.writeText(url.toString());
+                      handleToast("Anchor link copied", "Direct link to this item copied to clipboard");
+                    }}
+                    className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                    title="Copy anchor link"
+                  >
+                    <Hash className="w-3 h-3" />
+                  </Button>
                 </div>
               </div>
               {renderCompleteData(item, searchQuery, level + 1, itemPath, onCopy)}
@@ -661,28 +696,62 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
             )}
           >
             <div className="p-4">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className={cn(
-                  "w-3 h-3 rounded-full bg-gradient-to-r shadow-sm",
-                  colorParts.slice(0, 2).join(' ')
-                )}></div>
-                <h4 className={cn(
-                  "font-semibold text-sm uppercase tracking-wide",
-                  colorParts[2], 
-                  colorParts[3]
-                )}>
-                  {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
-                </h4>
-                {isArray && (
-                  <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
-                    {value.length} items
-                  </span>
-                )}
-                {isObject && !isArray && (
-                  <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
-                    {Object.keys(value).length} fields
-                  </span>
-                )}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <div className={cn(
+                    "w-3 h-3 rounded-full bg-gradient-to-r shadow-sm",
+                    colorParts.slice(0, 2).join(' ')
+                  )}></div>
+                  <h4 className={cn(
+                    "font-semibold text-sm uppercase tracking-wide",
+                    colorParts[2], 
+                    colorParts[3]
+                  )}>
+                    {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
+                  </h4>
+                  {isArray && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
+                      {value.length} items
+                    </span>
+                  )}
+                  {isObject && !isArray && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
+                      {Object.keys(value).length} fields
+                    </span>
+                  )}
+                </div>
+                
+                {/* Copy and Anchor buttons */}
+                <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (onCopy) {
+                        onCopy(value);
+                      }
+                    }}
+                    className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                    title="Copy value"
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const sectionId = createSectionId(fieldPath);
+                      const url = new URL(window.location.href);
+                      url.hash = sectionId;
+                      navigator.clipboard.writeText(url.toString());
+                      handleToast("Anchor link copied", "Direct link to this section copied to clipboard");
+                    }}
+                    className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                    title="Copy anchor link"
+                  >
+                    <Hash className="w-3 h-3" />
+                  </Button>
+                </div>
               </div>
               
               <div className={cn(
