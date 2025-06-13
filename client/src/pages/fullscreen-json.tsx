@@ -20,7 +20,6 @@ export default function FullscreenJson() {
   const [jsonData, setJsonData] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isNavExpanded, setIsNavExpanded] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const { toast } = useToast();
   const navRef = useRef<HTMLDivElement>(null);
   const isNavigatingRef = useRef(false);
@@ -28,11 +27,11 @@ export default function FullscreenJson() {
   // Handle click outside to close expanded navigation
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Don't close if we're in the middle of a navigation action or transitioning
-      if (isNavigatingRef.current || isTransitioning) return;
+      // Don't close if we're in the middle of a navigation action
+      if (isNavigatingRef.current) return;
       
       if (navRef.current && !navRef.current.contains(event.target as Node) && isNavExpanded) {
-        handleNavCollapse();
+        setIsNavExpanded(false);
       }
     };
 
@@ -43,21 +42,7 @@ export default function FullscreenJson() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isNavExpanded, isTransitioning]);
-
-  const handleNavExpand = () => {
-    setIsTransitioning(true);
-    setIsNavExpanded(true);
-    setTimeout(() => setIsTransitioning(false), 400);
-  };
-
-  const handleNavCollapse = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setIsNavExpanded(false);
-      setIsTransitioning(false);
-    }, 300);
-  };
+  }, [isNavExpanded]);
 
   // Extract navigation structure from JSON data
   const getNavigationStructure = (data: any, path: string = ""): any[] => {
@@ -373,7 +358,7 @@ export default function FullscreenJson() {
       {completeNavStructure.length > 0 && (
         <div ref={navRef} className="fixed bottom-8 right-8 z-50 animate-slide-in">
           {!isNavExpanded ? (
-            <div className={`glass-panel px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[500px] ${isTransitioning ? 'nav-fade-out' : 'nav-fade-in'}`} style={{borderRadius: '10rem'}}>
+            <div className="glass-panel px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[500px]" style={{borderRadius: '10rem'}}>
               <div className="flex items-center justify-between space-x-4">
                 {/* Left Section - Search */}
                 <div className="flex items-center space-x-3 flex-1">
@@ -424,7 +409,7 @@ export default function FullscreenJson() {
                   <div className="w-px h-6 bg-white/20 dark:bg-white/10"></div>
                   
                   <Button
-                    onClick={handleNavExpand}
+                    onClick={() => setIsNavExpanded(true)}
                     className="glass-button hover:scale-105 transition-all duration-300"
                     style={{borderRadius: '10rem'}}
                     title="Expand navigation"
@@ -437,7 +422,7 @@ export default function FullscreenJson() {
               </div>
             </div>
           ) : (
-            <div className={`glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden ${isTransitioning ? 'nav-fade-in' : 'nav-fade-in'}`} style={{borderRadius: '1.75rem'}}>
+            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '1.75rem'}}>
               <div className="flex justify-center mb-4">
                 <Button
                   variant="ghost"
@@ -501,12 +486,11 @@ export default function FullscreenJson() {
               </div>
               
               <div className="border-t border-white/20 dark:border-white/10 pt-3">
-                <div className="overflow-y-auto max-h-[400px] custom-scrollbar">
+                <div className="overflow-y-auto max-h-[400px] custom-scrollbar nav-fade-in">
                   <NavigationTree
                     items={completeNavStructure}
                     onItemClick={(path: string) => {
                       scrollToSection(path);
-                      setIsNavExpanded(false);
                     }}
                   />
                 </div>
