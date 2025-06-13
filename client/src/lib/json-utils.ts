@@ -135,24 +135,58 @@ export function matchesSearchQuery(text: string, searchQuery: string): boolean {
   return queryWords.every(word => normalizedText.includes(word));
 }
 
-// URL utilities for sharing JSON data
-export function encodeJsonForUrl(data: any): string {
+// Generate a 9-digit random number ID
+export function generateShortId(): string {
+  // Generate a random number between 100000000 and 999999999 (9 digits)
+  const min = 100000000;
+  const max = 999999999;
+  return Math.floor(Math.random() * (max - min + 1) + min).toString();
+}
+
+// Store JSON data with a short ID
+export function storeJsonData(data: any): string {
+  const id = generateShortId();
+  const jsonString = JSON.stringify(data);
+  localStorage.setItem(`json-data-${id}`, jsonString);
+  
+  // Clean up old entries (keep only last 20)
+  const keys = Object.keys(localStorage).filter(key => key.startsWith('json-data-'));
+  if (keys.length > 20) {
+    keys.sort((a, b) => {
+      const aTime = localStorage.getItem(`${a}-timestamp`) || '0';
+      const bTime = localStorage.getItem(`${b}-timestamp`) || '0';
+      return parseInt(aTime) - parseInt(bTime);
+    });
+    keys.slice(0, keys.length - 20).forEach(key => {
+      localStorage.removeItem(key);
+      localStorage.removeItem(`${key}-timestamp`);
+    });
+  }
+  
+  localStorage.setItem(`json-data-${id}-timestamp`, Date.now().toString());
+  return id;
+}
+
+// Retrieve JSON data by short ID
+export function retrieveJsonData(id: string): any | null {
+  const jsonString = localStorage.getItem(`json-data-${id}`);
+  if (!jsonString) return null;
+  
   try {
-    const jsonString = JSON.stringify(data);
-    const compressed = btoa(encodeURIComponent(jsonString));
-    return compressed;
+    return JSON.parse(jsonString);
   } catch (error) {
-    throw new Error('Failed to encode JSON for URL');
+    console.error('Failed to parse stored JSON:', error);
+    return null;
   }
 }
 
-export function decodeJsonFromUrl(encoded: string): any {
-  try {
-    const jsonString = decodeURIComponent(atob(encoded));
-    return JSON.parse(jsonString);
-  } catch (error) {
-    throw new Error('Failed to decode JSON from URL');
-  }
+// URL utilities for sharing JSON data
+export function encodeJsonForUrl(data: any): string {
+  return storeJsonData(data);
+}
+
+export function decodeJsonFromUrl(id: string): any {
+  return retrieveJsonData(id);
 }
 
 export function createSectionId(path: string): string {

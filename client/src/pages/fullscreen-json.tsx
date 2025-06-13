@@ -24,10 +24,9 @@ export default function FullscreenJson() {
   const navRef = useRef<HTMLDivElement>(null);
   const isNavigatingRef = useRef(false);
   
-  // Extract URL parameters
-  const urlParams = new URLSearchParams(window.location.search);
+  // Extract URL parameters - get ID from path (/:id format)
   const pathSegments = window.location.pathname.split('/');
-  const encodedData = pathSegments[2]; // /fullscreen/:id
+  const shortId = pathSegments[1]; // /:id format
 
   // Handle click outside to close expanded navigation
   useEffect(() => {
@@ -286,25 +285,34 @@ export default function FullscreenJson() {
   };
 
   useEffect(() => {
-    // Get JSON data from URL parameter or sessionStorage
-    if (encodedData) {
+    // Check if we have a 9-digit ID in the URL
+    const isValidId = /^\d{9}$/.test(shortId);
+    
+    if (isValidId) {
       try {
-        const parsedData = decodeJsonFromUrl(encodedData);
-        setJsonData(parsedData);
-      } catch (error) {
-        console.error("Failed to parse JSON from URL:", error);
-        // Fallback to sessionStorage
-        const storedData = sessionStorage.getItem('fullscreen-json-data');
-        if (storedData) {
-          try {
-            setJsonData(JSON.parse(storedData));
-          } catch (storageError) {
-            console.error("Failed to parse JSON from storage:", storageError);
+        const parsedData = decodeJsonFromUrl(shortId);
+        if (parsedData) {
+          setJsonData(parsedData);
+        } else {
+          console.error("No JSON data found for ID:", shortId);
+          // Fallback to sessionStorage
+          const storedData = sessionStorage.getItem('fullscreen-json-data');
+          if (storedData) {
+            try {
+              setJsonData(JSON.parse(storedData));
+            } catch (storageError) {
+              console.error("Failed to parse JSON from storage:", storageError);
+            }
           }
         }
+      } catch (error) {
+        console.error("Failed to retrieve JSON data:", error);
       }
+    } else if (shortId !== 'fullscreen') {
+      // If it's not a valid ID and not 'fullscreen', redirect to home
+      setLocation('/');
     } else {
-      // Try to get from sessionStorage as fallback
+      // For /fullscreen route, try sessionStorage
       const storedData = sessionStorage.getItem('fullscreen-json-data');
       if (storedData) {
         try {
@@ -314,7 +322,7 @@ export default function FullscreenJson() {
         }
       }
     }
-  }, [encodedData]);
+  }, [shortId, setLocation]);
 
   // Handle hash navigation for anchor links
   useEffect(() => {

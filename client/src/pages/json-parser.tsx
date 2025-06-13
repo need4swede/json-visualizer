@@ -188,16 +188,16 @@ export default function JsonParser() {
     if (!parsedData) return;
     
     try {
-      // Encode JSON data for URL
-      const encodedData = encodeJsonForUrl(parsedData);
+      // Generate short ID and store JSON data
+      const shortId = encodeJsonForUrl(parsedData);
       
-      // Create shareable URL with encoded data
-      const fullscreenUrl = `${window.location.origin}/fullscreen/${encodedData}`;
+      // Create shareable URL with short ID
+      const fullscreenUrl = `${window.location.origin}/${shortId}`;
       window.open(fullscreenUrl, '_blank');
       
       toast({
         title: "Opened in new tab",
-        description: "JSON is now displayed with a shareable URL",
+        description: `Shareable URL: /${shortId}`,
       });
     } catch (error) {
       // Fallback to sessionStorage for very large JSON
