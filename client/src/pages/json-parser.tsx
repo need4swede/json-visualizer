@@ -7,8 +7,6 @@ import {
   Code, 
   TreePine, 
   Search, 
-  Sun, 
-  Moon,
   Check,
   X,
   AlertCircle,
@@ -20,7 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { useTheme } from "@/hooks/use-theme";
+
 import { useToast } from "@/hooks/use-toast";
 import { JsonTree } from "@/components/json-tree";
 import { JsonRenderer } from "@/components/json-renderer";
@@ -47,7 +45,6 @@ export default function JsonParser() {
   const [isDragOver, setIsDragOver] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
 
   const validateAndParse = useCallback((input: string) => {
@@ -248,35 +245,6 @@ export default function JsonParser() {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <header className="glass-panel sticky top-0 z-50 border-b border-white/20 dark:border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <FileCode className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">JSON Parser</h1>
-                <p className="text-sm text-muted-foreground">Beautiful JSON visualization</p>
-              </div>
-            </div>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="glass-button rounded-full"
-            >
-              {theme === "light" ? 
-                <Moon className="w-5 h-5" /> : 
-                <Sun className="w-5 h-5" />
-              }
-            </Button>
-          </div>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* JSON Input Panel - Full Width */}
         <div className="max-w-4xl mx-auto">
