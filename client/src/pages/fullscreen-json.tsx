@@ -419,7 +419,15 @@ export default function FullscreenJson() {
                   <div className="w-px h-6 bg-white/20 dark:bg-white/10"></div>
                   
                   <Button
-                    onClick={() => setIsNavExpanded(true)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      isNavigatingRef.current = true;
+                      setIsNavExpanded(true);
+                      setTimeout(() => {
+                        isNavigatingRef.current = false;
+                      }, 300);
+                    }}
                     className="glass-button hover:scale-105 transition-all duration-300"
                     style={{borderRadius: '10rem'}}
                     title="Expand navigation"
@@ -437,7 +445,11 @@ export default function FullscreenJson() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={scrollToTop}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    scrollToTop();
+                  }}
                   className="glass-button"
                   style={{borderRadius: '10rem'}}
                   title="Scroll to top"
@@ -448,7 +460,11 @@ export default function FullscreenJson() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setIsNavExpanded(false)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsNavExpanded(false);
+                  }}
                   className="glass-button"
                   style={{borderRadius: '10rem'}}
                   title="Minimize navigation"
@@ -477,7 +493,11 @@ export default function FullscreenJson() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleCopy}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleCopy();
+                  }}
                   className="glass-button flex-1 text-xs"
                   style={{borderRadius: '10rem'}}
                 >
@@ -487,7 +507,11 @@ export default function FullscreenJson() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleDownload}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDownload();
+                  }}
                   className="glass-button flex-1 text-xs"
                   style={{borderRadius: '10rem'}}
                 >
@@ -497,7 +521,11 @@ export default function FullscreenJson() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleClose}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleClose();
+                  }}
                   className="glass-button flex-1 text-xs"
                   style={{borderRadius: '10rem'}}
                 >
