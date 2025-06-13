@@ -47,6 +47,35 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
     );
   };
 
+  const matchesSearch = (obj: any, key?: string): boolean => {
+    if (!searchQuery) return true;
+    
+    const searchLower = searchQuery.toLowerCase();
+    
+    // Check if key matches
+    if (key && key.toLowerCase().includes(searchLower)) {
+      return true;
+    }
+    
+    // Check if value matches (for primitive values)
+    if (typeof obj === 'string' || typeof obj === 'number') {
+      return String(obj).toLowerCase().includes(searchLower);
+    }
+    
+    // For objects and arrays, recursively check all nested values and keys
+    if (typeof obj === 'object' && obj !== null) {
+      if (Array.isArray(obj)) {
+        return obj.some(item => matchesSearch(item));
+      } else {
+        return Object.entries(obj).some(([nestedKey, nestedValue]) => 
+          matchesSearch(nestedValue, nestedKey)
+        );
+      }
+    }
+    
+    return false;
+  };
+
   const renderValue = (value: any, key?: string) => {
     if (value === null || value === undefined) {
       return <span className="text-muted-foreground italic">Not specified</span>;
@@ -195,17 +224,17 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
             {value.length} items
           </Badge>
           <div className="space-y-4">
-            {value.map((item, index) => (
+            {value.filter((item) => matchesSearch(item)).map((item, index) => (
               <div key={index} className="p-4 bg-white/50 dark:bg-black/20 rounded-xl border border-white/30 dark:border-white/10">
                 {typeof item === 'object' && item !== null ? (
                   <div className="space-y-3">
                     <div className="font-medium text-purple-700 dark:text-purple-300 mb-3">
                       Item {index + 1}
                     </div>
-                    {Object.entries(item).map(([k, v]) => (
+                    {Object.entries(item).filter(([k, v]) => matchesSearch(v, k)).map(([k, v]) => (
                       <div key={k} className="space-y-1">
                         <label className="text-sm font-medium text-muted-foreground capitalize block">
-                          {k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
+                          {highlightText(k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
                         </label>
                         <div className="text-sm pl-2">{renderValue(v, k)}</div>
                       </div>
@@ -241,10 +270,10 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {entries.map(([key, value]) => (
+          {entries.filter(([key, value]) => matchesSearch(value, key)).map(([key, value]) => (
             <div key={key} className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground capitalize block">
-                {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
+                {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
               </label>
               <div className="pl-2">
                 {renderValue(value, key)}
@@ -297,6 +326,35 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
       part.toLowerCase() === searchQuery.toLowerCase() ? 
         <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
     );
+  };
+
+  const matchesSearchData = (obj: any, key?: string): boolean => {
+    if (!searchQuery) return true;
+    
+    const searchLower = searchQuery.toLowerCase();
+    
+    // Check if key matches
+    if (key && key.toLowerCase().includes(searchLower)) {
+      return true;
+    }
+    
+    // Check if value matches (for primitive values)
+    if (typeof obj === 'string' || typeof obj === 'number') {
+      return String(obj).toLowerCase().includes(searchLower);
+    }
+    
+    // For objects and arrays, recursively check all nested values and keys
+    if (typeof obj === 'object' && obj !== null) {
+      if (Array.isArray(obj)) {
+        return obj.some(item => matchesSearchData(item));
+      } else {
+        return Object.entries(obj).some(([nestedKey, nestedValue]) => 
+          matchesSearchData(nestedValue, nestedKey)
+        );
+      }
+    }
+    
+    return false;
   };
 
   const renderPrimitive = (value: any, key?: string) => {
