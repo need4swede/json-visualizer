@@ -23,30 +23,15 @@ export default function FullscreenJson() {
   const { toast } = useToast();
   const navRef = useRef<HTMLDivElement>(null);
   const isNavigatingRef = useRef(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const handleNavExpand = () => {
-    setIsAnimating(true);
-    setIsNavExpanded(true);
-    setTimeout(() => setIsAnimating(false), 800); // Match animation duration
-  };
-
-  const handleNavCollapse = () => {
-    setIsAnimating(true);
-    setTimeout(() => {
-      setIsNavExpanded(false);
-      setIsAnimating(false);
-    }, 600); // Match collapse animation duration
-  };
 
   // Handle click outside to close expanded navigation
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Don't close if we're in the middle of a navigation action or animating
-      if (isNavigatingRef.current || isAnimating) return;
+      // Don't close if we're in the middle of a navigation action
+      if (isNavigatingRef.current) return;
       
       if (navRef.current && !navRef.current.contains(event.target as Node) && isNavExpanded) {
-        handleNavCollapse();
+        setIsNavExpanded(false);
       }
     };
 
@@ -57,7 +42,7 @@ export default function FullscreenJson() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isNavExpanded, isAnimating]);
+  }, [isNavExpanded]);
 
   // Extract navigation structure from JSON data
   const getNavigationStructure = (data: any, path: string = ""): any[] => {
@@ -372,19 +357,8 @@ export default function FullscreenJson() {
       {/* Floating Navigation */}
       {completeNavStructure.length > 0 && (
         <div ref={navRef} className="fixed bottom-8 right-8 z-50 animate-slide-in">
-          <div className={`glass-panel border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden ${
-            isNavExpanded ? 'nav-morph-expand' : 'nav-morph-collapse'
-          }`} 
-          style={{
-            width: isNavExpanded ? '450px' : '500px',
-            height: isNavExpanded ? '600px' : '56px',
-            borderRadius: isNavExpanded ? '1.75rem' : '10rem',
-            minWidth: isNavExpanded ? '450px' : '500px'
-          }}>
-            {/* Collapsed Content */}
-            <div className={`px-6 py-4 transition-opacity duration-300 ${
-              isNavExpanded ? 'opacity-0 pointer-events-none absolute' : 'opacity-100'
-            }`}>
+          {!isNavExpanded ? (
+            <div className="glass-panel px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[500px]" style={{borderRadius: '10rem'}}>
               <div className="flex items-center justify-between space-x-4">
                 {/* Left Section - Search */}
                 <div className="flex items-center space-x-3 flex-1">
@@ -435,7 +409,7 @@ export default function FullscreenJson() {
                   <div className="w-px h-6 bg-white/20 dark:bg-white/10"></div>
                   
                   <Button
-                    onClick={handleNavExpand}
+                    onClick={() => setIsNavExpanded(true)}
                     className="glass-button hover:scale-105 transition-all duration-300"
                     style={{borderRadius: '10rem'}}
                     title="Expand navigation"
@@ -447,11 +421,8 @@ export default function FullscreenJson() {
                 </div>
               </div>
             </div>
-
-            {/* Expanded Content */}
-            <div className={`p-4 absolute inset-0 transition-opacity duration-300 ${
-              isNavExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}>
+          ) : (
+            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '1.75rem'}}>
               <div className="flex justify-center mb-4">
                 <Button
                   variant="ghost"
@@ -526,7 +497,7 @@ export default function FullscreenJson() {
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
