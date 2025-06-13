@@ -30,17 +30,21 @@ export default function FullscreenJson() {
       // Don't close if we're in the middle of a navigation action
       if (isNavigatingRef.current) return;
       
-      if (navRef.current && !navRef.current.contains(event.target as Node) && isNavExpanded) {
-        setIsNavExpanded(false);
-      }
+      // Add a small delay to ensure the click event has been processed
+      setTimeout(() => {
+        if (navRef.current && !navRef.current.contains(event.target as Node) && isNavExpanded) {
+          setIsNavExpanded(false);
+        }
+      }, 50);
     };
 
     if (isNavExpanded) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // Use click instead of mousedown to avoid interference with navigation clicks
+      document.addEventListener('click', handleClickOutside);
     }
     
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [isNavExpanded]);
 
@@ -100,7 +104,13 @@ export default function FullscreenJson() {
 
   const navigationItems = jsonData ? getNavigationStructure(jsonData) : [];
 
-  const scrollToSection = (path: string) => {
+  const scrollToSection = (path: string, event?: React.MouseEvent) => {
+    // Prevent event bubbling to avoid triggering click-outside handler
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    
     // Set navigation flag to prevent closing during navigation
     isNavigatingRef.current = true;
     
@@ -114,10 +124,10 @@ export default function FullscreenJson() {
       }, 2000);
     }
     
-    // Clear navigation flag after a short delay
+    // Clear navigation flag after a longer delay to ensure click-outside doesn't interfere
     setTimeout(() => {
       isNavigatingRef.current = false;
-    }, 100);
+    }, 300);
   };
 
   const scrollToTop = () => {
@@ -184,7 +194,7 @@ export default function FullscreenJson() {
   const completeNavStructure = jsonData ? getCompleteNavStructure(jsonData) : [];
 
   // NavigationTree Component with expandable hierarchy
-  const NavigationTree = ({ items, onItemClick }: { items: any[], onItemClick: (path: string) => void }) => {
+  const NavigationTree = ({ items, onItemClick }: { items: any[], onItemClick: (path: string, event?: React.MouseEvent) => void }) => {
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
     const toggleExpanded = (path: string) => {
@@ -235,7 +245,7 @@ export default function FullscreenJson() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onItemClick(item.path)}
+                onClick={(e) => onItemClick(item.path, e)}
                 className="p-0 h-auto text-left justify-start flex-1 min-w-0 hover:bg-transparent"
               >
                 <span className={cn(
@@ -500,9 +510,8 @@ export default function FullscreenJson() {
                 <div className="overflow-y-auto max-h-[400px] custom-scrollbar">
                   <NavigationTree
                     items={completeNavStructure}
-                    onItemClick={(path: string) => {
-                      scrollToSection(path);
-                      setIsNavExpanded(false);
+                    onItemClick={(path: string, event?: React.MouseEvent) => {
+                      scrollToSection(path, event);
                     }}
                   />
                 </div>
