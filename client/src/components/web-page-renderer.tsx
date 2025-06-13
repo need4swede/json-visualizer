@@ -284,12 +284,34 @@ function DataCard({ title, data, searchQuery, icon, path }: DataCardProps) {
   if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
     const entries = Object.entries(data);
     
+    const sectionId = path ? createSectionId(path) : undefined;
+    
     return (
-      <Card className="glass-panel border-white/20 dark:border-white/10 w-full">
+      <Card 
+        id={sectionId}
+        className="glass-panel border-white/20 dark:border-white/10 w-full group"
+      >
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center space-x-2 text-lg">
             {icon}
             <span>{title}</span>
+            {path && (
+              <button
+                onClick={() => {
+                  const url = new URL(window.location.href);
+                  url.hash = sectionId || '';
+                  navigator.clipboard.writeText(url.toString());
+                  toast({
+                    title: "Link copied",
+                    description: "Shareable link to this section copied to clipboard",
+                  });
+                }}
+                className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
+                title="Copy link to this section"
+              >
+                <Hash className="w-4 h-4" />
+              </button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -308,12 +330,34 @@ function DataCard({ title, data, searchQuery, icon, path }: DataCardProps) {
     );
   }
 
+  const sectionId = path ? createSectionId(path) : undefined;
+  
   return (
-    <Card className="glass-panel border-white/20 dark:border-white/10 w-full">
+    <Card 
+      id={sectionId}
+      className="glass-panel border-white/20 dark:border-white/10 w-full"
+    >
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center space-x-2 text-lg">
           {icon}
           <span>{title}</span>
+          {path && (
+            <button
+              onClick={() => {
+                const url = new URL(window.location.href);
+                url.hash = sectionId || '';
+                navigator.clipboard.writeText(url.toString());
+                toast({
+                  title: "Link copied",
+                  description: "Shareable link to this section copied to clipboard",
+                });
+              }}
+              className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
+              title="Copy link to this section"
+            >
+              <Hash className="w-4 h-4" />
+            </button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>

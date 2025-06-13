@@ -322,7 +322,7 @@ export default function FullscreenJson() {
       const hash = window.location.hash.substring(1);
       if (hash && jsonData) {
         // Scroll to the section with highlighting
-        scrollToSection(hash);
+        scrollToSection(hash, true);
       }
     };
 
@@ -572,7 +572,7 @@ export default function FullscreenJson() {
                   <NavigationTree
                     items={completeNavStructure}
                     onItemClick={(path: string, event?: React.MouseEvent) => {
-                      scrollToSection(path, event);
+                      scrollToNavigationSection(path, event);
                     }}
                   />
                 </div>
