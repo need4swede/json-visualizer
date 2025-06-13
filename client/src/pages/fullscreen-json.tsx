@@ -438,8 +438,8 @@ export default function FullscreenJson() {
             </div>
           ) : (
             <div className={`glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden ${
-              isNavExpanded && !isAnimating ? 'animate-nav-expand' : ''
-            } ${!isNavExpanded && isAnimating ? 'animate-nav-collapse' : ''}`} 
+              isNavExpanded ? 'animate-nav-expand' : 'animate-nav-collapse'
+            }`} 
             style={{borderRadius: '1.75rem'}}>
               <div className="flex justify-center mb-4">
                 <Button
