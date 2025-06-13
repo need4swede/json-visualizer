@@ -392,7 +392,7 @@ export default function FullscreenJson() {
               </div>
             </div>
           ) : (
-            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '10rem'}}>
+            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '4rem'}}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
