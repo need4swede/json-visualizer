@@ -300,24 +300,8 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
   );
 }
 
-function renderCompleteData(data: any, searchQuery?: string, level: number = 0, path: string = ""): React.ReactNode {
-  const { toast } = useToast();
-  
-  const handleCopyValue = async (val: any) => {
-    try {
-      await copyToClipboard(typeof val === 'string' ? val : JSON.stringify(val));
-      toast({
-        title: "Copied to clipboard",
-        description: "Value has been copied",
-      });
-    } catch (error) {
-      toast({
-        title: "Copy failed",
-        description: "Could not copy value",
-        variant: "destructive",
-      });
-    }
-  };
+function renderCompleteData(data: any, searchQuery?: string, level: number = 0, path: string = "", onCopy?: (val: any) => void): React.ReactNode {
+  const handleCopyValue = onCopy || (() => {});
 
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
@@ -530,7 +514,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   )}
                 </div>
               </div>
-              {renderCompleteData(item, searchQuery, level + 1, itemPath)}
+              {renderCompleteData(item, searchQuery, level + 1, itemPath, onCopy)}
             </div>
           );
         })}
@@ -617,7 +601,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                 !isPrimitive && "pl-4 border-l-2",
                 !isPrimitive && colorParts.slice(-2).join(' ')
               )}>
-                {renderCompleteData(value, searchQuery, level + 1, fieldPath)}
+                {renderCompleteData(value, searchQuery, level + 1, fieldPath, onCopy)}
               </div>
             </div>
           </div>
@@ -628,6 +612,24 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
 }
 
 export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
+  const { toast } = useToast();
+
+  const handleCopyValue = async (val: any) => {
+    try {
+      await copyToClipboard(typeof val === 'string' ? val : JSON.stringify(val));
+      toast({
+        title: "Copied to clipboard",
+        description: "Value has been copied",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Could not copy value",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (data === null || data === undefined) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
@@ -666,7 +668,7 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
       </div>
       
       <div className="w-full space-y-6">
-        {renderCompleteData(data, searchQuery, 0, "")}
+        {renderCompleteData(data, searchQuery, 0, "", handleCopyValue)}
       </div>
     </div>
   );
