@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { JsonRenderer } from "@/components/json-renderer";
+import { WebPageRenderer } from "@/components/web-page-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, Download, Search, X, FileCode } from "lucide-react";
@@ -99,8 +99,8 @@ export default function FullscreenJson() {
                 <FileCode className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-foreground">Rendered JSON</h1>
-                <p className="text-sm text-muted-foreground">Full-screen view</p>
+                <h1 className="text-xl font-semibold text-foreground">Data View</h1>
+                <p className="text-sm text-muted-foreground">Web page format</p>
               </div>
             </div>
             
@@ -152,7 +152,7 @@ export default function FullscreenJson() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="glass-panel rounded-2xl overflow-hidden animate-fade-in">
           <div className="h-[calc(100vh-200px)] overflow-auto custom-scrollbar">
-            <JsonRenderer 
+            <WebPageRenderer 
               data={jsonData} 
               searchQuery={searchQuery}
             />

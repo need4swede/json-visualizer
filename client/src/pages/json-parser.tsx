@@ -278,8 +278,8 @@ export default function JsonParser() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[calc(100vh-200px)]">
-          {/* JSON Input Panel */}
+        {/* JSON Input Panel - Full Width */}
+        <div className="max-w-4xl mx-auto">
           <div className="glass-panel rounded-2xl p-6 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-foreground">JSON Input</h2>
@@ -306,9 +306,9 @@ export default function JsonParser() {
               </div>
             </div>
             
-            <div className="space-y-4 h-full">
+            <div className="space-y-4">
               <div 
-                className="relative h-80"
+                className="relative h-96"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
@@ -317,14 +317,14 @@ export default function JsonParser() {
                   value={jsonInput}
                   onChange={(e) => setJsonInput(e.target.value)}
                   placeholder="Enter your JSON here or upload a file..."
-                  className="w-full h-full p-4 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 custom-scrollbar font-mono text-sm"
+                  className="w-full h-full p-4 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 custom-scrollbar font-mono text-sm"
                 />
                 
                 {isDragOver && (
-                  <div className="absolute inset-0 border-2 border-dashed border-blue-500/50 rounded-xl bg-blue-500/5 flex items-center justify-center">
+                  <div className="absolute inset-0 border-2 border-dashed border-purple-500/50 rounded-xl bg-purple-500/5 flex items-center justify-center">
                     <div className="text-center">
-                      <Upload className="w-12 h-12 text-blue-500 mx-auto mb-2" />
-                      <p className="text-blue-500 font-medium">Drop JSON file here</p>
+                      <Upload className="w-12 h-12 text-purple-500 mx-auto mb-2" />
+                      <p className="text-purple-500 font-medium">Drop JSON file here</p>
                     </div>
                   </div>
                 )}
@@ -349,7 +349,7 @@ export default function JsonParser() {
                     className="glass-button"
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload
+                    Upload File
                   </Button>
                 </div>
                 
@@ -362,131 +362,53 @@ export default function JsonParser() {
               </div>
             </div>
           </div>
+        </div>
 
-          {/* JSON Output Panel */}
-          <div className="glass-panel rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center justify-between mb-6">
+        {/* Floating Action Bar - appears when JSON is valid */}
+        {isValid && parsedData && (
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-slide-in">
+            <div className="glass-panel rounded-full px-6 py-3 shadow-2xl border border-white/20 dark:border-white/10">
               <div className="flex items-center space-x-4">
-                <h2 className="text-lg font-semibold text-foreground">JSON Output</h2>
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse-gentle"></div>
+                  <span>Valid JSON</span>
+                </div>
+                
+                <div className="w-px h-6 bg-white/20 dark:bg-white/10"></div>
+                
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setViewMode("rendered")}
-                    className={cn(
-                      "glass-button",
-                      viewMode === "rendered" ? "text-purple-600 dark:text-purple-400 border-purple-500/30" : ""
-                    )}
+                    onClick={handleFullscreen}
+                    className="glass-button text-purple-600 dark:text-purple-400 hover:scale-105 transition-transform"
                   >
-                    <FileCode className="w-4 h-4 mr-2" />
-                    Rendered
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open Rendered View
                   </Button>
+                  
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setViewMode("tree")}
-                    className={cn(
-                      "glass-button",
-                      viewMode === "tree" ? "text-purple-600 dark:text-purple-400 border-purple-500/30" : ""
-                    )}
+                    onClick={handleCopy}
+                    className="glass-button hover:scale-105 transition-transform"
                   >
-                    <TreePine className="w-4 h-4 mr-2" />
-                    Tree
+                    <Copy className="w-4 h-4" />
                   </Button>
+                  
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setViewMode("raw")}
-                    className={cn(
-                      "glass-button",
-                      viewMode === "raw" ? "text-purple-600 dark:text-purple-400 border-purple-500/30" : ""
-                    )}
+                    onClick={handleDownload}
+                    className="glass-button hover:scale-105 transition-transform"
                   >
-                    <Code className="w-4 h-4 mr-2" />
-                    Raw
+                    <Download className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
-              
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search..."
-                    className="w-32 pl-9 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 focus:w-48 transition-all duration-300"
-                  />
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleFullscreen}
-                  className="glass-button text-purple-600 dark:text-purple-400"
-                  disabled={!parsedData}
-                  title="Open in full-screen"
-                >
-                  <Maximize2 className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopy}
-                  className="glass-button"
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDownload}
-                  className="glass-button"
-                  disabled={!parsedData}
-                >
-                  <Download className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-            
-            <div className="h-96 overflow-auto custom-scrollbar bg-white/30 dark:bg-black/10 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10">
-              {viewMode === "rendered" ? (
-                <JsonRenderer 
-                  data={parsedData} 
-                  searchQuery={searchQuery}
-                />
-              ) : viewMode === "tree" ? (
-                <div className="p-4">
-                  <JsonTree 
-                    data={parsedData} 
-                    searchQuery={searchQuery}
-                    onNodeClick={(path, value) => {
-                      console.log("Clicked:", path, value);
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="p-4 font-mono text-sm">
-                  {parsedData ? (
-                    <pre className="text-foreground whitespace-pre-wrap">
-                      <code dangerouslySetInnerHTML={{
-                        __html: formatJson(parsedData)
-                          .replace(/"([^"]+)":/g, '<span class="json-key">"$1"</span>:')
-                          .replace(/: "([^"]*)"/g, ': <span class="json-string">"$1"</span>')
-                          .replace(/: (\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
-                          .replace(/: (true|false)/g, ': <span class="json-boolean">$1</span>')
-                          .replace(/: null/g, ': <span class="json-null">null</span>')
-                      }} />
-                    </pre>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      No JSON data to display
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
-        </div>
+        )}
 
         {/* Status Bar */}
         <div className="mt-8">
