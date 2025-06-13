@@ -85,11 +85,61 @@ export function normalizeSearchText(text: string): string {
 
 export function createSearchRegex(searchQuery: string): RegExp {
   const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const pattern = escapeRegex(searchQuery).replace(/[\s_]+/g, '[\\s_]+');
+  // Split the search query by spaces/underscores and create individual word patterns
+  const words = searchQuery.trim().split(/[\s_]+/).filter(word => word.length > 0);
+  if (words.length === 0) return new RegExp('', 'gi');
+  
+  // Create pattern that matches each word individually for highlighting
+  const wordPatterns = words.map(word => escapeRegex(word));
+  const pattern = wordPatterns.join('|');
   return new RegExp(`(${pattern})`, 'gi');
+}
+
+export function getSearchHighlights(text: string, searchQuery: string): {start: number, end: number, word: string}[] {
+  if (!searchQuery) return [];
+  
+  const words = searchQuery.trim().split(/[\s_]+/).filter(word => word.length > 0);
+  if (words.length === 0) return [];
+  
+  const highlights: {start: number, end: number, word: string}[] = [];
+  
+  // Find all matches for each search word
+  words.forEach(word => {
+    const regex = new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      highlights.push({
+        start: match.index,
+        end: match.index + match[0].length,
+        word: match[0]
+      });
+    }
+  });
+  
+  // Sort highlights by position and remove overlaps
+  highlights.sort((a, b) => a.start - b.start);
+  
+  return highlights;
 }
 
 export function matchesSearchQuery(text: string, searchQuery: string): boolean {
   if (!searchQuery) return true;
-  return normalizeSearchText(text).includes(normalizeSearchText(searchQuery));
+  
+  const normalizedText = normalizeSearchText(text);
+  const normalizedQuery = normalizeSearchText(searchQuery);
+  
+  // If the query contains spaces, split into words and check each word
+  const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0);
+  
+  if (queryWords.length > 1) {
+    // For multi-word queries, check if all words appear in the text (can be partial matches)
+    return queryWords.every(word => {
+      // Split the text into words and check if any word starts with the search word
+      const textWords = normalizedText.split(/\s+/);
+      return textWords.some(textWord => textWord.startsWith(word));
+    });
+  } else {
+    // For single word queries, check if it appears anywhere in the text
+    return normalizedText.includes(normalizedQuery);
+  }
 }
