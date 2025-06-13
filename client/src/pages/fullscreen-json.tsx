@@ -486,11 +486,12 @@ export default function FullscreenJson() {
               </div>
               
               <div className="border-t border-white/20 dark:border-white/10 pt-3">
-                <div className="overflow-y-auto max-h-[400px] custom-scrollbar nav-fade-in">
+                <div className="overflow-y-auto max-h-[400px] custom-scrollbar">
                   <NavigationTree
                     items={completeNavStructure}
                     onItemClick={(path: string) => {
                       scrollToSection(path);
+                      setIsNavExpanded(false);
                     }}
                   />
                 </div>
