@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { WebPageRenderer } from "@/components/web-page-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin } from "lucide-react";
+import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin, Navigation, ArrowUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, downloadJson, formatJson } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
@@ -88,6 +88,46 @@ export default function FullscreenJson() {
       }, 1000);
     }
   };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Get main sections for floating nav (only top-level items)
+  const getMainSections = () => {
+    if (!jsonData) return [];
+    
+    if (Array.isArray(jsonData)) {
+      return [{
+        label: `All Items (${jsonData.length})`,
+        path: '',
+        icon: <List className="w-4 h-4" />
+      }];
+    }
+    
+    return Object.keys(jsonData).slice(0, 6).map(key => {
+      const lowerKey = key.toLowerCase();
+      let icon = <Hash className="w-4 h-4" />;
+      
+      if (lowerKey.includes('user') || lowerKey.includes('person')) {
+        icon = <User className="w-4 h-4" />;
+      } else if (lowerKey.includes('company') || lowerKey.includes('organization')) {
+        icon = <Building2 className="w-4 h-4" />;
+      } else if (lowerKey.includes('contact') || lowerKey.includes('email')) {
+        icon = <Mail className="w-4 h-4" />;
+      } else if (lowerKey.includes('address') || lowerKey.includes('location')) {
+        icon = <MapPin className="w-4 h-4" />;
+      }
+      
+      return {
+        label: key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        path: key,
+        icon
+      };
+    });
+  };
+
+  const mainSections = getMainSections();
 
   useEffect(() => {
     // Get JSON data from URL hash or sessionStorage
@@ -309,6 +349,106 @@ export default function FullscreenJson() {
           searchQuery={searchQuery}
         />
       </main>
+
+      {/* Floating Navigation */}
+      {mainSections.length > 0 && (
+        <div className="fixed bottom-8 right-8 z-50 animate-slide-in">
+          <div className="glass-panel rounded-2xl border border-white/20 dark:border-white/10 p-4 min-w-[280px]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <Navigation className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm font-medium text-foreground">Quick Navigation</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={scrollToTop}
+                className="glass-button p-1 h-6 w-6"
+              >
+                <ArrowUp className="w-3 h-3" />
+              </Button>
+            </div>
+            
+            <div className="space-y-2">
+              {mainSections.map((section, index) => (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => scrollToSection(section.path)}
+                  className="glass-button w-full justify-start text-left h-auto py-2 px-3"
+                >
+                  <div className="flex items-center space-x-3 w-full">
+                    <div className="flex-shrink-0">
+                      {section.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {section.label}
+                      </div>
+                    </div>
+                  </div>
+                </Button>
+              ))}
+              
+              {Object.keys(jsonData || {}).length > 6 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="glass-button w-full justify-start text-left h-auto py-2 px-3"
+                    >
+                      <div className="flex items-center space-x-3 w-full">
+                        <div className="flex-shrink-0">
+                          <Hash className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-foreground">
+                            More sections...
+                          </div>
+                        </div>
+                        <ChevronDown className="w-3 h-3 flex-shrink-0" />
+                      </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent 
+                    className="w-64 glass-panel border-white/20 dark:border-white/10"
+                    side="left"
+                    align="end"
+                  >
+                    {Object.keys(jsonData || {}).slice(6).map((key, index) => {
+                      const lowerKey = key.toLowerCase();
+                      let icon = <Hash className="w-4 h-4" />;
+                      
+                      if (lowerKey.includes('user') || lowerKey.includes('person')) {
+                        icon = <User className="w-4 h-4" />;
+                      } else if (lowerKey.includes('company') || lowerKey.includes('organization')) {
+                        icon = <Building2 className="w-4 h-4" />;
+                      } else if (lowerKey.includes('contact') || lowerKey.includes('email')) {
+                        icon = <Mail className="w-4 h-4" />;
+                      } else if (lowerKey.includes('address') || lowerKey.includes('location')) {
+                        icon = <MapPin className="w-4 h-4" />;
+                      }
+                      
+                      return (
+                        <DropdownMenuItem
+                          key={index}
+                          onClick={() => scrollToSection(key)}
+                          className="flex items-center space-x-2"
+                        >
+                          {icon}
+                          <span>{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
