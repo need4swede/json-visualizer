@@ -18,6 +18,7 @@ import {
 export default function FullscreenJson() {
   const [, setLocation] = useLocation();
   const [jsonData, setJsonData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isNavExpanded, setIsNavExpanded] = useState(false);
   const { toast } = useToast();
@@ -326,6 +327,9 @@ export default function FullscreenJson() {
         }
       }
     }
+    
+    // Set loading to false after data attempt
+    setIsLoading(false);
   }, [shortId, setLocation]);
 
   // Handle hash navigation for anchor links
@@ -384,9 +388,21 @@ export default function FullscreenJson() {
     setLocation('/');
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <h1 className="text-lg font-medium text-white mb-2">Loading JSON Data</h1>
+          <p className="text-gray-400">Please wait...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!jsonData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black flex items-center justify-center">
         <div className="text-center">
           <FileCode className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-2xl font-semibold text-foreground mb-2">No JSON Data Found</h1>
