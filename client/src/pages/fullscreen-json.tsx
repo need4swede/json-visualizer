@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { WebPageRenderer } from "@/components/web-page-renderer";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,21 @@ export default function FullscreenJson() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNavExpanded, setIsNavExpanded] = useState(false);
   const { toast } = useToast();
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to close expanded navigation
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node) && isNavExpanded) {
+        setIsNavExpanded(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isNavExpanded]);
 
   // Extract navigation structure from JSON data
   const getNavigationStructure = (data: any, path: string = ""): any[] => {
@@ -326,7 +341,7 @@ export default function FullscreenJson() {
 
       {/* Floating Navigation */}
       {completeNavStructure.length > 0 && (
-        <div className="fixed bottom-8 right-8 z-50 animate-slide-in">
+        <div ref={navRef} className="fixed bottom-8 right-8 z-50 animate-slide-in">
           {!isNavExpanded ? (
             <div className="glass-panel px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[500px]" style={{borderRadius: '10rem'}}>
               <div className="flex items-center justify-between space-x-4">
@@ -392,35 +407,19 @@ export default function FullscreenJson() {
               </div>
             </div>
           ) : (
-            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '4rem'}}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
-                    <FileCode className="w-3 h-3 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">Data Navigator</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={scrollToTop}
-                    className="glass-button p-1 h-6 w-6"
-                    title="Scroll to top"
-                  >
-                    <ArrowUp className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsNavExpanded(false)}
-                    className="glass-button p-1 h-6 w-6"
-                    style={{borderRadius: '10rem'}}
-                    title="Close navigation"
-                  >
-                    <X className="w-3 h-3" />
-                  </Button>
-                </div>
+            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '1.75rem'}}>
+              <div className="flex justify-center mb-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={scrollToTop}
+                  className="glass-button"
+                  style={{borderRadius: '10rem'}}
+                  title="Scroll to top"
+                >
+                  <ArrowUp className="w-4 h-4 mr-2" />
+                  Scroll to Top
+                </Button>
               </div>
 
               {/* Search Bar */}
