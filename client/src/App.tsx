@@ -5,12 +5,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import JsonParser from "@/pages/json-parser";
+import FullscreenJson from "@/pages/fullscreen-json";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={JsonParser} />
       <Route path="/json-parser" component={JsonParser} />
+      <Route path="/fullscreen" component={FullscreenJson} />
       <Route component={JsonParser} />
     </Switch>
   );

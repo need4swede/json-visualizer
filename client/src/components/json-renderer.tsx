@@ -147,7 +147,7 @@ function JsonProperty({ label, value, level, path, searchQuery }: JsonPropertyPr
             </Badge>
           </div>
           {isExpanded && (
-            <div className="ml-4 space-y-3 border-l-2 border-blue-200 dark:border-blue-800 pl-4">
+            <div className="ml-4 space-y-3 border-l-2 border-purple-200 dark:border-purple-800 pl-4">
               {value.map((item, index) => (
                 <JsonProperty
                   key={index}
@@ -213,7 +213,7 @@ function JsonProperty({ label, value, level, path, searchQuery }: JsonPropertyPr
           
           <div className="min-w-0 flex-1">
             <div className="flex items-center space-x-3 mb-1">
-              <h3 className="font-medium text-blue-700 dark:text-blue-300 truncate">
+              <h3 className="font-medium text-purple-700 dark:text-purple-300 truncate">
                 {highlightText(label)}
               </h3>
               {typeof value === 'string' && value.length > 50 && (

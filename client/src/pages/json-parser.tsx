@@ -186,6 +186,22 @@ export default function JsonParser() {
     }
   };
 
+  const handleFullscreen = () => {
+    if (!parsedData) return;
+    
+    // Store JSON data in sessionStorage for the fullscreen view
+    sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
+    
+    // Open fullscreen view in new tab
+    const fullscreenUrl = `${window.location.origin}/fullscreen`;
+    window.open(fullscreenUrl, '_blank');
+    
+    toast({
+      title: "Opened in new tab",
+      description: "JSON is now displayed in full-screen mode",
+    });
+  };
+
   const getValidationIcon = () => {
     if (isValid === null) {
       return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
@@ -281,7 +297,7 @@ export default function JsonParser() {
                   variant="ghost"
                   size="sm"
                   onClick={handleFormat}
-                  className="glass-button text-blue-500"
+                  className="glass-button text-purple-600 dark:text-purple-400"
                   disabled={!parsedData}
                 >
                   <Code className="w-4 h-4 mr-2" />
@@ -359,7 +375,7 @@ export default function JsonParser() {
                     onClick={() => setViewMode("rendered")}
                     className={cn(
                       "glass-button",
-                      viewMode === "rendered" ? "text-blue-500 border-blue-500/30" : ""
+                      viewMode === "rendered" ? "text-purple-600 dark:text-purple-400 border-purple-500/30" : ""
                     )}
                   >
                     <FileCode className="w-4 h-4 mr-2" />
@@ -371,7 +387,7 @@ export default function JsonParser() {
                     onClick={() => setViewMode("tree")}
                     className={cn(
                       "glass-button",
-                      viewMode === "tree" ? "text-blue-500 border-blue-500/30" : ""
+                      viewMode === "tree" ? "text-purple-600 dark:text-purple-400 border-purple-500/30" : ""
                     )}
                   >
                     <TreePine className="w-4 h-4 mr-2" />
@@ -383,7 +399,7 @@ export default function JsonParser() {
                     onClick={() => setViewMode("raw")}
                     className={cn(
                       "glass-button",
-                      viewMode === "raw" ? "text-blue-500 border-blue-500/30" : ""
+                      viewMode === "raw" ? "text-purple-600 dark:text-purple-400 border-purple-500/30" : ""
                     )}
                   >
                     <Code className="w-4 h-4 mr-2" />
@@ -402,6 +418,16 @@ export default function JsonParser() {
                     className="w-32 pl-9 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 focus:w-48 transition-all duration-300"
                   />
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleFullscreen}
+                  className="glass-button text-purple-600 dark:text-purple-400"
+                  disabled={!parsedData}
+                  title="Open in full-screen"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
