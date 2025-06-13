@@ -153,111 +153,89 @@ export default function FullscreenJson() {
 
   const completeNavStructure = jsonData ? getCompleteNavStructure(jsonData) : [];
 
-  // NavigationTree Component
-  const NavigationTree = ({ items, onItemClick, level = 0 }: { items: any[], onItemClick: (path: string) => void, level?: number }) => {
-    return (
-      <div className="space-y-1">
-        {items.map((item, index) => (
-          <div key={index} className="relative group">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onItemClick(item.path)}
-              className={cn(
-                "glass-button w-full justify-start text-left h-auto py-2 px-3 group",
-                level > 0 && "ml-4 opacity-90"
-              )}
-              style={{ paddingLeft: `${12 + level * 16}px` }}
-            >
-              <div className="flex items-center space-x-2 w-full">
-                <div className="flex-shrink-0">
-                  {item.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className={cn(
-                    "font-medium text-foreground truncate",
-                    level > 0 ? "text-xs" : "text-sm"
-                  )}>
-                    {item.label}
-                  </div>
-                </div>
-                {item.hasChildren && (
-                  <ChevronRight className="w-3 h-3 flex-shrink-0 opacity-50" />
-                )}
-              </div>
-            </Button>
-            
-            {/* Hover submenu for children */}
-            {item.hasChildren && item.children.length > 0 && (
-              <div className="absolute left-full top-0 ml-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="glass-panel rounded-xl border border-white/20 dark:border-white/10 p-2 min-w-[200px] max-w-[300px]">
-                  <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-2 px-2">
-                    {item.label} Contents
-                  </div>
-                  <div className="space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar">
-                    {item.children.map((child: any, childIndex: number) => (
-                      <div key={childIndex} className="relative group/child">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onItemClick(child.path)}
-                          className="glass-button w-full justify-start text-left h-auto py-1.5 px-2 text-xs"
-                        >
-                          <div className="flex items-center space-x-2 w-full">
-                            <div className="flex-shrink-0">
-                              {child.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs text-foreground truncate">
-                                {child.label}
-                              </div>
-                            </div>
-                            {child.hasChildren && (
-                              <ChevronRight className="w-2 h-2 flex-shrink-0 opacity-50" />
-                            )}
-                          </div>
-                        </Button>
-                        
-                        {/* Third level hover submenu */}
-                        {child.hasChildren && child.children.length > 0 && (
-                          <div className="absolute left-full top-0 ml-2 opacity-0 invisible group-hover/child:opacity-100 group-hover/child:visible transition-all duration-200 z-50">
-                            <div className="glass-panel rounded-lg border border-white/20 dark:border-white/10 p-2 min-w-[180px] max-w-[250px]">
-                              <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1 px-1">
-                                {child.label}
-                              </div>
-                              <div className="space-y-0.5 max-h-[200px] overflow-y-auto custom-scrollbar">
-                                {child.children.map((grandChild: any, grandIndex: number) => (
-                                  <Button
-                                    key={grandIndex}
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => onItemClick(grandChild.path)}
-                                    className="glass-button w-full justify-start text-left h-auto py-1 px-1.5 text-xs"
-                                  >
-                                    <div className="flex items-center space-x-1.5 w-full">
-                                      <div className="flex-shrink-0">
-                                        {grandChild.icon}
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <div className="text-xs text-foreground truncate">
-                                          {grandChild.label}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </Button>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+  // NavigationTree Component with expandable hierarchy
+  const NavigationTree = ({ items, onItemClick }: { items: any[], onItemClick: (path: string) => void }) => {
+    const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+
+    const toggleExpanded = (path: string) => {
+      const newExpanded = new Set(expandedItems);
+      if (newExpanded.has(path)) {
+        newExpanded.delete(path);
+      } else {
+        newExpanded.add(path);
+      }
+      setExpandedItems(newExpanded);
+    };
+
+    const renderItem = (item: any, level: number = 0): React.ReactNode => {
+      const isExpanded = expandedItems.has(item.path);
+      const hasChildren = item.children && item.children.length > 0;
+
+      return (
+        <div key={item.path}>
+          <div
+            className={cn(
+              "flex items-center py-1.5 px-2 rounded-lg hover:bg-white/10 dark:hover:bg-black/10 cursor-pointer transition-colors group",
+              level > 0 && "ml-4"
             )}
+            style={{ paddingLeft: `${8 + level * 16}px` }}
+          >
+            {hasChildren ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleExpanded(item.path)}
+                className="p-0 h-4 w-4 mr-2 hover:bg-white/20 dark:hover:bg-black/20"
+              >
+                <ChevronRight 
+                  className={cn(
+                    "w-3 h-3 transition-transform duration-200",
+                    isExpanded && "rotate-90"
+                  )} 
+                />
+              </Button>
+            ) : (
+              <div className="w-4 h-4 mr-2" />
+            )}
+            
+            <div className="flex items-center space-x-2 flex-1 min-w-0">
+              <div className="flex-shrink-0">
+                {item.icon}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onItemClick(item.path)}
+                className="p-0 h-auto text-left justify-start flex-1 min-w-0 hover:bg-transparent"
+              >
+                <span className={cn(
+                  "truncate",
+                  level === 0 ? "text-sm font-medium" : "text-xs",
+                  hasChildren && "font-medium"
+                )}>
+                  {item.label}
+                </span>
+              </Button>
+              {hasChildren && (
+                <span className="text-xs text-muted-foreground opacity-60">
+                  →
+                </span>
+              )}
+            </div>
           </div>
-        ))}
+          
+          {isExpanded && hasChildren && (
+            <div className="animate-fade-in">
+              {item.children.map((child: any) => renderItem(child, level + 1))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    return (
+      <div className="space-y-0.5">
+        {items.map((item) => renderItem(item))}
       </div>
     );
   };
