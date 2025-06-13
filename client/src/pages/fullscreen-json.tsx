@@ -23,15 +23,30 @@ export default function FullscreenJson() {
   const { toast } = useToast();
   const navRef = useRef<HTMLDivElement>(null);
   const isNavigatingRef = useRef(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleNavExpand = () => {
+    setIsAnimating(true);
+    setIsNavExpanded(true);
+    setTimeout(() => setIsAnimating(false), 800); // Match animation duration
+  };
+
+  const handleNavCollapse = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsNavExpanded(false);
+      setIsAnimating(false);
+    }, 600); // Match collapse animation duration
+  };
 
   // Handle click outside to close expanded navigation
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Don't close if we're in the middle of a navigation action
-      if (isNavigatingRef.current) return;
+      // Don't close if we're in the middle of a navigation action or animating
+      if (isNavigatingRef.current || isAnimating) return;
       
       if (navRef.current && !navRef.current.contains(event.target as Node) && isNavExpanded) {
-        setIsNavExpanded(false);
+        handleNavCollapse();
       }
     };
 
@@ -42,7 +57,7 @@ export default function FullscreenJson() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isNavExpanded]);
+  }, [isNavExpanded, isAnimating]);
 
   // Extract navigation structure from JSON data
   const getNavigationStructure = (data: any, path: string = ""): any[] => {
@@ -409,7 +424,7 @@ export default function FullscreenJson() {
                   <div className="w-px h-6 bg-white/20 dark:bg-white/10"></div>
                   
                   <Button
-                    onClick={() => setIsNavExpanded(true)}
+                    onClick={handleNavExpand}
                     className="glass-button hover:scale-105 transition-all duration-300"
                     style={{borderRadius: '10rem'}}
                     title="Expand navigation"
@@ -422,7 +437,10 @@ export default function FullscreenJson() {
               </div>
             </div>
           ) : (
-            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '1.75rem'}}>
+            <div className={`glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden ${
+              isNavExpanded && !isAnimating ? 'animate-nav-expand' : ''
+            } ${!isNavExpanded && isAnimating ? 'animate-nav-collapse' : ''}`} 
+            style={{borderRadius: '1.75rem'}}>
               <div className="flex justify-center mb-4">
                 <Button
                   variant="ghost"
