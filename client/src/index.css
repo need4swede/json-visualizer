@@ -170,3 +170,25 @@
     opacity: 0.7;
   }
 }
+
+/* Section highlighting animation */
+.highlight-section {
+  animation: highlightPulse 2s ease-in-out;
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.3), 0 0 20px rgba(147, 51, 234, 0.2);
+}
+
+@keyframes highlightPulse {
+  0% {
+    background-color: rgba(147, 51, 234, 0.1);
+    transform: scale(1);
+  }
+  50% {
+    background-color: rgba(147, 51, 234, 0.2);
+    transform: scale(1.02);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}

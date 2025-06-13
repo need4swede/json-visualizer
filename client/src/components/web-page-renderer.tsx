@@ -431,7 +431,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
   // Handle arrays
   if (Array.isArray(data)) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         {data.map((item, index) => {
           const itemPath = path ? `${path}[${index}]` : `[${index}]`;
           return (
@@ -439,24 +439,38 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
               key={index} 
               id={`section-${itemPath.replace(/[\[\]\.]/g, '-')}`}
               className={cn(
-                "p-5 rounded-xl border transition-all duration-300",
-                level === 0 ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-blue-800/50" : 
-                level === 1 ? "bg-gradient-to-r from-green-50/50 to-teal-50/50 dark:from-green-900/20 dark:to-teal-900/20 border-green-200/50 dark:border-green-800/50" :
-                "bg-white/40 dark:bg-black/10 border-white/30 dark:border-white/10"
+                "group relative p-6 rounded-2xl border transition-all duration-500 hover:shadow-lg",
+                level === 0 ? "bg-gradient-to-br from-indigo-50/80 via-purple-50/60 to-pink-50/80 dark:from-indigo-900/30 dark:via-purple-900/20 dark:to-pink-900/30 border-indigo-200/60 dark:border-indigo-700/50" : 
+                level === 1 ? "bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/80 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-cyan-900/30 border-emerald-200/60 dark:border-emerald-700/50" :
+                level === 2 ? "bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-red-50/80 dark:from-amber-900/30 dark:via-orange-900/20 dark:to-red-900/30 border-amber-200/60 dark:border-amber-700/50" :
+                "bg-gradient-to-br from-slate-50/80 to-gray-50/80 dark:from-slate-800/30 dark:to-gray-800/30 border-slate-200/60 dark:border-slate-700/50"
               )}
             >
-              <div className="font-semibold text-lg mb-4 flex items-center space-x-2">
+              <div className="flex items-center space-x-3 mb-5">
                 <div className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white",
-                  level === 0 ? "bg-gradient-to-r from-blue-500 to-purple-600" :
-                  level === 1 ? "bg-gradient-to-r from-green-500 to-teal-600" :
-                  "bg-gradient-to-r from-orange-500 to-red-600"
+                  "w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-lg",
+                  level === 0 ? "bg-gradient-to-r from-indigo-500 to-purple-600" :
+                  level === 1 ? "bg-gradient-to-r from-emerald-500 to-teal-600" :
+                  level === 2 ? "bg-gradient-to-r from-amber-500 to-orange-600" :
+                  "bg-gradient-to-r from-slate-500 to-gray-600"
                 )}>
                   {index + 1}
                 </div>
-                <span className="text-purple-700 dark:text-purple-300">
-                  Item {index + 1}
-                </span>
+                <div>
+                  <h3 className={cn(
+                    "font-bold",
+                    level === 0 ? "text-lg text-indigo-700 dark:text-indigo-300" :
+                    level === 1 ? "text-base text-emerald-700 dark:text-emerald-300" :
+                    "text-sm text-amber-700 dark:text-amber-300"
+                  )}>
+                    Item {index + 1}
+                  </h3>
+                  {typeof item === 'object' && Object.keys(item).length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {Object.keys(item).length} properties
+                    </p>
+                  )}
+                </div>
               </div>
               {renderCompleteData(item, searchQuery, level + 1, itemPath)}
             </div>
@@ -472,18 +486,81 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
     <div className="space-y-4">
       {entries.map(([key, value]) => {
         const fieldPath = path ? `${path}.${key}` : key;
+        const isObject = typeof value === 'object' && value !== null;
+        const isArray = Array.isArray(value);
+        const isPrimitive = !isObject;
+        
+        // Determine color scheme based on key type
+        type ColorScheme = 'id' | 'name' | 'text' | 'date' | 'link' | 'email' | 'number' | 'array' | 'object' | 'default';
+        let colorScheme: ColorScheme = 'default';
+        const lowerKey = key.toLowerCase();
+        if (lowerKey.includes('id') || lowerKey.includes('key')) colorScheme = 'id';
+        else if (lowerKey.includes('name') || lowerKey.includes('title')) colorScheme = 'name';
+        else if (lowerKey.includes('description') || lowerKey.includes('content') || lowerKey.includes('text')) colorScheme = 'text';
+        else if (lowerKey.includes('date') || lowerKey.includes('time')) colorScheme = 'date';
+        else if (lowerKey.includes('url') || lowerKey.includes('link')) colorScheme = 'link';
+        else if (lowerKey.includes('email')) colorScheme = 'email';
+        else if (lowerKey.includes('phone') || lowerKey.includes('number')) colorScheme = 'number';
+        else if (isArray) colorScheme = 'array';
+        else if (isObject) colorScheme = 'object';
+        
+        const colorClasses: Record<ColorScheme, string> = {
+          id: 'from-blue-500 to-cyan-500 text-blue-700 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200/50 dark:border-blue-700/50',
+          name: 'from-violet-500 to-purple-500 text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-900/20 border-violet-200/50 dark:border-violet-700/50',
+          text: 'from-green-500 to-emerald-500 text-green-700 dark:text-green-300 bg-green-50/50 dark:bg-green-900/20 border-green-200/50 dark:border-green-700/50',
+          date: 'from-orange-500 to-amber-500 text-orange-700 dark:text-orange-300 bg-orange-50/50 dark:bg-orange-900/20 border-orange-200/50 dark:border-orange-700/50',
+          link: 'from-indigo-500 to-blue-500 text-indigo-700 dark:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-200/50 dark:border-indigo-700/50',
+          email: 'from-pink-500 to-rose-500 text-pink-700 dark:text-pink-300 bg-pink-50/50 dark:bg-pink-900/20 border-pink-200/50 dark:border-pink-700/50',
+          number: 'from-teal-500 to-cyan-500 text-teal-700 dark:text-teal-300 bg-teal-50/50 dark:bg-teal-900/20 border-teal-200/50 dark:border-teal-700/50',
+          array: 'from-purple-500 to-fuchsia-500 text-purple-700 dark:text-purple-300 bg-purple-50/50 dark:bg-purple-900/20 border-purple-200/50 dark:border-purple-700/50',
+          object: 'from-slate-500 to-gray-500 text-slate-700 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-900/20 border-slate-200/50 dark:border-slate-700/50',
+          default: 'from-gray-500 to-slate-500 text-gray-700 dark:text-gray-300 bg-gray-50/50 dark:bg-gray-900/20 border-gray-200/50 dark:border-gray-700/50'
+        };
+        
+        const currentColorClass = colorClasses[colorScheme];
+        const colorParts = currentColorClass.split(' ');
+        
         return (
           <div 
             key={key} 
             id={`section-${fieldPath.replace(/[\[\]\.]/g, '-')}`}
-            className="space-y-3 p-4 rounded-lg bg-white/20 dark:bg-black/10 border border-white/20 dark:border-white/5"
+            className={cn(
+              "group relative rounded-xl border transition-all duration-300 hover:shadow-md",
+              colorParts.slice(2).join(' ')
+            )}
           >
-            <label className="text-sm font-semibold text-purple-600 dark:text-purple-400 capitalize block flex items-center space-x-2">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span>{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}</span>
-            </label>
-            <div className={cn("pl-4 border-l-2 border-purple-200 dark:border-purple-800", level > 0 && "pl-3")}>
-              {renderCompleteData(value, searchQuery, level + 1, fieldPath)}
+            <div className="p-4">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className={cn(
+                  "w-3 h-3 rounded-full bg-gradient-to-r shadow-sm",
+                  colorParts.slice(0, 2).join(' ')
+                )}></div>
+                <h4 className={cn(
+                  "font-semibold text-sm uppercase tracking-wide",
+                  colorParts[2], 
+                  colorParts[3]
+                )}>
+                  {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
+                </h4>
+                {isArray && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
+                    {value.length} items
+                  </span>
+                )}
+                {isObject && !isArray && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
+                    {Object.keys(value).length} fields
+                  </span>
+                )}
+              </div>
+              
+              <div className={cn(
+                "relative",
+                !isPrimitive && "pl-4 border-l-2",
+                !isPrimitive && colorParts.slice(-2).join(' ')
+              )}>
+                {renderCompleteData(value, searchQuery, level + 1, fieldPath)}
+              </div>
             </div>
           </div>
         );

@@ -81,12 +81,12 @@ export default function FullscreenJson() {
   const scrollToSection = (path: string) => {
     const element = document.getElementById(`section-${path.replace(/[\[\]\.]/g, '-')}`);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Highlight the section briefly
-      element.style.backgroundColor = 'rgba(147, 51, 234, 0.1)';
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Add stronger highlighting with animation
+      element.classList.add('highlight-section');
       setTimeout(() => {
-        element.style.backgroundColor = '';
-      }, 1000);
+        element.classList.remove('highlight-section');
+      }, 2000);
     }
   };
 
@@ -315,146 +315,9 @@ export default function FullscreenJson() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex flex-col">
-      {/* Header */}
-      <header className="glass-panel sticky top-0 z-50 border-b border-white/20 dark:border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
-                <FileCode className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">Data View</h1>
-                <p className="text-sm text-muted-foreground">Web page format</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search..."
-                  className="w-64 pl-9 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10"
-                />
-              </div>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCopy}
-                className="glass-button"
-              >
-                <Copy className="w-4 h-4 mr-2" />
-                Copy
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDownload}
-                className="glass-button"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleClose}
-                className="glass-button rounded-full"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Navigation Bar */}
-      {navigationItems.length > 0 && (
-        <nav className="glass-panel border-b border-white/20 dark:border-white/10 sticky top-[72px] z-40">
-          <div className="max-w-7xl mx-auto px-6 py-3">
-            <div className="flex items-center space-x-6 overflow-x-auto">
-              {navigationItems.slice(0, 8).map((item, index) => (
-                <DropdownMenu key={index}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="glass-button flex items-center space-x-2 whitespace-nowrap"
-                    >
-                      {item.icon}
-                      <span>{item.label}</span>
-                      {item.children.length > 0 && <ChevronDown className="w-3 h-3" />}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  {item.children.length > 0 && (
-                    <DropdownMenuContent className="w-56 glass-panel border-white/20 dark:border-white/10">
-                      <DropdownMenuItem
-                        onClick={() => scrollToSection(item.path)}
-                        className="flex items-center space-x-2"
-                      >
-                        {item.icon}
-                        <span>Go to {item.label}</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-white/20 dark:bg-white/10" />
-                      {item.children.slice(0, 10).map((child: any, childIndex: number) => (
-                        <DropdownMenuItem
-                          key={childIndex}
-                          onClick={() => scrollToSection(child.path)}
-                          className="flex items-center space-x-2 text-sm"
-                        >
-                          {child.icon}
-                          <span>{child.label}</span>
-                        </DropdownMenuItem>
-                      ))}
-                      {item.children.length > 10 && (
-                        <DropdownMenuItem disabled className="text-xs text-muted-foreground">
-                          +{item.children.length - 10} more items...
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  )}
-                </DropdownMenu>
-              ))}
-              {navigationItems.length > 8 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="glass-button flex items-center space-x-2"
-                    >
-                      <Hash className="w-4 h-4" />
-                      <span>More</span>
-                      <ChevronDown className="w-3 h-3" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 glass-panel border-white/20 dark:border-white/10">
-                    {navigationItems.slice(8).map((item, index) => (
-                      <DropdownMenuItem
-                        key={index}
-                        onClick={() => scrollToSection(item.path)}
-                        className="flex items-center space-x-2"
-                      >
-                        {item.icon}
-                        <span>{item.label}</span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          </div>
-        </nav>
-      )}
-
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
       {/* Main Content */}
-      <main className="flex-1 animate-fade-in">
+      <main className="animate-fade-in">
         <WebPageRenderer 
           data={jsonData} 
           searchQuery={searchQuery}
@@ -472,11 +335,13 @@ export default function FullscreenJson() {
               <Menu className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </Button>
           ) : (
-            <div className="glass-panel rounded-2xl border border-white/20 dark:border-white/10 p-4 min-w-[320px] max-w-[400px] max-h-[500px] overflow-hidden">
-              <div className="flex items-center justify-between mb-3">
+            <div className="glass-panel rounded-2xl border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <Navigation className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span className="text-sm font-medium text-foreground">Navigation</span>
+                  <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
+                    <FileCode className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">Data Navigator</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Button
@@ -484,6 +349,7 @@ export default function FullscreenJson() {
                     size="sm"
                     onClick={scrollToTop}
                     className="glass-button p-1 h-6 w-6"
+                    title="Scroll to top"
                   >
                     <ArrowUp className="w-3 h-3" />
                   </Button>
@@ -492,20 +358,67 @@ export default function FullscreenJson() {
                     size="sm"
                     onClick={() => setIsNavExpanded(false)}
                     className="glass-button p-1 h-6 w-6"
+                    title="Close navigation"
                   >
                     <X className="w-3 h-3" />
                   </Button>
                 </div>
               </div>
+
+              {/* Search Bar */}
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search data..."
+                    className="w-full pl-9 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-2 mb-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCopy}
+                  className="glass-button flex-1 text-xs"
+                >
+                  <Copy className="w-3 h-3 mr-1" />
+                  Copy
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDownload}
+                  className="glass-button flex-1 text-xs"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Download
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClose}
+                  className="glass-button flex-1 text-xs"
+                >
+                  <X className="w-3 h-3 mr-1" />
+                  Exit
+                </Button>
+              </div>
               
-              <div className="overflow-y-auto max-h-[400px] custom-scrollbar">
-                <NavigationTree
-                  items={completeNavStructure}
-                  onItemClick={(path: string) => {
-                    scrollToSection(path);
-                    setIsNavExpanded(false);
-                  }}
-                />
+              <div className="border-t border-white/20 dark:border-white/10 pt-3">
+                <div className="overflow-y-auto max-h-[400px] custom-scrollbar">
+                  <NavigationTree
+                    items={completeNavStructure}
+                    onItemClick={(path: string) => {
+                      scrollToSection(path);
+                      setIsNavExpanded(false);
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}
