@@ -328,22 +328,17 @@ export default function FullscreenJson() {
       {completeNavStructure.length > 0 && (
         <div className="fixed bottom-8 right-8 z-50 animate-slide-in">
           {!isNavExpanded ? (
-            <div className="glass-panel rounded-2xl px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[500px]">
+            <div className="glass-panel px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[500px]" style={{borderRadius: '10rem'}}>
               <div className="flex items-center justify-between space-x-4">
                 {/* Left Section - Search */}
                 <div className="flex items-center space-x-3 flex-1">
-                  <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
-                    <FileCode className="w-3 h-3 text-white" />
-                  </div>
-                  <div className="flex items-center space-x-2 flex-1">
-                    <Search className="w-4 h-4 text-muted-foreground" />
-                    <Input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search JSON data..."
-                      className="flex-1 h-8 bg-white/20 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 text-sm"
-                    />
-                  </div>
+                  <Input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search JSON data..."
+                    className="flex-1 h-8 bg-white/20 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 text-sm"
+                    style={{borderRadius: '10rem'}}
+                  />
                 </div>
                 
                 {/* Right Section - Action Buttons */}
@@ -353,6 +348,7 @@ export default function FullscreenJson() {
                     size="sm"
                     onClick={handleCopy}
                     className="glass-button hover:scale-105 transition-transform"
+                    style={{borderRadius: '10rem'}}
                     title="Copy JSON"
                   >
                     <Copy className="w-4 h-4" />
@@ -363,6 +359,7 @@ export default function FullscreenJson() {
                     size="sm"
                     onClick={handleDownload}
                     className="glass-button hover:scale-105 transition-transform"
+                    style={{borderRadius: '10rem'}}
                     title="Download JSON"
                   >
                     <Download className="w-4 h-4" />
@@ -373,6 +370,7 @@ export default function FullscreenJson() {
                     size="sm"
                     onClick={handleClose}
                     className="glass-button hover:scale-105 transition-transform"
+                    style={{borderRadius: '10rem'}}
                     title="Exit fullscreen"
                   >
                     <X className="w-4 h-4" />
@@ -383,6 +381,7 @@ export default function FullscreenJson() {
                   <Button
                     onClick={() => setIsNavExpanded(true)}
                     className="glass-button hover:scale-105 transition-all duration-300"
+                    style={{borderRadius: '10rem'}}
                     title="Expand navigation"
                   >
                     <Navigation className="w-4 h-4 mr-2" />
@@ -393,7 +392,7 @@ export default function FullscreenJson() {
               </div>
             </div>
           ) : (
-            <div className="glass-panel rounded-2xl border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden">
+            <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '10rem'}}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg flex items-center justify-center">
@@ -416,6 +415,7 @@ export default function FullscreenJson() {
                     size="sm"
                     onClick={() => setIsNavExpanded(false)}
                     className="glass-button p-1 h-6 w-6"
+                    style={{borderRadius: '10rem'}}
                     title="Close navigation"
                   >
                     <X className="w-3 h-3" />
@@ -432,6 +432,7 @@ export default function FullscreenJson() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search data..."
                     className="w-full pl-9 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 text-sm"
+                    style={{borderRadius: '10rem'}}
                   />
                 </div>
               </div>
@@ -443,6 +444,7 @@ export default function FullscreenJson() {
                   size="sm"
                   onClick={handleCopy}
                   className="glass-button flex-1 text-xs"
+                  style={{borderRadius: '10rem'}}
                 >
                   <Copy className="w-3 h-3 mr-1" />
                   Copy
@@ -452,6 +454,7 @@ export default function FullscreenJson() {
                   size="sm"
                   onClick={handleDownload}
                   className="glass-button flex-1 text-xs"
+                  style={{borderRadius: '10rem'}}
                 >
                   <Download className="w-3 h-3 mr-1" />
                   Download
@@ -461,6 +464,7 @@ export default function FullscreenJson() {
                   size="sm"
                   onClick={handleClose}
                   className="glass-button flex-1 text-xs"
+                  style={{borderRadius: '10rem'}}
                 >
                   <X className="w-3 h-3 mr-1" />
                   Exit

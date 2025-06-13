@@ -335,7 +335,7 @@ export default function JsonParser() {
         {/* Floating Action Bar with Stats - appears when JSON is valid */}
         {isValid && parsedData && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-expand-horizontal">
-            <div className="glass-panel rounded-2xl px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[1200px]">
+            <div className="glass-panel px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[1200px]" style={{borderRadius: '10rem'}}>
               <div className="flex items-center justify-between space-x-6">
                 {/* Left Section - Status and Stats */}
                 <div className="flex items-center space-x-4">
@@ -378,6 +378,7 @@ export default function JsonParser() {
                     size="sm"
                     onClick={handleFullscreen}
                     className="glass-button text-purple-600 dark:text-purple-400 hover:scale-105 transition-transform"
+                    style={{borderRadius: '10rem'}}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
                     Open Rendered View
@@ -388,6 +389,7 @@ export default function JsonParser() {
                     size="sm"
                     onClick={handleCopy}
                     className="glass-button hover:scale-105 transition-transform"
+                    style={{borderRadius: '10rem'}}
                     title="Copy JSON (⌘C)"
                   >
                     <Copy className="w-4 h-4" />
@@ -398,6 +400,7 @@ export default function JsonParser() {
                     size="sm"
                     onClick={handleDownload}
                     className="glass-button hover:scale-105 transition-transform"
+                    style={{borderRadius: '10rem'}}
                     title="Download JSON"
                   >
                     <Download className="w-4 h-4" />
