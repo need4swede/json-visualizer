@@ -245,9 +245,9 @@ export default function JsonParser() {
 
   return (
     <div className="min-h-screen">
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-16">
         {/* JSON Input Panel - Full Width */}
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto mt-20">
           <div className="glass-panel rounded-2xl p-6 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-foreground">JSON Input</h2>
@@ -335,7 +335,7 @@ export default function JsonParser() {
         {/* Floating Action Bar with Stats - appears when JSON is valid */}
         {isValid && parsedData && (
           <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-expand-horizontal">
-            <div className="glass-panel rounded-2xl px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[900px]">
+            <div className="glass-panel rounded-2xl px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[1200px]">
               <div className="flex items-center justify-between space-x-6">
                 {/* Left Section - Status and Stats */}
                 <div className="flex items-center space-x-4">
