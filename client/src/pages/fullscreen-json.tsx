@@ -93,7 +93,7 @@ export default function FullscreenJson() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Get main sections for floating nav (only top-level items)
+  // Get main sections for floating nav (includes nested important sections)
   const getMainSections = () => {
     if (!jsonData) return [];
     
@@ -105,7 +105,10 @@ export default function FullscreenJson() {
       }];
     }
     
-    return Object.keys(jsonData).slice(0, 6).map(key => {
+    const sections: any[] = [];
+    
+    // Add top-level sections
+    Object.keys(jsonData).forEach(key => {
       const lowerKey = key.toLowerCase();
       let icon = <Hash className="w-4 h-4" />;
       
@@ -119,12 +122,42 @@ export default function FullscreenJson() {
         icon = <MapPin className="w-4 h-4" />;
       }
       
-      return {
+      sections.push({
         label: key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
         path: key,
-        icon
-      };
+        icon,
+        level: 0
+      });
+      
+      // Add important nested sections (up to 2 levels deep)
+      const value = jsonData[key];
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        Object.keys(value).forEach(nestedKey => {
+          const nestedValue = value[nestedKey];
+          if (nestedValue && typeof nestedValue === 'object') {
+            const nestedLowerKey = nestedKey.toLowerCase();
+            let nestedIcon = <Hash className="w-4 h-4" />;
+            
+            if (nestedLowerKey.includes('list') || nestedLowerKey.includes('entry') || nestedLowerKey.includes('item')) {
+              nestedIcon = <List className="w-4 h-4" />;
+            } else if (nestedLowerKey.includes('div') || nestedLowerKey.includes('section')) {
+              nestedIcon = <Building2 className="w-4 h-4" />;
+            } else if (nestedLowerKey.includes('def') || nestedLowerKey.includes('definition')) {
+              nestedIcon = <FileCode className="w-4 h-4" />;
+            }
+            
+            sections.push({
+              label: `${key} → ${nestedKey.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`,
+              path: `${key}.${nestedKey}`,
+              icon: nestedIcon,
+              level: 1
+            });
+          }
+        });
+      }
     });
+    
+    return sections.slice(0, 8);
   };
 
   const mainSections = getMainSections();
@@ -376,14 +409,20 @@ export default function FullscreenJson() {
                   variant="ghost"
                   size="sm"
                   onClick={() => scrollToSection(section.path)}
-                  className="glass-button w-full justify-start text-left h-auto py-2 px-3"
+                  className={cn(
+                    "glass-button w-full justify-start text-left h-auto py-2 px-3",
+                    section.level === 1 && "pl-6 text-xs opacity-80"
+                  )}
                 >
                   <div className="flex items-center space-x-3 w-full">
                     <div className="flex-shrink-0">
                       {section.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground truncate">
+                      <div className={cn(
+                        "font-medium text-foreground truncate",
+                        section.level === 1 ? "text-xs" : "text-sm"
+                      )}>
                         {section.label}
                       </div>
                     </div>
