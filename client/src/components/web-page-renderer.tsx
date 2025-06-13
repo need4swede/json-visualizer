@@ -41,16 +41,34 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
     
-    const regex = createSearchRegex(searchQuery);
-    const parts = text.split(regex);
+    const highlights = getSearchHighlights(text, searchQuery);
+    if (highlights.length === 0) return text;
     
-    return parts.map((part, i) => {
-      const normalizedPart = normalizeSearchText(part);
-      const normalizedQuery = normalizeSearchText(searchQuery);
+    const parts: React.ReactNode[] = [];
+    let currentPos = 0;
+    
+    highlights.forEach((highlight, i) => {
+      // Add text before highlight
+      if (highlight.start > currentPos) {
+        parts.push(text.slice(currentPos, highlight.start));
+      }
       
-      return normalizedPart === normalizedQuery ? 
-        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
+      // Add highlighted text
+      parts.push(
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
+          {highlight.word}
+        </mark>
+      );
+      
+      currentPos = highlight.end;
     });
+    
+    // Add remaining text
+    if (currentPos < text.length) {
+      parts.push(text.slice(currentPos));
+    }
+    
+    return parts;
   };
 
   const matchesSearch = (obj: any, key?: string): boolean => {
@@ -310,16 +328,34 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
     
-    const regex = createSearchRegex(searchQuery);
-    const parts = text.split(regex);
+    const highlights = getSearchHighlights(text, searchQuery);
+    if (highlights.length === 0) return text;
     
-    return parts.map((part, i) => {
-      const normalizedPart = normalizeSearchText(part);
-      const normalizedQuery = normalizeSearchText(searchQuery);
+    const parts: React.ReactNode[] = [];
+    let currentPos = 0;
+    
+    highlights.forEach((highlight, i) => {
+      // Add text before highlight
+      if (highlight.start > currentPos) {
+        parts.push(text.slice(currentPos, highlight.start));
+      }
       
-      return normalizedPart === normalizedQuery ? 
-        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
+      // Add highlighted text
+      parts.push(
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
+          {highlight.word}
+        </mark>
+      );
+      
+      currentPos = highlight.end;
     });
+    
+    // Add remaining text
+    if (currentPos < text.length) {
+      parts.push(text.slice(currentPos));
+    }
+    
+    return parts;
   };
 
   const matchesSearchData = (obj: any, key?: string): boolean => {

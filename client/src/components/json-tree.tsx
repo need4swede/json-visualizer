@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { normalizeSearchText, createSearchRegex, matchesSearchQuery } from "@/lib/json-utils";
+import { normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights } from "@/lib/json-utils";
 
 interface JsonTreeProps {
   data: any;
@@ -49,16 +49,31 @@ function JsonNode({ name, value, level, path, searchQuery, onNodeClick }: JsonNo
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
     
-    const regex = createSearchRegex(searchQuery);
-    const parts = text.split(regex);
+    const highlights = getSearchHighlights(text, searchQuery);
+    if (highlights.length === 0) return text;
     
-    return parts.map((part, i) => {
-      const normalizedPart = normalizeSearchText(part);
-      const normalizedQuery = normalizeSearchText(searchQuery);
+    const parts: React.ReactNode[] = [];
+    let currentPos = 0;
+    
+    highlights.forEach((highlight, i) => {
+      if (highlight.start > currentPos) {
+        parts.push(text.slice(currentPos, highlight.start));
+      }
       
-      return normalizedPart === normalizedQuery ? 
-        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800">{part}</mark> : part
+      parts.push(
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800">
+          {highlight.word}
+        </mark>
+      );
+      
+      currentPos = highlight.end;
     });
+    
+    if (currentPos < text.length) {
+      parts.push(text.slice(currentPos));
+    }
+    
+    return parts;
   };
 
   return (

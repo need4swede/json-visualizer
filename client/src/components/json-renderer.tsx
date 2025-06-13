@@ -3,7 +3,7 @@ import { ChevronRight, ChevronDown, Copy, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery } from "@/lib/json-utils";
+import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights } from "@/lib/json-utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface JsonRendererProps {
@@ -48,16 +48,31 @@ function JsonProperty({ label, value, level, path, searchQuery }: JsonPropertyPr
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
     
-    const regex = createSearchRegex(searchQuery);
-    const parts = text.split(regex);
+    const highlights = getSearchHighlights(text, searchQuery);
+    if (highlights.length === 0) return text;
     
-    return parts.map((part, i) => {
-      const normalizedPart = normalizeSearchText(part);
-      const normalizedQuery = normalizeSearchText(searchQuery);
+    const parts: React.ReactNode[] = [];
+    let currentPos = 0;
+    
+    highlights.forEach((highlight, i) => {
+      if (highlight.start > currentPos) {
+        parts.push(text.slice(currentPos, highlight.start));
+      }
       
-      return normalizedPart === normalizedQuery ? 
-        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
+      parts.push(
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">
+          {highlight.word}
+        </mark>
+      );
+      
+      currentPos = highlight.end;
     });
+    
+    if (currentPos < text.length) {
+      parts.push(text.slice(currentPos));
+    }
+    
+    return parts;
   };
 
   const renderValue = () => {
