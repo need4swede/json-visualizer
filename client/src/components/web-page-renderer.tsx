@@ -524,13 +524,13 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="min-h-screen w-full p-8 space-y-6">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">{getDataTitle()}</h1>
         <div className="w-16 h-1 bg-gradient-to-r from-purple-500 to-purple-700 rounded-full mx-auto"></div>
       </div>
       
-      <div className="bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-white/10 p-6">
+      <div className="w-full space-y-6">
         {renderCompleteData(data, searchQuery, 0, "")}
       </div>
     </div>

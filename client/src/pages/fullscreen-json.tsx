@@ -164,7 +164,7 @@ export default function FullscreenJson() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 flex flex-col">
       {/* Header */}
       <header className="glass-panel sticky top-0 z-50 border-b border-white/20 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -303,15 +303,11 @@ export default function FullscreenJson() {
       )}
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="glass-panel rounded-2xl overflow-hidden animate-fade-in">
-          <div className="h-[calc(100vh-200px)] overflow-auto custom-scrollbar">
-            <WebPageRenderer 
-              data={jsonData} 
-              searchQuery={searchQuery}
-            />
-          </div>
-        </div>
+      <main className="flex-1 animate-fade-in">
+        <WebPageRenderer 
+          data={jsonData} 
+          searchQuery={searchQuery}
+        />
       </main>
     </div>
   );
