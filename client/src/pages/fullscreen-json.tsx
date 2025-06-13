@@ -372,8 +372,19 @@ export default function FullscreenJson() {
       {/* Floating Navigation */}
       {completeNavStructure.length > 0 && (
         <div ref={navRef} className="fixed bottom-8 right-8 z-50 animate-slide-in">
-          {!isNavExpanded ? (
-            <div className="glass-panel px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[500px]" style={{borderRadius: '10rem'}}>
+          <div className={`glass-panel border border-white/20 dark:border-white/10 shadow-2xl overflow-hidden ${
+            isNavExpanded ? 'nav-morph-expand' : 'nav-morph-collapse'
+          }`} 
+          style={{
+            width: isNavExpanded ? '450px' : '500px',
+            height: isNavExpanded ? '600px' : '56px',
+            borderRadius: isNavExpanded ? '1.75rem' : '10rem',
+            minWidth: isNavExpanded ? '450px' : '500px'
+          }}>
+            {/* Collapsed Content */}
+            <div className={`px-6 py-4 transition-opacity duration-300 ${
+              isNavExpanded ? 'opacity-0 pointer-events-none absolute' : 'opacity-100'
+            }`}>
               <div className="flex items-center justify-between space-x-4">
                 {/* Left Section - Search */}
                 <div className="flex items-center space-x-3 flex-1">
@@ -436,11 +447,11 @@ export default function FullscreenJson() {
                 </div>
               </div>
             </div>
-          ) : (
-            <div className={`glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden ${
-              isNavExpanded ? 'animate-nav-expand' : 'animate-nav-collapse'
-            }`} 
-            style={{borderRadius: '1.75rem'}}>
+
+            {/* Expanded Content */}
+            <div className={`p-4 absolute inset-0 transition-opacity duration-300 ${
+              isNavExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}>
               <div className="flex justify-center mb-4">
                 <Button
                   variant="ghost"
@@ -515,7 +526,7 @@ export default function FullscreenJson() {
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>
