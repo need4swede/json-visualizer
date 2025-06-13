@@ -42,9 +42,9 @@ function countObjects(obj: any, count = 0): number {
   if (typeof obj === 'object' && obj !== null) {
     count++;
     if (Array.isArray(obj)) {
-      return obj.reduce((acc, item) => countObjects(item, acc), count);
+      return obj.reduce((acc: number, item) => countObjects(item, acc), count);
     } else {
-      return Object.values(obj).reduce((acc, item) => countObjects(item, acc), count);
+      return Object.values(obj).reduce((acc: number, item) => countObjects(item, acc), count);
     }
   }
   return count;

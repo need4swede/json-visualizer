@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { normalizeSearchText, createSearchRegex, matchesSearchQuery } from "@/lib/json-utils";
 
 interface JsonTreeProps {
   data: any;
@@ -47,11 +48,17 @@ function JsonNode({ name, value, level, path, searchQuery, onNodeClick }: JsonNo
   
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
-    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'));
-    return parts.map((part, i) => 
-      part.toLowerCase() === searchQuery.toLowerCase() ? 
+    
+    const regex = createSearchRegex(searchQuery);
+    const parts = text.split(regex);
+    
+    return parts.map((part, i) => {
+      const normalizedPart = normalizeSearchText(part);
+      const normalizedQuery = normalizeSearchText(searchQuery);
+      
+      return normalizedPart === normalizedQuery ? 
         <mark key={i} className="bg-yellow-200 dark:bg-yellow-800">{part}</mark> : part
-    );
+    });
   };
 
   return (

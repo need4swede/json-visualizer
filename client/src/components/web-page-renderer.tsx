@@ -40,11 +40,17 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
 
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
-    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'));
-    return parts.map((part, i) => 
-      part.toLowerCase() === searchQuery.toLowerCase() ? 
+    
+    const regex = createSearchRegex(searchQuery);
+    const parts = text.split(regex);
+    
+    return parts.map((part, i) => {
+      const normalizedPart = normalizeSearchText(part);
+      const normalizedQuery = normalizeSearchText(searchQuery);
+      
+      return normalizedPart === normalizedQuery ? 
         <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
-    );
+    });
   };
 
   const matchesSearch = (obj: any, key?: string): boolean => {
@@ -303,26 +309,30 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
 
   const highlightText = (text: string) => {
     if (!searchQuery) return text;
-    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'));
-    return parts.map((part, i) => 
-      part.toLowerCase() === searchQuery.toLowerCase() ? 
+    
+    const regex = createSearchRegex(searchQuery);
+    const parts = text.split(regex);
+    
+    return parts.map((part, i) => {
+      const normalizedPart = normalizeSearchText(part);
+      const normalizedQuery = normalizeSearchText(searchQuery);
+      
+      return normalizedPart === normalizedQuery ? 
         <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
-    );
+    });
   };
 
   const matchesSearchData = (obj: any, key?: string): boolean => {
     if (!searchQuery) return true;
     
-    const searchLower = searchQuery.toLowerCase();
-    
-    // Check if key matches
-    if (key && key.toLowerCase().includes(searchLower)) {
+    // Check if key matches (treating spaces and underscores as equivalent)
+    if (key && matchesSearchQuery(key, searchQuery)) {
       return true;
     }
     
     // Check if value matches (for primitive values)
     if (typeof obj === 'string' || typeof obj === 'number') {
-      return String(obj).toLowerCase().includes(searchLower);
+      return matchesSearchQuery(String(obj), searchQuery);
     }
     
     // For objects and arrays, recursively check all nested values and keys
