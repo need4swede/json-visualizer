@@ -332,18 +332,46 @@ export default function JsonParser() {
           </div>
         </div>
 
-        {/* Floating Action Bar - appears when JSON is valid */}
+        {/* Floating Action Bar with Stats - appears when JSON is valid */}
         {isValid && parsedData && (
-          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-slide-in">
-            <div className="glass-panel rounded-full px-6 py-3 shadow-2xl border border-white/20 dark:border-white/10">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse-gentle"></div>
-                  <span>Valid JSON</span>
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 animate-expand-horizontal">
+            <div className="glass-panel rounded-2xl px-6 py-4 shadow-2xl border border-white/20 dark:border-white/10 min-w-[900px]">
+              <div className="flex items-center justify-between space-x-6">
+                {/* Left Section - Status and Stats */}
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse-gentle"></div>
+                    <span className="text-green-400 font-medium">Valid JSON</span>
+                  </div>
+                  
+                  <div className="w-px h-5 bg-white/20 dark:bg-white/10"></div>
+                  
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-1">
+                      <Activity className="w-4 h-4" />
+                      <span>Lines: {stats.lines}</span>
+                    </div>
+                    <div>Size: {stats.size}b</div>
+                    <div>Objects: {stats.objects}</div>
+                  </div>
+                  
+                  <div className="w-px h-5 bg-white/20 dark:bg-white/10"></div>
+                  
+                  <div className="flex items-center space-x-3 text-xs text-muted-foreground">
+                    <div className="flex items-center space-x-1">
+                      <kbd className="px-1.5 py-0.5 bg-black/20 rounded text-xs">⌘</kbd>
+                      <kbd className="px-1.5 py-0.5 bg-black/20 rounded text-xs">F</kbd>
+                      <span>Format</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <kbd className="px-1.5 py-0.5 bg-black/20 rounded text-xs">⌘</kbd>
+                      <kbd className="px-1.5 py-0.5 bg-black/20 rounded text-xs">C</kbd>
+                      <span>Copy</span>
+                    </div>
+                  </div>
                 </div>
                 
-                <div className="w-px h-6 bg-white/20 dark:bg-white/10"></div>
-                
+                {/* Right Section - Actions */}
                 <div className="flex items-center space-x-2">
                   <Button
                     variant="ghost"
@@ -360,6 +388,7 @@ export default function JsonParser() {
                     size="sm"
                     onClick={handleCopy}
                     className="glass-button hover:scale-105 transition-transform"
+                    title="Copy JSON (⌘C)"
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
@@ -369,6 +398,7 @@ export default function JsonParser() {
                     size="sm"
                     onClick={handleDownload}
                     className="glass-button hover:scale-105 transition-transform"
+                    title="Download JSON"
                   >
                     <Download className="w-4 h-4" />
                   </Button>
@@ -378,38 +408,7 @@ export default function JsonParser() {
           </div>
         )}
 
-        {/* Status Bar */}
-        <div className="mt-8">
-          <div className="glass-panel rounded-2xl p-4 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse-gentle"></div>
-                  <span>Ready</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Activity className="w-4 h-4" />
-                  <span>Lines: {stats.lines}</span>
-                </div>
-                <div>Size: {stats.size} bytes</div>
-                <div>Objects: {stats.objects}</div>
-              </div>
-              
-              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
-                  <kbd className="px-2 py-1 bg-white/20 dark:bg-black/20 rounded text-xs">⌘</kbd>
-                  <kbd className="px-2 py-1 bg-white/20 dark:bg-black/20 rounded text-xs">F</kbd>
-                  <span>Format</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <kbd className="px-2 py-1 bg-white/20 dark:bg-black/20 rounded text-xs">⌘</kbd>
-                  <kbd className="px-2 py-1 bg-white/20 dark:bg-black/20 rounded text-xs">C</kbd>
-                  <span>Copy</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </main>
     </div>
   );
