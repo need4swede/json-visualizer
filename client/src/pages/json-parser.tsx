@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from "@/hooks/use-theme";
 import { useToast } from "@/hooks/use-toast";
 import { JsonTree } from "@/components/json-tree";
+import { JsonRenderer } from "@/components/json-renderer";
 import { 
   validateJson, 
   formatJson, 
@@ -31,14 +32,14 @@ import {
 } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
 
-type ViewMode = "tree" | "raw";
+type ViewMode = "rendered" | "tree" | "raw";
 
 export default function JsonParser() {
   const [jsonInput, setJsonInput] = useState("");
   const [parsedData, setParsedData] = useState<any>(null);
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>("tree");
+  const [viewMode, setViewMode] = useState<ViewMode>("rendered");
   const [searchQuery, setSearchQuery] = useState("");
   const [stats, setStats] = useState<JsonStats>({ lines: 0, size: 0, objects: 0 });
   const [isDragOver, setIsDragOver] = useState(false);
@@ -155,7 +156,7 @@ export default function JsonParser() {
 
   const handleCopy = async () => {
     try {
-      const textToCopy = viewMode === "raw" && parsedData 
+      const textToCopy = (viewMode === "raw" || viewMode === "rendered") && parsedData 
         ? formatJson(parsedData) 
         : jsonInput;
       
@@ -353,6 +354,18 @@ export default function JsonParser() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => setViewMode("rendered")}
+                    className={cn(
+                      "glass-button",
+                      viewMode === "rendered" ? "text-blue-500 border-blue-500/30" : ""
+                    )}
+                  >
+                    <FileCode className="w-4 h-4 mr-2" />
+                    Rendered
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setViewMode("tree")}
                     className={cn(
                       "glass-button",
@@ -360,7 +373,7 @@ export default function JsonParser() {
                     )}
                   >
                     <TreePine className="w-4 h-4 mr-2" />
-                    Tree View
+                    Tree
                   </Button>
                   <Button
                     variant="ghost"
@@ -408,7 +421,12 @@ export default function JsonParser() {
             </div>
             
             <div className="h-80 overflow-auto custom-scrollbar bg-white/30 dark:bg-black/10 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10">
-              {viewMode === "tree" ? (
+              {viewMode === "rendered" ? (
+                <JsonRenderer 
+                  data={parsedData} 
+                  searchQuery={searchQuery}
+                />
+              ) : viewMode === "tree" ? (
                 <div className="p-4">
                   <JsonTree 
                     data={parsedData} 
