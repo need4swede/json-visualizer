@@ -190,26 +190,34 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
     
     if (Array.isArray(value)) {
       return (
-        <div className="space-y-2">
-          <Badge variant="outline" className="text-xs mb-2">
+        <div className="space-y-4">
+          <Badge variant="outline" className="text-xs mb-3">
             {value.length} items
           </Badge>
-          <div className="grid gap-2">
+          <div className="space-y-4">
             {value.map((item, index) => (
-              <div key={index} className="p-3 bg-white/50 dark:bg-black/20 rounded-lg border border-white/30 dark:border-white/10">
-                {typeof item === 'object' ? (
-                  <div className="grid gap-2">
+              <div key={index} className="p-4 bg-white/50 dark:bg-black/20 rounded-xl border border-white/30 dark:border-white/10">
+                {typeof item === 'object' && item !== null ? (
+                  <div className="space-y-3">
+                    <div className="font-medium text-purple-700 dark:text-purple-300 mb-3">
+                      Item {index + 1}
+                    </div>
                     {Object.entries(item).map(([k, v]) => (
-                      <div key={k} className="flex justify-between items-start">
-                        <span className="text-sm font-medium text-muted-foreground capitalize">
-                          {k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}:
-                        </span>
-                        <div className="text-sm">{renderValue(v, k)}</div>
+                      <div key={k} className="space-y-1">
+                        <label className="text-sm font-medium text-muted-foreground capitalize block">
+                          {k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
+                        </label>
+                        <div className="text-sm pl-2">{renderValue(v, k)}</div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  renderValue(item)
+                  <div className="space-y-1">
+                    <div className="font-medium text-purple-700 dark:text-purple-300 mb-2">
+                      Item {index + 1}
+                    </div>
+                    {renderValue(item)}
+                  </div>
                 )}
               </div>
             ))}
@@ -225,7 +233,7 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
     const entries = Object.entries(data);
     
     return (
-      <Card className="glass-panel border-white/20 dark:border-white/10">
+      <Card className="glass-panel border-white/20 dark:border-white/10 w-full">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center space-x-2 text-lg">
             {icon}
@@ -234,11 +242,11 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {entries.map(([key, value]) => (
-            <div key={key} className="space-y-1">
-              <label className="text-sm font-medium text-muted-foreground capitalize">
+            <div key={key} className="space-y-2">
+              <label className="text-sm font-medium text-muted-foreground capitalize block">
                 {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
               </label>
-              <div className="text-sm">
+              <div className="pl-2">
                 {renderValue(value, key)}
               </div>
             </div>
@@ -249,7 +257,7 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
   }
 
   return (
-    <Card className="glass-panel border-white/20 dark:border-white/10">
+    <Card className="glass-panel border-white/20 dark:border-white/10 w-full">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center space-x-2 text-lg">
           {icon}
@@ -263,6 +271,200 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
   );
 }
 
+function renderCompleteData(data: any, searchQuery?: string, level: number = 0): React.ReactNode {
+  const { toast } = useToast();
+  
+  const handleCopyValue = async (val: any) => {
+    try {
+      await copyToClipboard(typeof val === 'string' ? val : JSON.stringify(val));
+      toast({
+        title: "Copied to clipboard",
+        description: "Value has been copied",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Could not copy value",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const highlightText = (text: string) => {
+    if (!searchQuery) return text;
+    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'));
+    return parts.map((part, i) => 
+      part.toLowerCase() === searchQuery.toLowerCase() ? 
+        <mark key={i} className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">{part}</mark> : part
+    );
+  };
+
+  const renderPrimitive = (value: any, key?: string) => {
+    if (value === null || value === undefined) {
+      return <span className="text-muted-foreground italic">Not specified</span>;
+    }
+    
+    if (typeof value === 'boolean') {
+      return (
+        <Badge variant={value ? "default" : "secondary"} className="font-normal">
+          {value ? 'Yes' : 'No'}
+        </Badge>
+      );
+    }
+    
+    if (typeof value === 'number') {
+      if (key && (key.toLowerCase().includes('price') || key.toLowerCase().includes('cost') || key.toLowerCase().includes('amount'))) {
+        return (
+          <div className="flex items-center space-x-1">
+            <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+            <span className="font-medium text-green-700 dark:text-green-300">
+              {value.toLocaleString()}
+            </span>
+          </div>
+        );
+      }
+      return (
+        <span className="font-mono text-orange-600 dark:text-orange-400 font-medium">
+          {value.toLocaleString()}
+        </span>
+      );
+    }
+    
+    if (typeof value === 'string') {
+      const isUrl = value.startsWith('http://') || value.startsWith('https://');
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      const isPhone = /^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ''));
+      const isDate = !isNaN(Date.parse(value)) && (value.match(/^\d{4}-\d{2}-\d{2}/) || value.match(/\d{1,2}\/\d{1,2}\/\d{4}/));
+      
+      if (isUrl) {
+        return (
+          <div className="flex items-center space-x-2 group">
+            <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <a 
+              href={value} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              {highlightText(value)}
+            </a>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleCopyValue(value)}
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Copy className="w-3 h-3" />
+            </Button>
+          </div>
+        );
+      }
+      
+      if (isEmail) {
+        return (
+          <div className="flex items-center space-x-2 group">
+            <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <a 
+              href={`mailto:${value}`}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              {highlightText(value)}
+            </a>
+          </div>
+        );
+      }
+      
+      if (isPhone) {
+        return (
+          <div className="flex items-center space-x-2 group">
+            <Phone className="w-4 h-4 text-green-600 dark:text-green-400" />
+            <a 
+              href={`tel:${value}`}
+              className="text-green-600 dark:text-green-400 hover:underline"
+            >
+              {highlightText(value)}
+            </a>
+          </div>
+        );
+      }
+      
+      if (isDate) {
+        return (
+          <div className="flex items-center space-x-2 group">
+            <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <span className="text-purple-700 dark:text-purple-300">
+              {highlightText(new Date(value).toLocaleDateString())}
+            </span>
+          </div>
+        );
+      }
+      
+      return (
+        <div className="flex items-center space-x-2 group">
+          <span className="text-foreground">
+            {highlightText(value)}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleCopyValue(value)}
+            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Copy className="w-3 h-3" />
+          </Button>
+        </div>
+      );
+    }
+    
+    return <span>{String(value)}</span>;
+  };
+
+  if (data === null || data === undefined) {
+    return null;
+  }
+
+  // Handle primitive values
+  if (typeof data !== 'object') {
+    return renderPrimitive(data);
+  }
+
+  // Handle arrays
+  if (Array.isArray(data)) {
+    return (
+      <div className="space-y-4">
+        {data.map((item, index) => (
+          <div key={index} className={cn(
+            "p-4 rounded-xl border",
+            level === 0 ? "bg-white/50 dark:bg-black/20 border-white/30 dark:border-white/10" : "bg-white/30 dark:bg-black/10 border-white/20 dark:border-white/5"
+          )}>
+            <div className="font-medium text-purple-700 dark:text-purple-300 mb-3">
+              Item {index + 1}
+            </div>
+            {renderCompleteData(item, searchQuery, level + 1)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Handle objects
+  const entries = Object.entries(data);
+  return (
+    <div className="space-y-4">
+      {entries.map(([key, value]) => (
+        <div key={key} className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground capitalize block">
+            {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}
+          </label>
+          <div className={cn("pl-3", level > 0 && "pl-2")}>
+            {renderCompleteData(value, searchQuery, level + 1)}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
   if (data === null || data === undefined) {
     return (
@@ -273,86 +475,36 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
     );
   }
 
-  // Handle primitive values at root level
-  if (typeof data !== 'object') {
-    return (
-      <div className="p-6 max-w-2xl mx-auto">
-        <DataCard
-          title="Value"
-          data={data}
-          searchQuery={searchQuery}
-          icon={<Hash className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
-        />
-      </div>
-    );
-  }
-
-  // Handle arrays at root level
-  if (Array.isArray(data)) {
-    return (
-      <div className="p-6 space-y-6">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Data Collection</h1>
-          <Badge variant="outline" className="text-sm">
-            {data.length} items
-          </Badge>
-        </div>
-        
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {data.map((item, index) => (
-            <DataCard
-              key={index}
-              title={`Item ${index + 1}`}
-              data={item}
-              searchQuery={searchQuery}
-              icon={<Tag className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // Handle objects at root level
-  const entries = Object.entries(data);
-  
-  // Try to determine content type for better icons
-  const getIcon = (key: string) => {
-    const lowerKey = key.toLowerCase();
-    if (lowerKey.includes('user') || lowerKey.includes('person') || lowerKey.includes('profile')) {
-      return <User className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
+  // Try to determine the type of data for appropriate title
+  const getDataTitle = () => {
+    if (Array.isArray(data)) {
+      return `Data Collection (${data.length} items)`;
     }
-    if (lowerKey.includes('company') || lowerKey.includes('organization') || lowerKey.includes('business')) {
-      return <Building2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
+    if (typeof data === 'object') {
+      const keys = Object.keys(data);
+      if (keys.some(k => k.toLowerCase().includes('user') || k.toLowerCase().includes('person'))) {
+        return 'User Information';
+      }
+      if (keys.some(k => k.toLowerCase().includes('product') || k.toLowerCase().includes('item'))) {
+        return 'Product Information';
+      }
+      if (keys.some(k => k.toLowerCase().includes('order') || k.toLowerCase().includes('transaction'))) {
+        return 'Transaction Details';
+      }
+      return `Data Overview (${keys.length} sections)`;
     }
-    if (lowerKey.includes('address') || lowerKey.includes('location')) {
-      return <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
-    }
-    if (lowerKey.includes('contact') || lowerKey.includes('email') || lowerKey.includes('phone')) {
-      return <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
-    }
-    return <Tag className="w-5 h-5 text-purple-600 dark:text-purple-400" />;
+    return 'Data Value';
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Data Overview</h1>
-        <Badge variant="outline" className="text-sm">
-          {entries.length} sections
-        </Badge>
+        <h1 className="text-3xl font-bold text-foreground mb-2">{getDataTitle()}</h1>
+        <div className="w-16 h-1 bg-gradient-to-r from-purple-500 to-purple-700 rounded-full mx-auto"></div>
       </div>
       
-      <div className="grid gap-6 lg:grid-cols-2">
-        {entries.map(([key, value]) => (
-          <DataCard
-            key={key}
-            title={key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-            data={value}
-            searchQuery={searchQuery}
-            icon={getIcon(key)}
-          />
-        ))}
+      <div className="bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-2xl border border-white/30 dark:border-white/10 p-6">
+        {renderCompleteData(data, searchQuery, 0)}
       </div>
     </div>
   );
