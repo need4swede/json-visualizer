@@ -638,7 +638,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   </Button>
                 </div>
               </div>
-              {renderCompleteData(item, searchQuery, level + 1, itemPath, onCopy)}
+              {renderCompleteData(item, searchQuery, level + 1, itemPath, onCopy, handleToast)}
             </div>
           );
         })}
@@ -759,7 +759,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                 !isPrimitive && "pl-4 border-l-2",
                 !isPrimitive && colorParts.slice(-2).join(' ')
               )}>
-                {renderCompleteData(value, searchQuery, level + 1, fieldPath, onCopy)}
+                {renderCompleteData(value, searchQuery, level + 1, fieldPath, onCopy, handleToast)}
               </div>
             </div>
           </div>
@@ -826,7 +826,12 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
       </div>
       
       <div className="w-full space-y-6">
-        {renderCompleteData(data, searchQuery, 0, "", handleCopyValue)}
+        {renderCompleteData(data, searchQuery, 0, "", handleCopyValue, (title: string, description: string) => {
+          toast({
+            title,
+            description,
+          });
+        })}
       </div>
     </div>
   );
