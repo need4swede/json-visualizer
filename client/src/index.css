@@ -74,7 +74,7 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 font-sans antialiased text-foreground transition-colors duration-300;
+    @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-black font-sans antialiased text-foreground transition-colors duration-300;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }
