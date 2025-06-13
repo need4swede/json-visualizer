@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin, Navigation, ArrowUp, ChevronRight, Menu, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { copyToClipboard, downloadJson, formatJson } from "@/lib/json-utils";
+import { copyToClipboard, downloadJson, formatJson, decodeJsonFromUrl, createSectionId, scrollToSection } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -23,6 +23,11 @@ export default function FullscreenJson() {
   const { toast } = useToast();
   const navRef = useRef<HTMLDivElement>(null);
   const isNavigatingRef = useRef(false);
+  
+  // Extract URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const pathSegments = window.location.pathname.split('/');
+  const encodedData = pathSegments[2]; // /fullscreen/:id
 
   // Handle click outside to close expanded navigation
   useEffect(() => {
@@ -281,15 +286,22 @@ export default function FullscreenJson() {
   };
 
   useEffect(() => {
-    // Get JSON data from URL hash or sessionStorage
-    const hash = window.location.hash.substring(1);
-    if (hash) {
+    // Get JSON data from URL parameter or sessionStorage
+    if (encodedData) {
       try {
-        const decodedData = decodeURIComponent(hash);
-        const parsedData = JSON.parse(decodedData);
+        const parsedData = decodeJsonFromUrl(encodedData);
         setJsonData(parsedData);
       } catch (error) {
         console.error("Failed to parse JSON from URL:", error);
+        // Fallback to sessionStorage
+        const storedData = sessionStorage.getItem('fullscreen-json-data');
+        if (storedData) {
+          try {
+            setJsonData(JSON.parse(storedData));
+          } catch (storageError) {
+            console.error("Failed to parse JSON from storage:", storageError);
+          }
+        }
       }
     } else {
       // Try to get from sessionStorage as fallback
@@ -302,7 +314,7 @@ export default function FullscreenJson() {
         }
       }
     }
-  }, []);
+  }, [encodedData]);
 
   const handleCopy = async () => {
     if (!jsonData) return;

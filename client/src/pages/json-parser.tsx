@@ -28,6 +28,7 @@ import {
   calculateStats, 
   downloadJson, 
   copyToClipboard,
+  encodeJsonForUrl,
   type JsonStats 
 } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
@@ -186,17 +187,29 @@ export default function JsonParser() {
   const handleFullscreen = () => {
     if (!parsedData) return;
     
-    // Store JSON data in sessionStorage for the fullscreen view
-    sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
-    
-    // Open fullscreen view in new tab
-    const fullscreenUrl = `${window.location.origin}/fullscreen`;
-    window.open(fullscreenUrl, '_blank');
-    
-    toast({
-      title: "Opened in new tab",
-      description: "JSON is now displayed in full-screen mode",
-    });
+    try {
+      // Encode JSON data for URL
+      const encodedData = encodeJsonForUrl(parsedData);
+      
+      // Create shareable URL with encoded data
+      const fullscreenUrl = `${window.location.origin}/fullscreen/${encodedData}`;
+      window.open(fullscreenUrl, '_blank');
+      
+      toast({
+        title: "Opened in new tab",
+        description: "JSON is now displayed with a shareable URL",
+      });
+    } catch (error) {
+      // Fallback to sessionStorage for very large JSON
+      sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
+      const fullscreenUrl = `${window.location.origin}/fullscreen`;
+      window.open(fullscreenUrl, '_blank');
+      
+      toast({
+        title: "Opened in new tab",
+        description: "JSON is now displayed in full-screen mode",
+      });
+    }
   };
 
   const getValidationIcon = () => {

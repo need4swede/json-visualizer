@@ -13,6 +13,7 @@ function Router() {
       <Route path="/" component={JsonParser} />
       <Route path="/json-parser" component={JsonParser} />
       <Route path="/fullscreen" component={FullscreenJson} />
+      <Route path="/fullscreen/:id" component={FullscreenJson} />
       <Route component={JsonParser} />
     </Switch>
   );

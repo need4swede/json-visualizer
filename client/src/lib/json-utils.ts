@@ -134,3 +134,40 @@ export function matchesSearchQuery(text: string, searchQuery: string): boolean {
   // For each query word, check if it appears anywhere in the text (not just word boundaries)
   return queryWords.every(word => normalizedText.includes(word));
 }
+
+// URL utilities for sharing JSON data
+export function encodeJsonForUrl(data: any): string {
+  try {
+    const jsonString = JSON.stringify(data);
+    const compressed = btoa(encodeURIComponent(jsonString));
+    return compressed;
+  } catch (error) {
+    throw new Error('Failed to encode JSON for URL');
+  }
+}
+
+export function decodeJsonFromUrl(encoded: string): any {
+  try {
+    const jsonString = decodeURIComponent(atob(encoded));
+    return JSON.parse(jsonString);
+  } catch (error) {
+    throw new Error('Failed to decode JSON from URL');
+  }
+}
+
+export function createSectionId(path: string): string {
+  return `section-${path.replace(/[\[\]\.]/g, '-')}`;
+}
+
+export function scrollToSection(sectionId: string, highlight: boolean = true): void {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (highlight) {
+      element.classList.add('highlight-section');
+      setTimeout(() => {
+        element.classList.remove('highlight-section');
+      }, 2000);
+    }
+  }
+}
