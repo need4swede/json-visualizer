@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { WebPageRenderer } from "@/components/web-page-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin, Navigation, ArrowUp, ChevronRight, Menu } from "lucide-react";
+import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin, Navigation, ArrowUp, ChevronRight, Menu, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, downloadJson, formatJson } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
@@ -423,7 +423,7 @@ export default function FullscreenJson() {
             </div>
           ) : (
             <div className="glass-panel border border-white/20 dark:border-white/10 p-4 min-w-[380px] max-w-[450px] max-h-[600px] overflow-hidden" style={{borderRadius: '1.75rem'}}>
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center space-x-2 mb-4">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -434,6 +434,17 @@ export default function FullscreenJson() {
                 >
                   <ArrowUp className="w-4 h-4 mr-2" />
                   Scroll to Top
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsNavExpanded(false)}
+                  className="glass-button"
+                  style={{borderRadius: '10rem'}}
+                  title="Minimize navigation"
+                >
+                  <ArrowDown className="w-4 h-4 mr-2" />
+                  Minimize
                 </Button>
               </div>
 
