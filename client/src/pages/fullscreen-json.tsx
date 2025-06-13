@@ -109,7 +109,7 @@ export default function FullscreenJson() {
 
   const navigationItems = jsonData ? getNavigationStructure(jsonData) : [];
 
-  const scrollToSection = (path: string, event?: React.MouseEvent) => {
+  const scrollToNavigationSection = (path: string, event?: React.MouseEvent) => {
     // Prevent event bubbling to avoid triggering click-outside handler
     if (event) {
       event.preventDefault();
@@ -315,6 +315,27 @@ export default function FullscreenJson() {
       }
     }
   }, [encodedData]);
+
+  // Handle hash navigation for anchor links
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.substring(1);
+      if (hash && jsonData) {
+        // Scroll to the section with highlighting
+        scrollToSection(hash);
+      }
+    };
+
+    // Handle initial hash on load
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, [jsonData]);
 
   const handleCopy = async () => {
     if (!jsonData) return;

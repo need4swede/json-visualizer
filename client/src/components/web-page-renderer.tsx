@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights } from "@/lib/json-utils";
+import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights, createSectionId } from "@/lib/json-utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface WebPageRendererProps {
@@ -17,9 +17,10 @@ interface DataCardProps {
   data: any;
   searchQuery?: string;
   icon?: React.ReactNode;
+  path?: string;
 }
 
-function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
+function DataCard({ title, data, searchQuery, icon, path }: DataCardProps) {
   const { toast } = useToast();
   
   const handleCopyValue = async (val: any) => {
