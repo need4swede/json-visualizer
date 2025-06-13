@@ -11,27 +11,16 @@ type ThemeProviderContextType = {
 const ThemeProviderContext = createContext<ThemeProviderContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    if (savedTheme) return savedTheme;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
+  const theme = "dark";
 
   useEffect(() => {
     const root = document.documentElement;
-    
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-    
-    localStorage.setItem("theme", theme);
-  }, [theme]);
+    root.classList.add("dark");
+    root.classList.remove("light");
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
+  const setTheme = () => {}; // No-op since we only support dark mode
+  const toggleTheme = () => {}; // No-op since we only support dark mode
 
   return (
     <ThemeProviderContext.Provider value={{ theme, setTheme, toggleTheme }}>
