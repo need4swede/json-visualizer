@@ -128,18 +128,9 @@ export function matchesSearchQuery(text: string, searchQuery: string): boolean {
   const normalizedText = normalizeSearchText(text);
   const normalizedQuery = normalizeSearchText(searchQuery);
   
-  // If the query contains spaces, split into words and check each word
+  // Split the query into words
   const queryWords = normalizedQuery.split(/\s+/).filter(word => word.length > 0);
   
-  if (queryWords.length > 1) {
-    // For multi-word queries, check if all words appear in the text (can be partial matches)
-    return queryWords.every(word => {
-      // Split the text into words and check if any word starts with the search word
-      const textWords = normalizedText.split(/\s+/);
-      return textWords.some(textWord => textWord.startsWith(word));
-    });
-  } else {
-    // For single word queries, check if it appears anywhere in the text
-    return normalizedText.includes(normalizedQuery);
-  }
+  // For each query word, check if it appears anywhere in the text (not just word boundaries)
+  return queryWords.every(word => normalizedText.includes(word));
 }
