@@ -13,7 +13,9 @@ import {
   X,
   AlertCircle,
   FileCode,
-  Activity
+  Activity,
+  Maximize2,
+  ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -260,7 +262,7 @@ export default function JsonParser() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-200px)]">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 min-h-[calc(100vh-200px)]">
           {/* JSON Input Panel */}
           <div className="glass-panel rounded-2xl p-6 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
@@ -420,7 +422,7 @@ export default function JsonParser() {
               </div>
             </div>
             
-            <div className="h-80 overflow-auto custom-scrollbar bg-white/30 dark:bg-black/10 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10">
+            <div className="h-96 overflow-auto custom-scrollbar bg-white/30 dark:bg-black/10 backdrop-blur-sm rounded-xl border border-white/20 dark:border-white/10">
               {viewMode === "rendered" ? (
                 <JsonRenderer 
                   data={parsedData} 

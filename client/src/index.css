@@ -13,7 +13,7 @@
   --card-foreground: hsl(240, 10%, 3.9%);
   --border: hsl(240, 5.9%, 90%);
   --input: hsl(240, 5.9%, 90%);
-  --primary: hsl(207, 90%, 54%);
+  --primary: hsl(273, 67%, 59%);
   --primary-foreground: hsl(210, 40%, 98%);
   --secondary: hsl(240, 4.8%, 95.9%);
   --secondary-foreground: hsl(240, 5.9%, 10%);
@@ -30,6 +30,7 @@
   --apple-red: hsl(6, 100%, 59%);
   --apple-orange: hsl(25, 100%, 50%);
   --apple-purple: hsl(273, 67%, 59%);
+  --primary: hsl(273, 67%, 59%);
   
   /* Glass effects */
   --glass-light: hsla(0, 0%, 100%, 0.1);
@@ -49,7 +50,7 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 3.7%, 15.9%);
   --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
+  --primary: hsl(273, 67%, 69%);
   --primary-foreground: hsl(210, 40%, 98%);
   --secondary: hsl(240, 3.7%, 15.9%);
   --secondary-foreground: hsl(0, 0%, 98%);
@@ -73,7 +74,7 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black font-sans antialiased text-foreground transition-colors duration-300;
+    @apply bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 font-sans antialiased text-foreground transition-colors duration-300;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }
@@ -105,7 +106,7 @@
   }
   
   .json-key {
-    color: var(--apple-blue);
+    color: var(--apple-purple);
   }
   
   .json-string {
