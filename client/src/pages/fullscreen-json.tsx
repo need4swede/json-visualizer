@@ -22,16 +22,23 @@ export default function FullscreenJson() {
   const [isNavExpanded, setIsNavExpanded] = useState(false);
   const { toast } = useToast();
   const navRef = useRef<HTMLDivElement>(null);
+  const isNavigatingRef = useRef(false);
 
   // Handle click outside to close expanded navigation
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Don't close if we're in the middle of a navigation action
+      if (isNavigatingRef.current) return;
+      
       if (navRef.current && !navRef.current.contains(event.target as Node) && isNavExpanded) {
         setIsNavExpanded(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (isNavExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -94,6 +101,9 @@ export default function FullscreenJson() {
   const navigationItems = jsonData ? getNavigationStructure(jsonData) : [];
 
   const scrollToSection = (path: string) => {
+    // Set navigation flag to prevent closing during navigation
+    isNavigatingRef.current = true;
+    
     const element = document.getElementById(`section-${path.replace(/[\[\]\.]/g, '-')}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -103,6 +113,11 @@ export default function FullscreenJson() {
         element.classList.remove('highlight-section');
       }, 2000);
     }
+    
+    // Clear navigation flag after a short delay
+    setTimeout(() => {
+      isNavigatingRef.current = false;
+    }, 100);
   };
 
   const scrollToTop = () => {
