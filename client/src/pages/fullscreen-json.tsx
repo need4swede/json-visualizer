@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { WebPageRenderer } from "@/components/web-page-renderer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin, Navigation, ArrowUp } from "lucide-react";
+import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin, Navigation, ArrowUp, ChevronRight, Menu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { copyToClipboard, downloadJson, formatJson } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ export default function FullscreenJson() {
   const [, setLocation] = useLocation();
   const [jsonData, setJsonData] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isNavExpanded, setIsNavExpanded] = useState(false);
   const { toast } = useToast();
 
   // Extract navigation structure from JSON data
@@ -93,74 +94,173 @@ export default function FullscreenJson() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Get main sections for floating nav (includes nested important sections)
-  const getMainSections = () => {
-    if (!jsonData) return [];
-    
-    if (Array.isArray(jsonData)) {
-      return [{
-        label: `All Items (${jsonData.length})`,
-        path: '',
-        icon: <List className="w-4 h-4" />
-      }];
-    }
+  // Get complete navigation structure recursively
+  const getCompleteNavStructure = (data: any, path: string = "", level: number = 0): any[] => {
+    if (!data || typeof data !== 'object') return [];
     
     const sections: any[] = [];
     
-    // Add top-level sections
-    Object.keys(jsonData).forEach(key => {
-      const lowerKey = key.toLowerCase();
-      let icon = <Hash className="w-4 h-4" />;
-      
-      if (lowerKey.includes('user') || lowerKey.includes('person')) {
-        icon = <User className="w-4 h-4" />;
-      } else if (lowerKey.includes('company') || lowerKey.includes('organization')) {
-        icon = <Building2 className="w-4 h-4" />;
-      } else if (lowerKey.includes('contact') || lowerKey.includes('email')) {
-        icon = <Mail className="w-4 h-4" />;
-      } else if (lowerKey.includes('address') || lowerKey.includes('location')) {
-        icon = <MapPin className="w-4 h-4" />;
-      }
-      
-      sections.push({
-        label: key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        path: key,
-        icon,
-        level: 0
+    if (Array.isArray(data)) {
+      data.forEach((item, index) => {
+        if (typeof item === 'object' && item !== null) {
+          const itemPath = path ? `${path}[${index}]` : `[${index}]`;
+          sections.push({
+            label: `Item ${index + 1}`,
+            path: itemPath,
+            icon: <Hash className="w-4 h-4" />,
+            level,
+            children: getCompleteNavStructure(item, itemPath, level + 1)
+          });
+        }
       });
-      
-      // Add important nested sections (up to 2 levels deep)
-      const value = jsonData[key];
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        Object.keys(value).forEach(nestedKey => {
-          const nestedValue = value[nestedKey];
-          if (nestedValue && typeof nestedValue === 'object') {
-            const nestedLowerKey = nestedKey.toLowerCase();
-            let nestedIcon = <Hash className="w-4 h-4" />;
-            
-            if (nestedLowerKey.includes('list') || nestedLowerKey.includes('entry') || nestedLowerKey.includes('item')) {
-              nestedIcon = <List className="w-4 h-4" />;
-            } else if (nestedLowerKey.includes('div') || nestedLowerKey.includes('section')) {
-              nestedIcon = <Building2 className="w-4 h-4" />;
-            } else if (nestedLowerKey.includes('def') || nestedLowerKey.includes('definition')) {
-              nestedIcon = <FileCode className="w-4 h-4" />;
-            }
-            
-            sections.push({
-              label: `${key} → ${nestedKey.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`,
-              path: `${key}.${nestedKey}`,
-              icon: nestedIcon,
-              level: 1
-            });
-          }
+    } else {
+      Object.entries(data).forEach(([key, value]) => {
+        const fieldPath = path ? `${path}.${key}` : key;
+        const lowerKey = key.toLowerCase();
+        
+        let icon = <Hash className="w-4 h-4" />;
+        if (lowerKey.includes('user') || lowerKey.includes('person')) {
+          icon = <User className="w-4 h-4" />;
+        } else if (lowerKey.includes('company') || lowerKey.includes('organization')) {
+          icon = <Building2 className="w-4 h-4" />;
+        } else if (lowerKey.includes('contact') || lowerKey.includes('email')) {
+          icon = <Mail className="w-4 h-4" />;
+        } else if (lowerKey.includes('address') || lowerKey.includes('location')) {
+          icon = <MapPin className="w-4 h-4" />;
+        } else if (lowerKey.includes('list') || lowerKey.includes('entry') || lowerKey.includes('item')) {
+          icon = <List className="w-4 h-4" />;
+        } else if (lowerKey.includes('div') || lowerKey.includes('section')) {
+          icon = <Building2 className="w-4 h-4" />;
+        } else if (lowerKey.includes('def') || lowerKey.includes('definition')) {
+          icon = <FileCode className="w-4 h-4" />;
+        }
+        
+        const children = typeof value === 'object' ? getCompleteNavStructure(value, fieldPath, level + 1) : [];
+        
+        sections.push({
+          label: key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          path: fieldPath,
+          icon,
+          level,
+          children,
+          hasChildren: children.length > 0
         });
-      }
-    });
+      });
+    }
     
-    return sections.slice(0, 8);
+    return sections;
   };
 
-  const mainSections = getMainSections();
+  const completeNavStructure = jsonData ? getCompleteNavStructure(jsonData) : [];
+
+  // NavigationTree Component
+  const NavigationTree = ({ items, onItemClick, level = 0 }: { items: any[], onItemClick: (path: string) => void, level?: number }) => {
+    return (
+      <div className="space-y-1">
+        {items.map((item, index) => (
+          <div key={index} className="relative group">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onItemClick(item.path)}
+              className={cn(
+                "glass-button w-full justify-start text-left h-auto py-2 px-3 group",
+                level > 0 && "ml-4 opacity-90"
+              )}
+              style={{ paddingLeft: `${12 + level * 16}px` }}
+            >
+              <div className="flex items-center space-x-2 w-full">
+                <div className="flex-shrink-0">
+                  {item.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className={cn(
+                    "font-medium text-foreground truncate",
+                    level > 0 ? "text-xs" : "text-sm"
+                  )}>
+                    {item.label}
+                  </div>
+                </div>
+                {item.hasChildren && (
+                  <ChevronRight className="w-3 h-3 flex-shrink-0 opacity-50" />
+                )}
+              </div>
+            </Button>
+            
+            {/* Hover submenu for children */}
+            {item.hasChildren && item.children.length > 0 && (
+              <div className="absolute left-full top-0 ml-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="glass-panel rounded-xl border border-white/20 dark:border-white/10 p-2 min-w-[200px] max-w-[300px]">
+                  <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-2 px-2">
+                    {item.label} Contents
+                  </div>
+                  <div className="space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar">
+                    {item.children.map((child: any, childIndex: number) => (
+                      <div key={childIndex} className="relative group/child">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onItemClick(child.path)}
+                          className="glass-button w-full justify-start text-left h-auto py-1.5 px-2 text-xs"
+                        >
+                          <div className="flex items-center space-x-2 w-full">
+                            <div className="flex-shrink-0">
+                              {child.icon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs text-foreground truncate">
+                                {child.label}
+                              </div>
+                            </div>
+                            {child.hasChildren && (
+                              <ChevronRight className="w-2 h-2 flex-shrink-0 opacity-50" />
+                            )}
+                          </div>
+                        </Button>
+                        
+                        {/* Third level hover submenu */}
+                        {child.hasChildren && child.children.length > 0 && (
+                          <div className="absolute left-full top-0 ml-2 opacity-0 invisible group-hover/child:opacity-100 group-hover/child:visible transition-all duration-200 z-50">
+                            <div className="glass-panel rounded-lg border border-white/20 dark:border-white/10 p-2 min-w-[180px] max-w-[250px]">
+                              <div className="text-xs font-medium text-purple-600 dark:text-purple-400 mb-1 px-1">
+                                {child.label}
+                              </div>
+                              <div className="space-y-0.5 max-h-[200px] overflow-y-auto custom-scrollbar">
+                                {child.children.map((grandChild: any, grandIndex: number) => (
+                                  <Button
+                                    key={grandIndex}
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => onItemClick(grandChild.path)}
+                                    className="glass-button w-full justify-start text-left h-auto py-1 px-1.5 text-xs"
+                                  >
+                                    <div className="flex items-center space-x-1.5 w-full">
+                                      <div className="flex-shrink-0">
+                                        {grandChild.icon}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-xs text-foreground truncate">
+                                          {grandChild.label}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   useEffect(() => {
     // Get JSON data from URL hash or sessionStorage
@@ -384,108 +484,53 @@ export default function FullscreenJson() {
       </main>
 
       {/* Floating Navigation */}
-      {mainSections.length > 0 && (
+      {completeNavStructure.length > 0 && (
         <div className="fixed bottom-8 right-8 z-50 animate-slide-in">
-          <div className="glass-panel rounded-2xl border border-white/20 dark:border-white/10 p-4 min-w-[280px]">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2">
-                <Navigation className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <span className="text-sm font-medium text-foreground">Quick Navigation</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={scrollToTop}
-                className="glass-button p-1 h-6 w-6"
-              >
-                <ArrowUp className="w-3 h-3" />
-              </Button>
-            </div>
-            
-            <div className="space-y-2">
-              {mainSections.map((section, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => scrollToSection(section.path)}
-                  className={cn(
-                    "glass-button w-full justify-start text-left h-auto py-2 px-3",
-                    section.level === 1 && "pl-6 text-xs opacity-80"
-                  )}
-                >
-                  <div className="flex items-center space-x-3 w-full">
-                    <div className="flex-shrink-0">
-                      {section.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={cn(
-                        "font-medium text-foreground truncate",
-                        section.level === 1 ? "text-xs" : "text-sm"
-                      )}>
-                        {section.label}
-                      </div>
-                    </div>
-                  </div>
-                </Button>
-              ))}
-              
-              {Object.keys(jsonData || {}).length > 6 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="glass-button w-full justify-start text-left h-auto py-2 px-3"
-                    >
-                      <div className="flex items-center space-x-3 w-full">
-                        <div className="flex-shrink-0">
-                          <Hash className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-foreground">
-                            More sections...
-                          </div>
-                        </div>
-                        <ChevronDown className="w-3 h-3 flex-shrink-0" />
-                      </div>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent 
-                    className="w-64 glass-panel border-white/20 dark:border-white/10"
-                    side="left"
-                    align="end"
+          {!isNavExpanded ? (
+            <Button
+              onClick={() => setIsNavExpanded(true)}
+              className="glass-panel rounded-full w-14 h-14 p-0 border border-white/20 dark:border-white/10 hover:scale-105 transition-all duration-300"
+            >
+              <Menu className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            </Button>
+          ) : (
+            <div className="glass-panel rounded-2xl border border-white/20 dark:border-white/10 p-4 min-w-[320px] max-w-[400px] max-h-[500px] overflow-hidden">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <Navigation className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <span className="text-sm font-medium text-foreground">Navigation</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={scrollToTop}
+                    className="glass-button p-1 h-6 w-6"
                   >
-                    {Object.keys(jsonData || {}).slice(6).map((key, index) => {
-                      const lowerKey = key.toLowerCase();
-                      let icon = <Hash className="w-4 h-4" />;
-                      
-                      if (lowerKey.includes('user') || lowerKey.includes('person')) {
-                        icon = <User className="w-4 h-4" />;
-                      } else if (lowerKey.includes('company') || lowerKey.includes('organization')) {
-                        icon = <Building2 className="w-4 h-4" />;
-                      } else if (lowerKey.includes('contact') || lowerKey.includes('email')) {
-                        icon = <Mail className="w-4 h-4" />;
-                      } else if (lowerKey.includes('address') || lowerKey.includes('location')) {
-                        icon = <MapPin className="w-4 h-4" />;
-                      }
-                      
-                      return (
-                        <DropdownMenuItem
-                          key={index}
-                          onClick={() => scrollToSection(key)}
-                          className="flex items-center space-x-2"
-                        >
-                          {icon}
-                          <span>{key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                    <ArrowUp className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsNavExpanded(false)}
+                    className="glass-button p-1 h-6 w-6"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="overflow-y-auto max-h-[400px] custom-scrollbar">
+                <NavigationTree
+                  items={completeNavStructure}
+                  onItemClick={(path: string) => {
+                    scrollToSection(path);
+                    setIsNavExpanded(false);
+                  }}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
