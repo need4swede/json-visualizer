@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { copyToClipboard } from "@/lib/json-utils";
+import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery } from "@/lib/json-utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface WebPageRendererProps {
@@ -50,16 +50,14 @@ function DataCard({ title, data, searchQuery, icon }: DataCardProps) {
   const matchesSearch = (obj: any, key?: string): boolean => {
     if (!searchQuery) return true;
     
-    const searchLower = searchQuery.toLowerCase();
-    
-    // Check if key matches
-    if (key && key.toLowerCase().includes(searchLower)) {
+    // Check if key matches (treating spaces and underscores as equivalent)
+    if (key && matchesSearchQuery(key, searchQuery)) {
       return true;
     }
     
     // Check if value matches (for primitive values)
     if (typeof obj === 'string' || typeof obj === 'number') {
-      return String(obj).toLowerCase().includes(searchLower);
+      return matchesSearchQuery(String(obj), searchQuery);
     }
     
     // For objects and arrays, recursively check all nested values and keys

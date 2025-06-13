@@ -77,3 +77,19 @@ export function copyToClipboard(text: string): Promise<void> {
     return Promise.resolve();
   }
 }
+
+// Search utility functions for handling spaces and underscores
+export function normalizeSearchText(text: string): string {
+  return text.replace(/[\s_]+/g, ' ').toLowerCase().trim();
+}
+
+export function createSearchRegex(searchQuery: string): RegExp {
+  const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = escapeRegex(searchQuery).replace(/[\s_]+/g, '[\\s_]+');
+  return new RegExp(`(${pattern})`, 'gi');
+}
+
+export function matchesSearchQuery(text: string, searchQuery: string): boolean {
+  if (!searchQuery) return true;
+  return normalizeSearchText(text).includes(normalizeSearchText(searchQuery));
+}
