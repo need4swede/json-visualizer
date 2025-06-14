@@ -128,7 +128,7 @@ export default function FullscreenJson() {
       element.classList.add('highlight-section');
       setTimeout(() => {
         element.classList.remove('highlight-section');
-      }, 3000); // Remove class after full animation completes
+      }, 2000);
     } else {
       console.warn('Section not found:', sectionId, 'for path:', path);
     }
