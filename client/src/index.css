@@ -74,7 +74,8 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-gray-950 to-black font-sans antialiased text-white transition-colors duration-300;
+    @apply font-sans antialiased text-white transition-colors duration-300;
+    background-color: #080808;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
   }
 }
