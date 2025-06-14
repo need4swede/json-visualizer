@@ -38,6 +38,15 @@ A beautiful JSON visualization tool that transforms complex, deeply nested data 
 3. **Access the application**:
    Open [http://localhost:7337](http://localhost:7337)
 
+### Docker Compatibility Notes
+
+This setup has been specifically configured to work outside of Replit environments:
+
+- **Removed Replit Dependencies**: Uses `vite.config.docker.ts` to avoid Replit-specific plugins
+- **Fixed Build Process**: Installs all dependencies first, builds, then removes dev dependencies
+- **Added Missing Dependencies**: Includes `nanoid` and other required packages
+- **Directory Structure**: Creates necessary directories for assets and build output
+
 ### Manual Docker Build
 
 ```bash
