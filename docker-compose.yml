@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  json-parser:
+    build: .
+    ports:
+      - "7337:7337"
+    environment:
+      - NODE_ENV=production
+      - PORT=7337
+    volumes:
+      - ./data:/app/data  # Optional: for persistent data storage
+    restart: unless-stopped
+    container_name: json-parser-app
