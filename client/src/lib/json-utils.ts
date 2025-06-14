@@ -222,44 +222,56 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (highlight) {
-      // Find the main content container
-      const mainContainer = document.querySelector('.w-full.max-w-6xl.mx-auto.space-y-8') || 
-                           document.querySelector('.space-y-8') ||
-                           document.querySelector('.space-y-6') ||
-                           element.parentElement;
-      
-      if (mainContainer) {
-        // Get all apple-card elements in the main container
-        const allCards = Array.from(mainContainer.querySelectorAll('.apple-card'));
-        const targetCard = element.closest('.apple-card');
+      // Wait a bit to ensure scrolling is complete and elements are positioned
+      setTimeout(() => {
+        // Find the main content container
+        const mainContainer = document.querySelector('.w-full.max-w-6xl.mx-auto.space-y-8') || 
+                             document.querySelector('.space-y-8') ||
+                             document.querySelector('.space-y-6') ||
+                             element.parentElement;
         
-        if (targetCard) {
-          // Clear any existing animations first
-          allCards.forEach(card => {
-            (card as HTMLElement).classList.remove('fade-siblings', 'focus-highlight');
-          });
+        if (mainContainer) {
+          // Get all apple-card elements in the main container
+          const allCards = Array.from(mainContainer.querySelectorAll('.apple-card'));
+          const targetCard = element.closest('.apple-card');
           
-          // Add shiny border to target card FIRST (to establish priority)
-          targetCard.classList.add('focus-highlight');
-          
-          // Then fade all other cards (with small delay to ensure target is protected)
-          setTimeout(() => {
+          if (targetCard && allCards.length > 0) {
+            // Clear any existing animations first
             allCards.forEach(card => {
-              if (card !== targetCard && !card.classList.contains('focus-highlight')) {
-                (card as HTMLElement).classList.add('fade-siblings');
-              }
+              (card as HTMLElement).classList.remove('fade-siblings', 'focus-highlight');
             });
-          }, 50);
-          
-          // After 2.5 seconds, restore everything
-          setTimeout(() => {
-            allCards.forEach(card => {
-              (card as HTMLElement).classList.remove('fade-siblings');
-            });
-            targetCard.classList.remove('focus-highlight');
-          }, 2500);
+            
+            // Force a reflow to ensure classes are cleared
+            void targetCard.offsetHeight;
+            
+            // Add shiny border to target card FIRST with explicit opacity protection
+            targetCard.classList.add('focus-highlight');
+            targetCard.style.opacity = '1';
+            
+            // Then fade all other cards (with delay to ensure target is fully protected)
+            setTimeout(() => {
+              allCards.forEach(card => {
+                if (card !== targetCard) {
+                  // Double-check target isn't getting faded
+                  if (!card.classList.contains('focus-highlight')) {
+                    (card as HTMLElement).classList.add('fade-siblings');
+                  }
+                }
+              });
+            }, 100);
+            
+            // After 2.5 seconds, restore everything
+            setTimeout(() => {
+              allCards.forEach(card => {
+                (card as HTMLElement).classList.remove('fade-siblings');
+                (card as HTMLElement).style.opacity = '';
+              });
+              targetCard.classList.remove('focus-highlight');
+              targetCard.style.opacity = '';
+            }, 2500);
+          }
         }
-      }
+      }, 200);
     }
   }
 }

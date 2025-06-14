@@ -328,22 +328,32 @@ export default function FullscreenJson() {
 
   // Handle hash navigation for anchor links
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleHashChange = (isInitialLoad = false) => {
       const hash = window.location.hash.substring(1);
       if (hash && jsonData) {
-        // Scroll to the section with highlighting
-        scrollToSection(hash, true);
+        if (isInitialLoad) {
+          // For initial page load with hash, wait for DOM to be fully rendered
+          setTimeout(() => {
+            scrollToSection(hash, true);
+          }, 500);
+        } else {
+          // For hash changes during navigation, scroll immediately
+          scrollToSection(hash, true);
+        }
       }
     };
 
-    // Handle initial hash on load
-    handleHashChange();
+    // Handle initial hash on load with delay
+    if (jsonData) {
+      handleHashChange(true);
+    }
 
-    // Listen for hash changes
-    window.addEventListener('hashchange', handleHashChange);
+    // Listen for hash changes during navigation
+    const hashChangeListener = () => handleHashChange(false);
+    window.addEventListener('hashchange', hashChangeListener);
     
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('hashchange', hashChangeListener);
     };
   }, [jsonData]);
 
