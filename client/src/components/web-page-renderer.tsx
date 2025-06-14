@@ -794,9 +794,9 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
 
   return (
     <div className="min-h-screen w-full p-6 lg:p-8 space-y-8">
-      {/* Header with Apple-style glassmorphism */}
+      {/* Header without background */}
       <div className="text-center mb-12">
-        <div className="apple-card p-8 mb-6 max-w-2xl mx-auto">
+        <div className="p-8 mb-6 max-w-2xl mx-auto">
           <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent mb-4 tracking-tight">
             {getDataTitle()}
           </h1>
