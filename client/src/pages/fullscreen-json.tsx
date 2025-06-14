@@ -119,19 +119,9 @@ export default function FullscreenJson() {
     // Set navigation flag to prevent closing during navigation
     isNavigatingRef.current = true;
     
-    // Use the same ID generation as in web-page-renderer
+    // Use the scrollToSection function with new animations
     const sectionId = createSectionId(path);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Add stronger highlighting with animation
-      element.classList.add('highlight-section');
-      setTimeout(() => {
-        element.classList.remove('highlight-section');
-      }, 2000);
-    } else {
-      console.warn('Section not found:', sectionId, 'for path:', path);
-    }
+    scrollToSection(sectionId, true);
     
     // Clear navigation flag after a longer delay to ensure click-outside doesn't interfere
     setTimeout(() => {

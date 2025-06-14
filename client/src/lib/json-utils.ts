@@ -222,10 +222,26 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (highlight) {
-      element.classList.add('highlight-section');
+      // Remove any existing animation classes
+      element.classList.remove('animate-spotlight', 'animate-pulse-glow', 'animate-scale-highlight');
+      
+      // Add the spotlight animation immediately
+      element.classList.add('animate-spotlight');
+      
+      // Add pulsing glow to the background
       setTimeout(() => {
-        element.classList.remove('highlight-section');
-      }, 2000);
+        element.classList.add('animate-pulse-glow');
+      }, 300);
+      
+      // Add scale highlight
+      setTimeout(() => {
+        element.classList.add('animate-scale-highlight');
+      }, 600);
+      
+      // Clean up animations after they complete
+      setTimeout(() => {
+        element.classList.remove('animate-spotlight', 'animate-pulse-glow', 'animate-scale-highlight');
+      }, 3000);
     }
   }
 }
