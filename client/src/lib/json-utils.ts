@@ -225,7 +225,7 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
       element.classList.add('highlight-section');
       setTimeout(() => {
         element.classList.remove('highlight-section');
-      }, 2400); // Remove class at 80% of animation duration for smooth fade
+      }, 1800); // Remove class at 60% of animation duration when scale reaches 1
     }
   }
 }
