@@ -180,19 +180,9 @@
 @keyframes highlight-pulse {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
-    transform: scale(1);
-  }
-  25% {
-    box-shadow: 0 0 0 8px rgba(147, 51, 234, 0.4);
-    transform: scale(1.02);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.25);
-    transform: scale(1);
-  }
-  75% {
-    box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.15);
-    transform: scale(1.01);
+    box-shadow: 0 0 0 8px rgba(147, 51, 234, 0.4);
   }
 }
 
