@@ -184,12 +184,12 @@ export default function JsonParser() {
     }
   };
 
-  const handleFullscreen = () => {
+  const handleFullscreen = async () => {
     if (!parsedData) return;
     
     try {
       // Generate short ID and store JSON data
-      const shortId = encodeJsonForUrl(parsedData);
+      const shortId = await encodeJsonForUrl(parsedData);
       
       // Create shareable URL with short ID
       const fullscreenUrl = `${window.location.origin}/${shortId}`;

@@ -290,46 +290,50 @@ export default function FullscreenJson() {
   };
 
   useEffect(() => {
-    // Check if we have a 9-digit ID in the URL
-    const isValidId = /^\d{9}$/.test(shortId);
-    
-    if (isValidId) {
-      try {
-        const parsedData = decodeJsonFromUrl(shortId);
-        if (parsedData) {
-          setJsonData(parsedData);
-        } else {
-          console.error("No JSON data found for ID:", shortId);
-          // Fallback to sessionStorage
-          const storedData = sessionStorage.getItem('fullscreen-json-data');
-          if (storedData) {
-            try {
-              setJsonData(JSON.parse(storedData));
-            } catch (storageError) {
-              console.error("Failed to parse JSON from storage:", storageError);
+    const loadData = async () => {
+      // Check if we have a 9-digit ID in the URL
+      const isValidId = /^\d{9}$/.test(shortId);
+      
+      if (isValidId) {
+        try {
+          const parsedData = await decodeJsonFromUrl(shortId);
+          if (parsedData) {
+            setJsonData(parsedData);
+          } else {
+            console.error("No JSON data found for ID:", shortId);
+            // Fallback to sessionStorage
+            const storedData = sessionStorage.getItem('fullscreen-json-data');
+            if (storedData) {
+              try {
+                setJsonData(JSON.parse(storedData));
+              } catch (storageError) {
+                console.error("Failed to parse JSON from storage:", storageError);
+              }
             }
           }
-        }
-      } catch (error) {
-        console.error("Failed to retrieve JSON data:", error);
-      }
-    } else if (shortId !== 'fullscreen') {
-      // If it's not a valid ID and not 'fullscreen', redirect to home
-      setLocation('/');
-    } else {
-      // For /fullscreen route, try sessionStorage
-      const storedData = sessionStorage.getItem('fullscreen-json-data');
-      if (storedData) {
-        try {
-          setJsonData(JSON.parse(storedData));
         } catch (error) {
-          console.error("Failed to parse JSON from storage:", error);
+          console.error("Failed to retrieve JSON data:", error);
+        }
+      } else if (shortId !== 'fullscreen') {
+        // If it's not a valid ID and not 'fullscreen', redirect to home
+        setLocation('/');
+      } else {
+        // For /fullscreen route, try sessionStorage
+        const storedData = sessionStorage.getItem('fullscreen-json-data');
+        if (storedData) {
+          try {
+            setJsonData(JSON.parse(storedData));
+          } catch (error) {
+            console.error("Failed to parse JSON from storage:", error);
+          }
         }
       }
-    }
-    
-    // Set loading to false after data attempt
-    setIsLoading(false);
+      
+      // Set loading to false after data attempt
+      setIsLoading(false);
+    };
+
+    loadData();
   }, [shortId, setLocation]);
 
   // Handle hash navigation for anchor links

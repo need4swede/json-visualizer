@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -8,10 +8,23 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
+export const jsonData = pgTable("json_data", {
+  id: text("id").primaryKey(),
+  data: json("data").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
 
+export const insertJsonDataSchema = createInsertSchema(jsonData).pick({
+  id: true,
+  data: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type InsertJsonData = z.infer<typeof insertJsonDataSchema>;
+export type JsonData = typeof jsonData.$inferSelect;

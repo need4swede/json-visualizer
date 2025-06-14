@@ -143,50 +143,74 @@ export function generateShortId(): string {
   return Math.floor(Math.random() * (max - min + 1) + min).toString();
 }
 
-// Store JSON data with a short ID
-export function storeJsonData(data: any): string {
+// Store JSON data with a short ID using backend API
+export async function storeJsonData(data: any): Promise<string> {
   const id = generateShortId();
-  const jsonString = JSON.stringify(data);
-  localStorage.setItem(`json-data-${id}`, jsonString);
-  
-  // Clean up old entries (keep only last 20)
-  const keys = Object.keys(localStorage).filter(key => key.startsWith('json-data-'));
-  if (keys.length > 20) {
-    keys.sort((a, b) => {
-      const aTime = localStorage.getItem(`${a}-timestamp`) || '0';
-      const bTime = localStorage.getItem(`${b}-timestamp`) || '0';
-      return parseInt(aTime) - parseInt(bTime);
-    });
-    keys.slice(0, keys.length - 20).forEach(key => {
-      localStorage.removeItem(key);
-      localStorage.removeItem(`${key}-timestamp`);
-    });
-  }
-  
-  localStorage.setItem(`json-data-${id}-timestamp`, Date.now().toString());
-  return id;
-}
-
-// Retrieve JSON data by short ID
-export function retrieveJsonData(id: string): any | null {
-  const jsonString = localStorage.getItem(`json-data-${id}`);
-  if (!jsonString) return null;
   
   try {
-    return JSON.parse(jsonString);
+    const response = await fetch('/api/json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id, data }),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to store JSON data');
+    }
+    
+    return id;
   } catch (error) {
-    console.error('Failed to parse stored JSON:', error);
+    console.error('Error storing JSON data:', error);
+    // Fallback to localStorage for offline functionality
+    const jsonString = JSON.stringify(data);
+    localStorage.setItem(`json-data-${id}`, jsonString);
+    localStorage.setItem(`json-data-${id}-timestamp`, Date.now().toString());
+    return id;
+  }
+}
+
+// Retrieve JSON data by short ID from backend API
+export async function retrieveJsonData(id: string): Promise<any | null> {
+  try {
+    const response = await fetch(`/api/json/${id}`);
+    
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Try localStorage fallback
+        const jsonString = localStorage.getItem(`json-data-${id}`);
+        if (jsonString) {
+          return JSON.parse(jsonString);
+        }
+      }
+      return null;
+    }
+    
+    const result = await response.json();
+    return result.data;
+  } catch (error) {
+    console.error('Error retrieving JSON data:', error);
+    // Fallback to localStorage
+    const jsonString = localStorage.getItem(`json-data-${id}`);
+    if (jsonString) {
+      try {
+        return JSON.parse(jsonString);
+      } catch (parseError) {
+        console.error('Failed to parse localStorage JSON:', parseError);
+      }
+    }
     return null;
   }
 }
 
 // URL utilities for sharing JSON data
-export function encodeJsonForUrl(data: any): string {
-  return storeJsonData(data);
+export async function encodeJsonForUrl(data: any): Promise<string> {
+  return await storeJsonData(data);
 }
 
-export function decodeJsonFromUrl(id: string): any {
-  return retrieveJsonData(id);
+export async function decodeJsonFromUrl(id: string): Promise<any> {
+  return await retrieveJsonData(id);
 }
 
 export function createSectionId(path: string): string {
