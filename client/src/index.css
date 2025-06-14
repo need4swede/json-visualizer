@@ -140,12 +140,9 @@
   }
   
   .highlight-section {
-    animation: highlight-pulse 3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.3) !important;
-    transform: scale(1.02);
-    z-index: 10;
+    animation: highlight-pulse 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     position: relative;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
   }
 }
 
@@ -182,31 +179,39 @@
 
 @keyframes highlight-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.6);
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
     transform: scale(1);
   }
-  15% {
+  10% {
     box-shadow: 0 0 0 8px rgba(147, 51, 234, 0.4);
     transform: scale(1.02);
   }
-  30% {
+  20% {
     box-shadow: 0 0 0 12px rgba(147, 51, 234, 0.3);
     transform: scale(1.015);
   }
-  50% {
+  35% {
     box-shadow: 0 0 0 6px rgba(147, 51, 234, 0.25);
     transform: scale(1.01);
   }
-  70% {
-    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
-    transform: scale(1.005);
+  50% {
+    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.2);
+    transform: scale(1.008);
   }
-  85% {
-    box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.08);
+  65% {
+    box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.12);
+    transform: scale(1.004);
+  }
+  80% {
+    box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.06);
     transform: scale(1.002);
   }
+  90% {
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.02);
+    transform: scale(1.001);
+  }
   100% {
-    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
+    box-shadow: none;
     transform: scale(1);
   }
 }

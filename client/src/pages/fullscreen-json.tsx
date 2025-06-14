@@ -126,8 +126,14 @@ export default function FullscreenJson() {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       // Add stronger highlighting with animation
       element.classList.add('highlight-section');
+      // Remove the class after animation completes to prevent snapping
       setTimeout(() => {
+        element.style.transition = 'all 0.3s ease-out';
         element.classList.remove('highlight-section');
+        // Clean up the inline style after transition
+        setTimeout(() => {
+          element.style.transition = '';
+        }, 300);
       }, 3000);
     } else {
       console.warn('Section not found:', sectionId, 'for path:', path);
