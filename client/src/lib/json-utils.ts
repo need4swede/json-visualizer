@@ -225,7 +225,7 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
       element.classList.add('highlight-section');
       setTimeout(() => {
         element.classList.remove('highlight-section');
-      }, 2000);
+      }, 3000);
     }
   }
 }

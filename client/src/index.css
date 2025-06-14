@@ -140,11 +140,12 @@
   }
   
   .highlight-section {
-    animation: highlight-pulse 2s ease-out;
+    animation: highlight-pulse 3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.3) !important;
     transform: scale(1.02);
     z-index: 10;
     position: relative;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -181,16 +182,28 @@
 
 @keyframes highlight-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.5);
+    box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.6);
     transform: scale(1);
   }
-  25% {
-    box-shadow: 0 0 0 8px rgba(147, 51, 234, 0.3);
+  15% {
+    box-shadow: 0 0 0 8px rgba(147, 51, 234, 0.4);
     transform: scale(1.02);
   }
+  30% {
+    box-shadow: 0 0 0 12px rgba(147, 51, 234, 0.3);
+    transform: scale(1.015);
+  }
   50% {
-    box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.2);
+    box-shadow: 0 0 0 6px rgba(147, 51, 234, 0.25);
     transform: scale(1.01);
+  }
+  70% {
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.15);
+    transform: scale(1.005);
+  }
+  85% {
+    box-shadow: 0 0 0 1px rgba(147, 51, 234, 0.08);
+    transform: scale(1.002);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(147, 51, 234, 0);
