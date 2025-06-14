@@ -128,7 +128,7 @@ export default function FullscreenJson() {
       element.classList.add('highlight-section');
       setTimeout(() => {
         element.classList.remove('highlight-section');
-      }, 3000);
+      }, 2400); // Remove class at 80% of animation duration for smooth fade
     } else {
       console.warn('Section not found:', sectionId, 'for path:', path);
     }
