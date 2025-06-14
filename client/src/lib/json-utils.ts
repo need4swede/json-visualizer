@@ -234,15 +234,22 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
         const targetCard = element.closest('.apple-card');
         
         if (targetCard) {
-          // Fade all other cards
+          // Clear any existing animations first
           allCards.forEach(card => {
-            if (card !== targetCard) {
-              (card as HTMLElement).classList.add('fade-siblings');
-            }
+            (card as HTMLElement).classList.remove('fade-siblings', 'focus-highlight');
           });
           
-          // Add shiny border to target card
+          // Add shiny border to target card FIRST (to establish priority)
           targetCard.classList.add('focus-highlight');
+          
+          // Then fade all other cards (with small delay to ensure target is protected)
+          setTimeout(() => {
+            allCards.forEach(card => {
+              if (card !== targetCard && !card.classList.contains('focus-highlight')) {
+                (card as HTMLElement).classList.add('fade-siblings');
+              }
+            });
+          }, 50);
           
           // After 2.5 seconds, restore everything
           setTimeout(() => {

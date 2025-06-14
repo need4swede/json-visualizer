@@ -166,11 +166,17 @@
     animation: shiny-border 2.5s ease-in-out;
     position: relative;
     z-index: 20;
+    opacity: 1 !important; /* Ensure target stays fully visible */
   }
   
   .fade-siblings {
     opacity: 0.25;
     transition: opacity 0.4s ease-in-out;
+  }
+  
+  /* Ensure focused element always stays at full opacity */
+  .fade-siblings.focus-highlight {
+    opacity: 1 !important;
   }
   
   @keyframes shiny-border {
