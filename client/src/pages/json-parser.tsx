@@ -257,7 +257,7 @@ export default function JsonParser() {
   }, [parsedData, jsonInput, viewMode]);
 
   return (
-    <div className="min-h-screen json-parser-page">
+    <div className="min-h-screen">
       <main className="max-w-7xl mx-auto px-6 py-16">
         {/* JSON Input Panel - Full Width */}
         <div className="max-w-4xl mx-auto mt-20">
