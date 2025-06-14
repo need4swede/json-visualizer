@@ -570,36 +570,19 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
             <div 
               key={index} 
               id={`section-${itemPath.replace(/[\[\]\.]/g, '-')}`}
-              className={cn(
-                "group relative p-6 rounded-2xl border transition-all duration-500 hover:shadow-lg",
-                level === 0 ? "bg-gradient-to-br from-indigo-50/80 via-purple-50/60 to-pink-50/80 dark:from-indigo-900/30 dark:via-purple-900/20 dark:to-pink-900/30 border-indigo-200/60 dark:border-indigo-700/50" : 
-                level === 1 ? "bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/80 dark:from-emerald-900/30 dark:via-teal-900/20 dark:to-cyan-900/30 border-emerald-200/60 dark:border-emerald-700/50" :
-                level === 2 ? "bg-gradient-to-br from-amber-50/80 via-orange-50/60 to-red-50/80 dark:from-amber-900/30 dark:via-orange-900/20 dark:to-red-900/30 border-amber-200/60 dark:border-amber-700/50" :
-                "bg-gradient-to-br from-slate-50/80 to-gray-50/80 dark:from-slate-800/30 dark:to-gray-800/30 border-slate-200/60 dark:border-slate-700/50"
-              )}
+              className="apple-card group relative p-8"
             >
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center space-x-3">
-                  <div className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-lg",
-                    level === 0 ? "bg-gradient-to-r from-indigo-500 to-purple-600" :
-                    level === 1 ? "bg-gradient-to-r from-emerald-500 to-teal-600" :
-                    level === 2 ? "bg-gradient-to-r from-amber-500 to-orange-600" :
-                    "bg-gradient-to-r from-slate-500 to-gray-600"
-                  )}>
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-sm font-bold text-white bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 shadow-lg backdrop-blur-sm">
                     {index + 1}
                   </div>
                   <div>
-                    <h3 className={cn(
-                      "font-bold",
-                      level === 0 ? "text-lg text-indigo-700 dark:text-indigo-300" :
-                      level === 1 ? "text-base text-emerald-700 dark:text-emerald-300" :
-                      "text-sm text-amber-700 dark:text-amber-300"
-                    )}>
+                    <h3 className="text-lg font-semibold text-white/95 mb-1 tracking-tight">
                       Item {index + 1}
                     </h3>
                     {typeof item === 'object' && Object.keys(item).length > 0 && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-white/60 font-medium">
                         {Object.keys(item).length} properties
                       </p>
                     )}
@@ -690,77 +673,68 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
           <div 
             key={key} 
             id={`section-${fieldPath.replace(/[\[\]\.]/g, '-')}`}
-            className={cn(
-              "group relative rounded-xl border transition-all duration-300 hover:shadow-md",
-              colorParts.slice(2).join(' ')
-            )}
+            className="apple-card group relative p-6"
           >
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-3">
-                  <div className={cn(
-                    "w-3 h-3 rounded-full bg-gradient-to-r shadow-sm",
-                    colorParts.slice(0, 2).join(' ')
-                  )}></div>
-                  <h4 className={cn(
-                    "font-semibold text-sm uppercase tracking-wide",
-                    colorParts[2], 
-                    colorParts[3]
-                  )}>
-                    {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
-                  </h4>
-                  {isArray && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
-                      {value.length} items
-                    </span>
-                  )}
-                  {isObject && !isArray && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-white/60 dark:bg-black/40 text-muted-foreground">
-                      {Object.keys(value).length} fields
-                    </span>
-                  )}
-                </div>
-                
-                {/* Copy and Anchor buttons */}
-                <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (onCopy) {
-                        onCopy(value);
-                      }
-                    }}
-                    className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
-                    title="Copy value"
-                  >
-                    <Copy className="w-3 h-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const sectionId = createSectionId(fieldPath);
-                      const url = new URL(window.location.href);
-                      url.hash = sectionId;
-                      navigator.clipboard.writeText(url.toString());
-                      handleToast("Anchor link copied", "Direct link to this section copied to clipboard");
-                    }}
-                    className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
-                    title="Copy anchor link"
-                  >
-                    <Hash className="w-3 h-3" />
-                  </Button>
-                </div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-4">
+                <div className={cn(
+                  "w-4 h-4 rounded-full bg-gradient-to-r shadow-lg",
+                  colorParts.slice(0, 2).join(' ')
+                )}></div>
+                <h4 className="font-semibold text-lg text-white/95 tracking-tight capitalize">
+                  {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
+                </h4>
+                {isArray && (
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/70 font-medium border border-white/20">
+                    {value.length} items
+                  </span>
+                )}
+                {isObject && !isArray && (
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/70 font-medium border border-white/20">
+                    {Object.keys(value).length} fields
+                  </span>
+                )}
               </div>
               
-              <div className={cn(
-                "relative",
-                !isPrimitive && "pl-4 border-l-2",
-                !isPrimitive && colorParts.slice(-2).join(' ')
-              )}>
-                {renderCompleteData(value, searchQuery, level + 1, fieldPath, onCopy, handleToast)}
+              {/* Copy and Anchor buttons */}
+              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (onCopy) {
+                      onCopy(value);
+                    }
+                  }}
+                  className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                  title="Copy value"
+                >
+                  <Copy className="w-3 h-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const sectionId = createSectionId(fieldPath);
+                    const url = new URL(window.location.href);
+                    url.hash = sectionId;
+                    navigator.clipboard.writeText(url.toString());
+                    handleToast("Anchor link copied", "Direct link to this section copied to clipboard");
+                  }}
+                  className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                  title="Copy anchor link"
+                >
+                  <Hash className="w-3 h-3" />
+                </Button>
               </div>
+            </div>
+            
+            <div className={cn(
+              "relative",
+              !isPrimitive && "pl-4 border-l-2",
+              !isPrimitive && colorParts.slice(-2).join(' ')
+            )}>
+              {renderCompleteData(value, searchQuery, level + 1, fieldPath, onCopy, handleToast)}
             </div>
           </div>
         );
@@ -790,9 +764,9 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
 
   if (data === null || data === undefined) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-        <div className="text-lg font-medium mb-2">No Data</div>
-        <p className="text-sm">Enter valid JSON to see the rendered output</p>
+      <div className="flex flex-col items-center justify-center h-64 text-white/70">
+        <div className="text-xl font-semibold mb-3 text-white">No Data</div>
+        <p className="text-sm text-white/60">Enter valid JSON to see the rendered output</p>
       </div>
     );
   }
@@ -819,13 +793,19 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
   };
 
   return (
-    <div className="min-h-screen w-full p-8 space-y-6">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">{getDataTitle()}</h1>
-        <div className="w-16 h-1 bg-gradient-to-r from-purple-500 to-purple-700 rounded-full mx-auto"></div>
+    <div className="min-h-screen w-full p-6 lg:p-8 space-y-8">
+      {/* Header with Apple-style glassmorphism */}
+      <div className="text-center mb-12">
+        <div className="apple-card p-8 mb-6 max-w-2xl mx-auto">
+          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-white via-white/95 to-white/90 bg-clip-text text-transparent mb-4 tracking-tight">
+            {getDataTitle()}
+          </h1>
+          <div className="w-24 h-1 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full mx-auto opacity-80"></div>
+        </div>
       </div>
       
-      <div className="w-full space-y-6">
+      {/* Content with enhanced spacing and typography */}
+      <div className="w-full max-w-6xl mx-auto space-y-8">
         {renderCompleteData(data, searchQuery, 0, "", handleCopyValue, (title: string, description: string) => {
           toast({
             title,
