@@ -222,26 +222,37 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     if (highlight) {
-      // Remove any existing animation classes
-      element.classList.remove('animate-spotlight', 'animate-pulse-glow', 'animate-scale-highlight');
+      // Find the main content container
+      const mainContainer = document.querySelector('.w-full.max-w-6xl.mx-auto.space-y-8') || 
+                           document.querySelector('.space-y-8') ||
+                           document.querySelector('.space-y-6') ||
+                           element.parentElement;
       
-      // Add the spotlight animation immediately
-      element.classList.add('animate-spotlight');
-      
-      // Add pulsing glow to the background
-      setTimeout(() => {
-        element.classList.add('animate-pulse-glow');
-      }, 300);
-      
-      // Add scale highlight
-      setTimeout(() => {
-        element.classList.add('animate-scale-highlight');
-      }, 600);
-      
-      // Clean up animations after they complete
-      setTimeout(() => {
-        element.classList.remove('animate-spotlight', 'animate-pulse-glow', 'animate-scale-highlight');
-      }, 3000);
+      if (mainContainer) {
+        // Get all apple-card elements in the main container
+        const allCards = Array.from(mainContainer.querySelectorAll('.apple-card'));
+        const targetCard = element.closest('.apple-card');
+        
+        if (targetCard) {
+          // Fade all other cards
+          allCards.forEach(card => {
+            if (card !== targetCard) {
+              (card as HTMLElement).classList.add('fade-siblings');
+            }
+          });
+          
+          // Add shiny border to target card
+          targetCard.classList.add('focus-highlight');
+          
+          // After 2.5 seconds, restore everything
+          setTimeout(() => {
+            allCards.forEach(card => {
+              (card as HTMLElement).classList.remove('fade-siblings');
+            });
+            targetCard.classList.remove('focus-highlight');
+          }, 2500);
+        }
+      }
     }
   }
 }
