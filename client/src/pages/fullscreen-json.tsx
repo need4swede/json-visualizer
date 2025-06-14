@@ -384,7 +384,7 @@ export default function FullscreenJson() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#080808' }}>
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <h1 className="text-lg font-medium text-white mb-2">Loading JSON Data</h1>
@@ -396,7 +396,7 @@ export default function FullscreenJson() {
 
   if (!jsonData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#080808' }}>
         <div className="text-center">
           <FileCode className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-2xl font-semibold text-foreground mb-2">No JSON Data Found</h1>
@@ -410,7 +410,7 @@ export default function FullscreenJson() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-black">
+    <div className="min-h-screen" style={{ backgroundColor: '#080808' }}>
       {/* Main Content */}
       <main className="animate-fade-in">
         <WebPageRenderer 
