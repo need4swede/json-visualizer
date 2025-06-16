@@ -104,37 +104,82 @@
   }
   
   .apple-card {
-    @apply bg-white/[0.02] backdrop-blur-sm border border-white/[0.08] rounded-xl transition-all duration-300;
+    @apply backdrop-blur-sm rounded-xl transition-all duration-500;
     box-shadow: 
-      0 2px 12px rgba(0, 0, 0, 0.06),
-      0 1px 3px rgba(0, 0, 0, 0.04),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    animation: fadeInUp 0.4s ease-out;
+      0 4px 20px rgba(0, 0, 0, 0.1),
+      0 1px 6px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    animation: slideInScale 0.6s ease-out backwards;
+    position: relative;
+    overflow: hidden;
   }
 
-  @keyframes fadeInUp {
+  .apple-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 3s infinite;
+  }
+
+  @keyframes slideInScale {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(20px) scale(0.95);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
+  }
+
+  @keyframes shimmer {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
   }
   
   /* Enhanced hover effects for data elements */
   .apple-card.data-leaf:hover {
-    @apply bg-white/[0.06] border-white/[0.12] -translate-y-0.5;
+    transform: translateY(-4px) scale(1.02);
     box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.12),
-      0 2px 8px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      0 20px 60px rgba(0, 0, 0, 0.15),
+      0 8px 24px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
   
   /* Subtle hover for parent containers */
   .apple-card.data-parent:hover {
-    @apply border-white/[0.1] bg-white/[0.025];
+    transform: translateY(-2px);
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.12),
+      0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Color-specific glow effects */
+  .apple-card:hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Pulsing animations for different elements */
+  @keyframes colorPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes gentleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+
+  .animate-color-pulse {
+    animation: colorPulse 2s ease-in-out infinite;
+  }
+
+  .animate-gentle-bounce {
+    animation: gentleBounce 2s ease-in-out infinite;
   }
   
   .custom-scrollbar {

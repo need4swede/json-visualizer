@@ -654,16 +654,16 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
         else if (isObject) colorScheme = 'object';
         
         const colorClasses: Record<ColorScheme, string> = {
-          id: 'from-blue-500 to-cyan-500 text-blue-700 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200/50 dark:border-blue-700/50',
-          name: 'from-violet-500 to-purple-500 text-violet-700 dark:text-violet-300 bg-violet-50/50 dark:bg-violet-900/20 border-violet-200/50 dark:border-violet-700/50',
-          text: 'from-green-500 to-emerald-500 text-green-700 dark:text-green-300 bg-green-50/50 dark:bg-green-900/20 border-green-200/50 dark:border-green-700/50',
-          date: 'from-orange-500 to-amber-500 text-orange-700 dark:text-orange-300 bg-orange-50/50 dark:bg-orange-900/20 border-orange-200/50 dark:border-orange-700/50',
-          link: 'from-indigo-500 to-blue-500 text-indigo-700 dark:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-200/50 dark:border-indigo-700/50',
-          email: 'from-pink-500 to-rose-500 text-pink-700 dark:text-pink-300 bg-pink-50/50 dark:bg-pink-900/20 border-pink-200/50 dark:border-pink-700/50',
-          number: 'from-teal-500 to-cyan-500 text-teal-700 dark:text-teal-300 bg-teal-50/50 dark:bg-teal-900/20 border-teal-200/50 dark:border-teal-700/50',
-          array: 'from-purple-500 to-fuchsia-500 text-purple-700 dark:text-purple-300 bg-purple-50/50 dark:bg-purple-900/20 border-purple-200/50 dark:border-purple-700/50',
-          object: 'from-slate-500 to-gray-500 text-slate-700 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-900/20 border-slate-200/50 dark:border-slate-700/50',
-          default: 'from-gray-500 to-slate-500 text-gray-700 dark:text-gray-300 bg-gray-50/50 dark:bg-gray-900/20 border-gray-200/50 dark:border-gray-700/50'
+          id: 'from-blue-400 to-cyan-400 bg-blue-500/10 border-blue-400/20',
+          name: 'from-violet-400 to-purple-400 bg-violet-500/10 border-violet-400/20',
+          text: 'from-green-400 to-emerald-400 bg-green-500/10 border-green-400/20',
+          date: 'from-orange-400 to-amber-400 bg-orange-500/10 border-orange-400/20',
+          link: 'from-indigo-400 to-blue-400 bg-indigo-500/10 border-indigo-400/20',
+          email: 'from-pink-400 to-rose-400 bg-pink-500/10 border-pink-400/20',
+          number: 'from-teal-400 to-cyan-400 bg-teal-500/10 border-teal-400/20',
+          array: 'from-purple-400 to-fuchsia-400 bg-purple-500/10 border-purple-400/20',
+          object: 'from-slate-400 to-gray-400 bg-slate-500/10 border-slate-400/20',
+          default: 'from-gray-400 to-slate-400 bg-gray-500/10 border-gray-400/20'
         };
         
         const currentColorClass = colorClasses[colorScheme];
@@ -677,25 +677,51 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
           <div 
             key={key} 
             id={`section-${fieldPath.replace(/[\[\]\.]/g, '-')}`}
-            className={`${cardClass} group relative ${isLeafNode ? 'p-4' : 'p-5'} ${isLeafNode ? 'mb-3' : 'mb-4'}`}
+            className={cn(
+              cardClass,
+              "group relative p-5 mb-4 border-l-4 transition-all duration-300",
+              colorParts[2], // background color
+              colorParts[3], // border color  
+              `hover:shadow-lg hover:shadow-${colorScheme}-500/10`,
+              isLeafNode && "hover:-translate-y-1 hover:scale-[1.02]",
+              !isLeafNode && "hover:shadow-xl"
+            )}
+            style={{
+              animationDelay: `${(level * 100)}ms`,
+              '--color-scheme': colorScheme
+            } as React.CSSProperties & { '--color-scheme': string }}
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-4 flex-1 min-w-0">
                 <div className={cn(
-                  "w-3 h-3 rounded-full bg-gradient-to-r shadow-sm flex-shrink-0",
+                  "w-5 h-5 rounded-full bg-gradient-to-br shadow-lg flex-shrink-0 animate-pulse",
                   colorParts.slice(0, 2).join(' ')
                 )}></div>
-                <div className="flex items-center space-x-3 flex-1 min-w-0">
-                  <h4 className={`font-medium ${isLeafNode ? 'text-base' : 'text-lg'} text-white/90 tracking-tight capitalize truncate`}>
+                <div className="flex items-center space-x-4 flex-1 min-w-0">
+                  <h4 className={cn(
+                    "font-semibold tracking-tight capitalize break-words",
+                    isLeafNode ? "text-lg text-white/95" : "text-xl text-white/100",
+                    "bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent"
+                  )}>
                     {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
                   </h4>
                   {isArray && (
-                    <span className="text-xs px-2 py-1 rounded-md bg-white/8 text-white/60 font-medium border border-white/10 flex-shrink-0">
+                    <span className={cn(
+                      "text-xs px-3 py-1.5 rounded-full font-semibold border-2 flex-shrink-0 animate-bounce",
+                      colorParts[2],
+                      colorParts[3],
+                      "text-white/90 shadow-md"
+                    )}>
                       {value.length} items
                     </span>
                   )}
                   {isObject && !isArray && (
-                    <span className="text-xs px-2 py-1 rounded-md bg-white/8 text-white/60 font-medium border border-white/10 flex-shrink-0">
+                    <span className={cn(
+                      "text-xs px-3 py-1.5 rounded-full font-semibold border-2 flex-shrink-0 animate-pulse",
+                      colorParts[2],
+                      colorParts[3],
+                      "text-white/90 shadow-md"
+                    )}>
                       {Object.keys(value).length} fields
                     </span>
                   )}
@@ -818,7 +844,7 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
       </div>
       
       {/* Content with enhanced spacing and typography */}
-      <div className="w-full max-w-5xl mx-auto space-y-6 px-4">
+      <div className="w-full max-w-7xl mx-auto space-y-6 px-4">
         {renderCompleteData(data, searchQuery, 0, "", handleCopyValue, (title: string, description: string) => {
           toast({
             title,
