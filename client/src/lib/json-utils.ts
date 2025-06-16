@@ -262,37 +262,33 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
             // Clear any existing animations first
             allCards.forEach(card => {
               (card as HTMLElement).classList.remove('fade-siblings', 'focus-highlight');
-              (card as HTMLElement).style.opacity = '';
+              (card as HTMLElement).style.removeProperty('opacity');
             });
 
-            // Force a reflow to ensure classes are cleared
-            void (targetCard as HTMLElement).offsetHeight;
+            // Force a reflow
+            targetCard.getBoundingClientRect();
 
-            // Apply target highlighting immediately with strong protection
+            // Apply highlight to target first with absolute protection
             targetCard.classList.add('focus-highlight');
-            (targetCard as HTMLElement).style.opacity = '1';
-            (targetCard as HTMLElement).style.setProperty('opacity', '1', 'important');
+            targetCard.setAttribute('data-target-protected', 'true');
 
-            // Then fade all other cards (with delay to ensure target is fully protected)
+            // Apply fade to siblings only, completely excluding target
             setTimeout(() => {
               allCards.forEach(card => {
-                if (card !== targetCard) {
+                if (card !== targetCard && !card.hasAttribute('data-target-protected')) {
                   (card as HTMLElement).classList.add('fade-siblings');
                 }
               });
-              
-              // Double-check target opacity is still protected
-              (targetCard as HTMLElement).style.setProperty('opacity', '1', 'important');
-            }, 150);
+            }, 100);
 
             // After 2.5 seconds, restore everything
             setTimeout(() => {
               allCards.forEach(card => {
                 (card as HTMLElement).classList.remove('fade-siblings');
-                (card as HTMLElement).style.opacity = '';
+                (card as HTMLElement).style.removeProperty('opacity');
               });
               targetCard.classList.remove('focus-highlight');
-              (targetCard as HTMLElement).style.opacity = '';
+              targetCard.removeAttribute('data-target-protected');
             }, 2500);
           }
         }

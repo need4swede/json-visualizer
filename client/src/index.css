@@ -181,15 +181,18 @@
     transition: opacity 0.4s ease-in-out;
   }
   
-  /* Override fade-siblings when focus-highlight is present */
-  .focus-highlight {
+  /* Completely exclude protected elements from any fade effects */
+  [data-target-protected="true"] {
     opacity: 1 !important;
   }
   
-  /* Ensure focused element never gets faded regardless of class order */
-  .apple-card.focus-highlight,
-  .focus-highlight.fade-siblings,
-  .fade-siblings.focus-highlight {
+  /* Never apply fade to protected elements even if they have the fade class */
+  .fade-siblings[data-target-protected="true"] {
+    opacity: 1 !important;
+  }
+  
+  /* Focus highlight ensures target stays visible */
+  .focus-highlight {
     opacity: 1 !important;
   }
   
