@@ -504,7 +504,7 @@ export default function JsonParser() {
                       <span className="font-semibold text-green-800 dark:text-green-200">Zero-Knowledge Architecture</span>
                     </div>
                     <p className="text-green-700 dark:text-green-300">
-                      Your data is encrypted on your device before being sent to our servers. We never see your unencrypted data.
+                      Data is encrypted on your device before transmission. The server never receives unencrypted content.
                     </p>
                   </div>
 
@@ -612,7 +612,7 @@ export default function JsonParser() {
                       <div>
                         <span className="font-semibold text-amber-800 dark:text-amber-200">Important Security Note</span>
                         <p className="text-amber-700 dark:text-amber-300 mt-1">
-                          While we implement industry-standard security measures, please avoid sharing extremely sensitive data. 
+                          While industry-standard security measures are implemented, avoid sharing extremely sensitive data. 
                           Always verify the recipient before sharing encrypted URLs.
                         </p>
                       </div>
