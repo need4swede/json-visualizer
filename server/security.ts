@@ -30,7 +30,7 @@ export const securityConfig = {
   
   // Prevent clickjacking attacks
   frameguard: {
-    action: "deny" as const,
+    action: "deny",
   },
   
   // Prevent MIME type sniffing
