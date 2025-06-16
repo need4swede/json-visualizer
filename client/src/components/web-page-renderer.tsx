@@ -654,16 +654,16 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
         else if (isObject) colorScheme = 'object';
         
         const colorClasses: Record<ColorScheme, string> = {
-          id: 'from-blue-400 to-cyan-400 bg-blue-500/10 border-blue-400/20',
-          name: 'from-violet-400 to-purple-400 bg-violet-500/10 border-violet-400/20',
-          text: 'from-green-400 to-emerald-400 bg-green-500/10 border-green-400/20',
-          date: 'from-orange-400 to-amber-400 bg-orange-500/10 border-orange-400/20',
-          link: 'from-indigo-400 to-blue-400 bg-indigo-500/10 border-indigo-400/20',
-          email: 'from-pink-400 to-rose-400 bg-pink-500/10 border-pink-400/20',
-          number: 'from-teal-400 to-cyan-400 bg-teal-500/10 border-teal-400/20',
-          array: 'from-purple-400 to-fuchsia-400 bg-purple-500/10 border-purple-400/20',
-          object: 'from-slate-400 to-gray-400 bg-slate-500/10 border-slate-400/20',
-          default: 'from-gray-400 to-slate-400 bg-gray-500/10 border-gray-400/20'
+          id: 'from-blue-400 to-cyan-400 bg-gradient-to-br bg-blue-500/15 border-blue-400/30',
+          name: 'from-violet-400 to-purple-400 bg-gradient-to-br bg-violet-500/15 border-violet-400/30',
+          text: 'from-green-400 to-emerald-400 bg-gradient-to-br bg-green-500/15 border-green-400/30',
+          date: 'from-orange-400 to-amber-400 bg-gradient-to-br bg-orange-500/15 border-orange-400/30',
+          link: 'from-indigo-400 to-blue-400 bg-gradient-to-br bg-indigo-500/15 border-indigo-400/30',
+          email: 'from-pink-400 to-rose-400 bg-gradient-to-br bg-pink-500/15 border-pink-400/30',
+          number: 'from-teal-400 to-cyan-400 bg-gradient-to-br bg-teal-500/15 border-teal-400/30',
+          array: 'from-purple-400 to-fuchsia-400 bg-gradient-to-br bg-purple-500/15 border-purple-400/30',
+          object: 'from-slate-400 to-gray-400 bg-gradient-to-br bg-slate-500/15 border-slate-400/30',
+          default: 'from-gray-400 to-slate-400 bg-gradient-to-br bg-gray-500/15 border-gray-400/30'
         };
         
         const currentColorClass = colorClasses[colorScheme];
@@ -679,12 +679,22 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
             id={`section-${fieldPath.replace(/[\[\]\.]/g, '-')}`}
             className={cn(
               cardClass,
-              "group relative p-5 mb-4 border-l-4 transition-all duration-300",
-              colorParts[2], // background color
-              colorParts[3], // border color  
-              `hover:shadow-lg hover:shadow-${colorScheme}-500/10`,
-              isLeafNode && "hover:-translate-y-1 hover:scale-[1.02]",
-              !isLeafNode && "hover:shadow-xl"
+              "group relative p-6 mb-6 border-l-4 transition-all duration-500",
+              // Add vibrant gradient backgrounds based on color scheme
+              colorScheme === 'id' && "bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-cyan-500/20",
+              colorScheme === 'name' && "bg-gradient-to-br from-violet-500/20 via-purple-600/10 to-purple-500/20",
+              colorScheme === 'text' && "bg-gradient-to-br from-green-500/20 via-emerald-600/10 to-emerald-500/20",
+              colorScheme === 'date' && "bg-gradient-to-br from-orange-500/20 via-amber-600/10 to-amber-500/20",
+              colorScheme === 'link' && "bg-gradient-to-br from-indigo-500/20 via-blue-600/10 to-blue-500/20",
+              colorScheme === 'email' && "bg-gradient-to-br from-pink-500/20 via-rose-600/10 to-rose-500/20",
+              colorScheme === 'number' && "bg-gradient-to-br from-teal-500/20 via-cyan-600/10 to-cyan-500/20",
+              colorScheme === 'array' && "bg-gradient-to-br from-purple-500/20 via-fuchsia-600/10 to-fuchsia-500/20",
+              colorScheme === 'object' && "bg-gradient-to-br from-slate-500/20 via-gray-600/10 to-gray-500/20",
+              colorScheme === 'default' && "bg-gradient-to-br from-gray-500/20 via-slate-600/10 to-slate-500/20",
+              colorParts[5], // border color with increased opacity
+              `hover:shadow-2xl hover:shadow-${colorScheme}-500/20`,
+              isLeafNode && "hover:-translate-y-2 hover:scale-[1.03]",
+              !isLeafNode && "hover:shadow-2xl hover:-translate-y-1"
             )}
             style={{
               animationDelay: `${(level * 100)}ms`,
@@ -697,34 +707,32 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   "w-5 h-5 rounded-full bg-gradient-to-br shadow-lg flex-shrink-0 animate-pulse",
                   colorParts.slice(0, 2).join(' ')
                 )}></div>
-                <div className="flex items-center space-x-4 flex-1 min-w-0">
+                <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4 flex-1 min-w-0">
                   <h4 className={cn(
-                    "font-semibold tracking-tight capitalize break-words",
+                    "font-bold tracking-tight capitalize break-words text-left",
                     isLeafNode ? "text-lg text-white/95" : "text-xl text-white/100",
-                    "bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent"
+                    "bg-gradient-to-r from-white via-white/95 to-white/80 bg-clip-text text-transparent drop-shadow-sm"
                   )}>
                     {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
                   </h4>
-                  {isArray && (
-                    <span className={cn(
-                      "text-xs px-3 py-1.5 rounded-full font-semibold border-2 flex-shrink-0 animate-bounce",
-                      colorParts[2],
-                      colorParts[3],
-                      "text-white/90 shadow-md"
-                    )}>
-                      {value.length} items
-                    </span>
-                  )}
-                  {isObject && !isArray && (
-                    <span className={cn(
-                      "text-xs px-3 py-1.5 rounded-full font-semibold border-2 flex-shrink-0 animate-pulse",
-                      colorParts[2],
-                      colorParts[3],
-                      "text-white/90 shadow-md"
-                    )}>
-                      {Object.keys(value).length} fields
-                    </span>
-                  )}
+                  <div className="flex items-center space-x-2 flex-shrink-0">
+                    {isArray && (
+                      <span className={cn(
+                        "text-xs px-3 py-1.5 rounded-full font-bold border-2 animate-gentle-bounce shadow-lg",
+                        colorScheme === 'array' && "bg-gradient-to-r from-purple-500 to-fuchsia-500 border-purple-400/50 text-white"
+                      )}>
+                        📋 {value.length} items
+                      </span>
+                    )}
+                    {isObject && !isArray && (
+                      <span className={cn(
+                        "text-xs px-3 py-1.5 rounded-full font-bold border-2 animate-color-pulse shadow-lg",
+                        colorScheme === 'object' && "bg-gradient-to-r from-slate-500 to-gray-500 border-slate-400/50 text-white"
+                      )}>
+                        🏗️ {Object.keys(value).length} fields
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               
