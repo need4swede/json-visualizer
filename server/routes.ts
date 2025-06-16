@@ -2,10 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertJsonDataSchema } from "@shared/schema";
+import { sanitizeJSON } from "./sanitizer";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // JSON data storage endpoints
-  app.post("/api/json", async (req, res) => {
+  app.post("/api/json", sanitizeJSON, async (req, res) => {
     try {
       console.log("=== POST /api/json ===");
       console.log("Request body:", JSON.stringify(req.body, null, 2));
