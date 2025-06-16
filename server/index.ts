@@ -2,8 +2,22 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
+import helmet from "helmet";
+import { 
+  securityConfig, 
+  httpsRedirect, 
+  securityHeaders, 
+  securityAudit 
+} from "./security";
 
 const app = express();
+
+// Security middleware - Apply first for maximum protection
+app.use(httpsRedirect);
+app.use(helmet(securityConfig));
+app.use(securityHeaders);
+app.use(securityAudit);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
