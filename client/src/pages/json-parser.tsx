@@ -244,10 +244,14 @@ export default function JsonParser() {
     if (!parsedData) return;
 
     try {
+      console.log('=== SHARE BUTTON CLICKED ===');
+      console.log('Starting encryption process...');
+      
       // Use the original encryption system
       const { storeJsonData } = await import("@/lib/json-utils");
-      const result = await storeJsonData(parsedData, 48);
+      console.log('Imported storeJsonData function');
       
+      const result = await storeJsonData(parsedData, 48);
       console.log('Encryption result:', result);
       console.log('Result type:', typeof result);
       console.log('Result keys:', Object.keys(result || {}));
@@ -258,8 +262,10 @@ export default function JsonParser() {
 
       const shareableUrl = `${window.location.origin}/${result.id}#key=${result.key}`;
       console.log('Generated URL:', shareableUrl);
+      console.log('URL length:', shareableUrl.length);
       
       await navigator.clipboard.writeText(shareableUrl);
+      console.log('URL copied to clipboard successfully');
       
       toast({
         title: "URL copied to clipboard!",

@@ -52,15 +52,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Add a catch-all route to log any unusual requests
   app.get("*", (req, res, next) => {
-    console.log("=== CATCH-ALL ROUTE ===");
-    console.log("Request URL:", req.url);
-    console.log("Request path:", req.path);
-    console.log("Request params:", req.params);
-    console.log("Request query:", req.query);
-    
-    // Only log for paths that might be our JSON URLs
-    if (req.path.match(/^\/\d+/) || req.path.includes('object')) {
-      console.log("Potential JSON URL request detected");
+    // Only log for paths that might be our JSON URLs or contain 'object'
+    if (req.path.match(/^\/\d+/) || req.path.includes('object') || req.path.includes('[object')) {
+      console.log("=== POTENTIAL JSON URL REQUEST ===");
+      console.log("Request URL:", req.url);
+      console.log("Request path:", req.path);
+      console.log("Request params:", req.params);
+      console.log("Request query:", req.query);
     }
     
     next();
