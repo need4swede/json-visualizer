@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, Download, Search, X, FileCode, ChevronDown, Hash, List, User, Building2, Mail, MapPin, Navigation, ArrowUp, ChevronRight, Menu, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { copyToClipboard, downloadJson, formatJson, decodeJsonFromUrl, createSectionId, scrollToSection } from "@/lib/json-utils";
+import { copyToClipboard, downloadJson, formatJson, decodeJsonFromUrl, createSectionId, scrollToSection, extractSectionFromUrl } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -329,16 +329,16 @@ export default function FullscreenJson() {
   // Handle hash navigation for anchor links
   useEffect(() => {
     const handleHashChange = (isInitialLoad = false) => {
-      const hash = window.location.hash.substring(1);
-      if (hash && jsonData) {
+      const sectionId = extractSectionFromUrl();
+      if (sectionId && jsonData) {
         if (isInitialLoad) {
           // For initial page load with hash, wait for DOM to be fully rendered
           setTimeout(() => {
-            scrollToSection(hash, true);
+            scrollToSection(sectionId, true);
           }, 500);
         } else {
           // For hash changes during navigation, scroll immediately
-          scrollToSection(hash, true);
+          scrollToSection(sectionId, true);
         }
       }
     };
