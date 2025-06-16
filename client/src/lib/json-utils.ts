@@ -333,7 +333,7 @@ async function getFromLocalStorageWithExpiration(id: string, key?: string): Prom
       const storedKey = localStorage.getItem(`json-data-${id}-key`);
       
       // If no key available or data is not encrypted, return as-is
-      const decryptionKey = key || storedKey;
+      const decryptionKey = key || (storedKey ?? undefined);
       if (!decryptionKey || !encryptedPayload.encryptedData || !encryptedPayload.iv) {
         return encryptedPayload;
       }
@@ -368,7 +368,7 @@ export async function encodeJsonForUrl(data: any): Promise<string> {
 
 export async function decodeJsonFromUrl(id: string): Promise<any> {
   const key = extractKeyFromUrl();
-  return await retrieveJsonData(id, key);
+  return await retrieveJsonData(id, key || undefined);
 }
 
 // Extract encryption key from URL fragment

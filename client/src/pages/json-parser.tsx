@@ -244,17 +244,17 @@ export default function JsonParser() {
     if (!parsedData) return;
 
     try {
-      // Quick share with default 48-hour expiration
-      const { storeJsonData } = await import("@/lib/json-utils");
-      const shortId = await storeJsonData(parsedData, 48);
+      // Quick share with client-side encryption and 48-hour expiration
+      const { storeJsonData, createShareableUrl } = await import("@/lib/json-utils");
+      const { id, key } = await storeJsonData(parsedData, 48);
 
-      // Create shareable URL with short ID
-      const shareableUrl = `${window.location.origin}/${shortId}`;
+      // Create shareable URL with encryption key in fragment
+      const shareableUrl = createShareableUrl(id, key);
       window.open(shareableUrl, '_blank');
 
       toast({
         title: "Opened in new tab",
-        description: `Shareable URL: /${shortId} (expires in 48 hours)`,
+        description: `Encrypted shareable URL created (expires in 48 hours)`,
       });
     } catch (error) {
       // Fallback to sessionStorage for very large JSON
