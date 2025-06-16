@@ -165,23 +165,30 @@
 
 @layer utilities {
   .focus-highlight {
-    border: 2px solid rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
     box-shadow: 
       0 0 0 1px rgba(255, 255, 255, 0.4),
       0 0 20px rgba(255, 255, 255, 0.3),
-      0 0 40px rgba(255, 255, 255, 0.1);
-    animation: shiny-border 2.5s ease-in-out;
-    position: relative;
-    z-index: 20;
+      0 0 40px rgba(255, 255, 255, 0.1) !important;
+    animation: shiny-border 2.5s ease-in-out !important;
+    position: relative !important;
+    z-index: 20 !important;
     opacity: 1 !important; /* Ensure target stays fully visible */
   }
   
   .fade-siblings {
-    opacity: 0.25;
+    opacity: 0.25 !important;
     transition: opacity 0.4s ease-in-out;
   }
   
-  /* Ensure focused element always stays at full opacity */
+  /* Override fade-siblings when focus-highlight is present */
+  .focus-highlight {
+    opacity: 1 !important;
+  }
+  
+  /* Ensure focused element never gets faded regardless of class order */
+  .apple-card.focus-highlight,
+  .focus-highlight.fade-siblings,
   .fade-siblings.focus-highlight {
     opacity: 1 !important;
   }

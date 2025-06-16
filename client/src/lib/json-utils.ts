@@ -262,26 +262,28 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
             // Clear any existing animations first
             allCards.forEach(card => {
               (card as HTMLElement).classList.remove('fade-siblings', 'focus-highlight');
+              (card as HTMLElement).style.opacity = '';
             });
 
             // Force a reflow to ensure classes are cleared
             void (targetCard as HTMLElement).offsetHeight;
 
-            // Add shiny border to target card FIRST with explicit opacity protection
+            // Apply target highlighting immediately with strong protection
             targetCard.classList.add('focus-highlight');
             (targetCard as HTMLElement).style.opacity = '1';
+            (targetCard as HTMLElement).style.setProperty('opacity', '1', 'important');
 
             // Then fade all other cards (with delay to ensure target is fully protected)
             setTimeout(() => {
               allCards.forEach(card => {
                 if (card !== targetCard) {
-                  // Double-check target isn't getting faded
-                  if (!card.classList.contains('focus-highlight')) {
-                    (card as HTMLElement).classList.add('fade-siblings');
-                  }
+                  (card as HTMLElement).classList.add('fade-siblings');
                 }
               });
-            }, 100);
+              
+              // Double-check target opacity is still protected
+              (targetCard as HTMLElement).style.setProperty('opacity', '1', 'important');
+            }, 150);
 
             // After 2.5 seconds, restore everything
             setTimeout(() => {
