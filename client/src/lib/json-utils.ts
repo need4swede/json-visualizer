@@ -263,22 +263,45 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
             allCards.forEach(card => {
               (card as HTMLElement).classList.remove('fade-siblings', 'focus-highlight');
               (card as HTMLElement).style.removeProperty('opacity');
+              (card as HTMLElement).removeAttribute('data-target-protected');
             });
 
             // Force a reflow
             targetCard.getBoundingClientRect();
 
-            // Apply highlight to target first with absolute protection
+            // Apply highlight and protection to target
             targetCard.classList.add('focus-highlight');
             targetCard.setAttribute('data-target-protected', 'true');
+            
+            // Force inline style protection
+            targetCard.style.setProperty('opacity', '1', 'important');
+            
+            console.log('=== Target Element Debug ===');
+            console.log('Target element:', targetCard);
+            console.log('Target classes:', targetCard.className);
+            console.log('Target inline styles:', targetCard.style.cssText);
+            console.log('Target computed opacity:', window.getComputedStyle(targetCard).opacity);
+            console.log('Target parent:', targetCard.parentElement);
+            console.log('Target parent classes:', targetCard.parentElement?.className);
 
-            // Apply fade to siblings only, completely excluding target
+            // Apply fade using direct style manipulation instead of classes
             setTimeout(() => {
-              allCards.forEach(card => {
-                if (card !== targetCard && !card.hasAttribute('data-target-protected')) {
-                  (card as HTMLElement).classList.add('fade-siblings');
+              allCards.forEach((card, index) => {
+                if (card !== targetCard) {
+                  console.log(`Fading sibling ${index}:`, card.className);
+                  (card as HTMLElement).style.setProperty('opacity', '0.25', 'important');
+                  (card as HTMLElement).style.setProperty('transition', 'opacity 0.4s ease-in-out');
+                } else {
+                  console.log('Protecting target - forcing opacity to 1');
+                  (card as HTMLElement).style.setProperty('opacity', '1', 'important');
                 }
               });
+              
+              // Double-check target after all siblings are faded
+              setTimeout(() => {
+                console.log('Final target opacity check:', window.getComputedStyle(targetCard).opacity);
+                targetCard.style.setProperty('opacity', '1', 'important');
+              }, 50);
             }, 100);
 
             // After 2.5 seconds, restore everything
@@ -286,9 +309,12 @@ export function scrollToSection(sectionId: string, highlight: boolean = true): v
               allCards.forEach(card => {
                 (card as HTMLElement).classList.remove('fade-siblings');
                 (card as HTMLElement).style.removeProperty('opacity');
+                (card as HTMLElement).style.removeProperty('transition');
               });
               targetCard.classList.remove('focus-highlight');
               targetCard.removeAttribute('data-target-protected');
+              targetCard.style.removeProperty('opacity');
+              console.log('Animation complete - all styles cleared');
             }, 2500);
           }
         }

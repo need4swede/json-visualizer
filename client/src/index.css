@@ -182,17 +182,22 @@
   }
   
   /* Completely exclude protected elements from any fade effects */
-  [data-target-protected="true"] {
+  [data-target-protected="true"],
+  [data-target-protected="true"] *,
+  .focus-highlight,
+  .focus-highlight * {
     opacity: 1 !important;
   }
   
   /* Never apply fade to protected elements even if they have the fade class */
-  .fade-siblings[data-target-protected="true"] {
+  .fade-siblings[data-target-protected="true"],
+  .fade-siblings .focus-highlight,
+  .fade-siblings [data-target-protected="true"] {
     opacity: 1 !important;
   }
   
-  /* Focus highlight ensures target stays visible */
-  .focus-highlight {
+  /* Ensure parent containers don't affect protected children */
+  .apple-card:has([data-target-protected="true"]) {
     opacity: 1 !important;
   }
   
