@@ -163,10 +163,21 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Pulsing animations for different elements */
+  /* Protect content from opacity changes during hover */
+  .apple-card:hover * {
+    opacity: 1 !important;
+  }
+
+  /* Pause animations on hover to prevent conflicts */
+  .apple-card:hover .animate-color-pulse,
+  .apple-card:hover .animate-gentle-bounce {
+    animation-play-state: paused;
+  }
+
+  /* Non-opacity based animations for better compatibility */
   @keyframes colorPulse {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
   }
 
   @keyframes gentleBounce {
