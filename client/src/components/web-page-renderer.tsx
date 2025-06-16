@@ -669,11 +669,15 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
         const currentColorClass = colorClasses[colorScheme];
         const colorParts = currentColorClass.split(' ');
         
+        // Determine if this is a leaf node (contains primitive data) or parent container
+        const isLeafNode = isPrimitive || (isArray && value.every((item: any) => typeof item !== 'object'));
+        const cardClass = isLeafNode ? "apple-card data-leaf" : "apple-card data-parent";
+        
         return (
           <div 
             key={key} 
             id={`section-${fieldPath.replace(/[\[\]\.]/g, '-')}`}
-            className="apple-card group relative p-6"
+            className={`${cardClass} group relative p-6`}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">

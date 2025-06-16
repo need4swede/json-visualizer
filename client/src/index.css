@@ -111,12 +111,18 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
   
-  .apple-card:hover {
+  /* Only apply hover effects to leaf nodes (data elements) */
+  .apple-card.data-leaf:hover {
     @apply bg-white/[0.1] border-white/[0.15] -translate-y-1;
     box-shadow: 
       0 20px 60px rgba(0, 0, 0, 0.2),
       0 8px 24px rgba(0, 0, 0, 0.15),
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  
+  /* Parent containers should have subtle hover only */
+  .apple-card.data-parent:hover {
+    @apply border-white/[0.12];
   }
   
   .custom-scrollbar {
