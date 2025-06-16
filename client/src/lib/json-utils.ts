@@ -143,33 +143,133 @@ export function generateShortId(): string {
   return Math.floor(Math.random() * (max - min + 1) + min).toString();
 }
 
-// Store JSON data with a short ID using backend API
-export async function storeJsonData(data: any, expirationHours: number = 48): Promise<string> {
+// Encryption utilities using Web Crypto API
+async function generateEncryptionKey(): Promise<CryptoKey> {
+  return await crypto.subtle.generateKey(
+    {
+      name: 'AES-GCM',
+      length: 256
+    },
+    true,
+    ['encrypt', 'decrypt']
+  );
+}
+
+async function exportKey(key: CryptoKey): Promise<string> {
+  const exported = await crypto.subtle.exportKey('raw', key);
+  const uint8Array = new Uint8Array(exported);
+  let binaryString = '';
+  for (let i = 0; i < uint8Array.length; i++) {
+    binaryString += String.fromCharCode(uint8Array[i]);
+  }
+  return btoa(binaryString);
+}
+
+async function importKey(keyString: string): Promise<CryptoKey> {
+  const keyData = new Uint8Array(
+    atob(keyString).split('').map(char => char.charCodeAt(0))
+  );
+  return await crypto.subtle.importKey(
+    'raw',
+    keyData,
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt']
+  );
+}
+
+async function encryptData(data: any, key: CryptoKey): Promise<{ encryptedData: string; iv: string }> {
+  const jsonString = JSON.stringify(data);
+  const encoder = new TextEncoder();
+  const encodedData = encoder.encode(jsonString);
+  
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    encodedData
+  );
+  
+  const encryptedArray = new Uint8Array(encrypted);
+  const ivArray = new Uint8Array(iv);
+  
+  let encryptedString = '';
+  for (let i = 0; i < encryptedArray.length; i++) {
+    encryptedString += String.fromCharCode(encryptedArray[i]);
+  }
+  
+  let ivString = '';
+  for (let i = 0; i < ivArray.length; i++) {
+    ivString += String.fromCharCode(ivArray[i]);
+  }
+  
+  return {
+    encryptedData: btoa(encryptedString),
+    iv: btoa(ivString)
+  };
+}
+
+async function decryptData(encryptedData: string, iv: string, key: CryptoKey): Promise<any> {
+  const encryptedBytes = new Uint8Array(
+    atob(encryptedData).split('').map(char => char.charCodeAt(0))
+  );
+  const ivBytes = new Uint8Array(
+    atob(iv).split('').map(char => char.charCodeAt(0))
+  );
+  
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: ivBytes },
+    key,
+    encryptedBytes
+  );
+  
+  const decoder = new TextDecoder();
+  const jsonString = decoder.decode(decrypted);
+  return JSON.parse(jsonString);
+}
+
+// Store JSON data with client-side encryption
+export async function storeJsonData(data: any, expirationHours: number = 48): Promise<{ id: string; key: string }> {
   const id = generateShortId();
   const expiresAt = new Date(Date.now() + expirationHours * 60 * 60 * 1000);
 
   try {
+    // Generate encryption key and encrypt data client-side
+    const encryptionKey = await generateEncryptionKey();
+    const keyString = await exportKey(encryptionKey);
+    const { encryptedData, iv } = await encryptData(data, encryptionKey);
+
+    // Store only encrypted data on server
     const response = await fetch('/api/json', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id, data, expiresAt }),
+      body: JSON.stringify({ 
+        id, 
+        data: { encryptedData, iv }, // Server never sees original data
+        expiresAt 
+      }),
     });
 
     if (!response.ok) {
       throw new Error('Failed to store JSON data');
     }
 
-    return id;
+    return { id, key: keyString };
   } catch (error) {
     console.error('Error storing JSON data:', error);
-    // Fallback to localStorage for offline functionality
-    const jsonString = JSON.stringify(data);
-    localStorage.setItem(`json-data-${id}`, jsonString);
+    // Fallback to localStorage with encryption
+    const encryptionKey = await generateEncryptionKey();
+    const keyString = await exportKey(encryptionKey);
+    const { encryptedData, iv } = await encryptData(data, encryptionKey);
+    
+    localStorage.setItem(`json-data-${id}`, JSON.stringify({ encryptedData, iv }));
     localStorage.setItem(`json-data-${id}-timestamp`, Date.now().toString());
     localStorage.setItem(`json-data-${id}-expires`, expiresAt.toISOString());
-    return id;
+    localStorage.setItem(`json-data-${id}-key`, keyString);
+    
+    return { id, key: keyString };
   }
 }
 
