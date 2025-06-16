@@ -1,0 +1,102 @@
+[vite] connecting... client:495:9
+[vite] connected. client:618:15
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools chunk-WERSD76P.js:21551:25
+=== Target Element Debug === json-utils.ts:201:21
+Target element: 
+<div id="section-web-app-servlet-0--servlet-name" class="apple-card data-leaf gro…ive p-6 focus-highlight" data-replit-metadata="client/src/components/web-page-renderer.tsx:677:10" data-component-name="div" data-target-protected="true" style="opacity: 1 !important;">
+json-utils.ts:202:21
+Target classes: apple-card data-leaf group relative p-6 focus-highlight json-utils.ts:203:21
+Target inline styles: opacity: 1 !important; json-utils.ts:204:21
+Target computed opacity: 1 json-utils.ts:205:21
+Target parent: 
+<div class="space-y-4" data-replit-metadata="client/src/components/web-page-renderer.tsx:635:4" data-component-name="div">
+json-utils.ts:206:21
+Target parent classes: space-y-4 json-utils.ts:207:21
+Fading sibling 0: apple-card data-parent group relative p-6 json-utils.ts:211:27
+Fading sibling 1: apple-card data-parent group relative p-6 json-utils.ts:211:27
+Fading sibling 2: apple-card group relative p-8 json-utils.ts:211:27
+Protecting target - forcing opacity to 1 json-utils.ts:215:27
+Fading sibling 4: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 5: apple-card data-parent group relative p-6 json-utils.ts:211:27
+Fading sibling 6: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 7: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 8: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 9: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 10: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 11: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 12: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 13: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 14: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 15: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 16: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 17: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 18: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 19: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 20: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 21: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 22: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 23: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 24: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 25: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 26: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 27: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 28: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 29: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 30: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 31: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 32: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 33: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 34: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 35: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 36: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 37: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 38: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 39: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 40: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 41: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 42: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 43: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 44: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 45: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 46: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 47: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 48: apple-card group relative p-8 json-utils.ts:211:27
+Fading sibling 49: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 50: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 51: apple-card data-parent group relative p-6 json-utils.ts:211:27
+Fading sibling 52: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 53: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 54: apple-card group relative p-8 json-utils.ts:211:27
+Fading sibling 55: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 56: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 57: apple-card group relative p-8 json-utils.ts:211:27
+Fading sibling 58: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 59: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 60: apple-card group relative p-8 json-utils.ts:211:27
+Fading sibling 61: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 62: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 63: apple-card data-parent group relative p-6 json-utils.ts:211:27
+Fading sibling 64: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 65: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 66: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 67: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 68: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 69: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 70: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 71: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 72: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 73: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 74: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 75: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 76: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 77: apple-card data-parent group relative p-6 json-utils.ts:211:27
+Fading sibling 78: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 79: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 80: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 81: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 82: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 83: apple-card data-parent group relative p-6 json-utils.ts:211:27
+Fading sibling 84: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Fading sibling 85: apple-card data-leaf group relative p-6 json-utils.ts:211:27
+Final target opacity check: 1 json-utils.ts:220:25
+Animation complete - all styles cleared json-utils.ts:233:23

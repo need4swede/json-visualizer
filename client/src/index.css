@@ -181,23 +181,31 @@
     transition: opacity 0.4s ease-in-out;
   }
   
-  /* Completely exclude protected elements from any fade effects */
+  /* Animation target gets absolute protection - highest specificity */
+  .animation-target,
+  .animation-target *,
   [data-target-protected="true"],
   [data-target-protected="true"] *,
   .focus-highlight,
   .focus-highlight * {
     opacity: 1 !important;
+    visibility: visible !important;
   }
   
-  /* Never apply fade to protected elements even if they have the fade class */
+  /* Override any fade effects on protected elements */
+  .fade-siblings.animation-target,
   .fade-siblings[data-target-protected="true"],
   .fade-siblings .focus-highlight,
-  .fade-siblings [data-target-protected="true"] {
+  .fade-siblings .animation-target,
+  .animation-target.fade-siblings {
     opacity: 1 !important;
+    visibility: visible !important;
   }
   
-  /* Ensure parent containers don't affect protected children */
-  .apple-card:has([data-target-protected="true"]) {
+  /* Container-level protection */
+  .apple-card:has(.animation-target),
+  .apple-card:has([data-target-protected="true"]),
+  .apple-card:has(.focus-highlight) {
     opacity: 1 !important;
   }
   
