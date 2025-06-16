@@ -24,6 +24,8 @@ export const insertJsonDataSchema = createInsertSchema(jsonData).pick({
   id: true,
   data: true,
   expiresAt: true,
+}).extend({
+  expiresAt: z.union([z.date(), z.string().transform((str) => new Date(str))]),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
