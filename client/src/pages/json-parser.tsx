@@ -243,74 +243,54 @@ export default function JsonParser() {
   const handleQuickShare = async () => {
     if (!parsedData) return;
 
-    // Store logs in localStorage so we can see them even after navigation
-    const logToStorage = (message: string, data?: any) => {
-      const logs = JSON.parse(localStorage.getItem('debug-logs') || '[]');
-      logs.push({ timestamp: Date.now(), message, data });
-      localStorage.setItem('debug-logs', JSON.stringify(logs));
-      console.log(message, data);
-    };
-
-    // Clear previous logs
-    localStorage.removeItem('debug-logs');
-
     try {
-      logToStorage('=== Starting handleQuickShare ===');
+      // Test without any complex functions first
+      console.log('=== SHARE TEST START ===');
+      console.log('parsedData:', parsedData);
       
-      // Test basic URL construction
-      const testId = '123456789';
-      const testKey = 'abcdef123456';
-      const testUrl = `${window.location.origin}/${testId}#key=${testKey}`;
-      logToStorage('Test URL construction:', testUrl);
+      // Simple test: just try to generate a basic URL
+      const simpleId = '123456789';
+      const simpleKey = 'test-key-123';
+      const simpleUrl = `${window.location.origin}/${simpleId}#key=${simpleKey}`;
+      console.log('Simple URL test:', simpleUrl);
       
-      // Try the actual encryption
-      logToStorage('Importing storeJsonData...');
+      // Now try the encryption function
       const { storeJsonData } = await import("@/lib/json-utils");
-      logToStorage('storeJsonData imported successfully');
+      console.log('Imported storeJsonData');
       
-      logToStorage('Calling storeJsonData with parsedData...');
-      const result = await storeJsonData(parsedData, 48);
-      logToStorage('storeJsonData result:', result);
+      const encryptionResult = await storeJsonData(parsedData, 48);
+      console.log('Encryption result:', encryptionResult);
+      console.log('Result type:', typeof encryptionResult);
       
-      if (!result) {
-        throw new Error('No result from storeJsonData');
+      if (!encryptionResult || typeof encryptionResult !== 'object') {
+        throw new Error('Invalid encryption result');
       }
       
-      logToStorage('Result properties:', {
-        id: result.id,
-        key: result.key,
-        idType: typeof result.id,
-        keyType: typeof result.key
-      });
-
-      // Create URL step by step to identify the issue
-      const baseUrl = window.location.origin;
-      const id = result.id;
-      const key = result.key;
+      console.log('ID from result:', encryptionResult.id);
+      console.log('Key from result:', encryptionResult.key);
+      console.log('ID type:', typeof encryptionResult.id);
+      console.log('Key type:', typeof encryptionResult.key);
       
-      logToStorage('URL components:', { baseUrl, id, key });
+      // Manually construct URL to avoid any object conversion issues
+      const urlId = String(encryptionResult.id);
+      const urlKey = String(encryptionResult.key);
       
-      const shareableUrl = `${baseUrl}/${id}#key=${key}`;
-      logToStorage('Final constructed URL:', shareableUrl);
+      console.log('String converted ID:', urlId);
+      console.log('String converted Key:', urlKey);
+      
+      const finalUrl = window.location.origin + '/' + urlId + '#key=' + urlKey;
+      console.log('Final URL:', finalUrl);
       
       // Copy to clipboard
-      await navigator.clipboard.writeText(shareableUrl);
-      logToStorage('URL copied to clipboard successfully');
+      await navigator.clipboard.writeText(finalUrl);
+      console.log('URL copied to clipboard');
       
-      toast({
-        title: "URL copied to clipboard!",
-        description: "Open DevTools → Application → Local Storage → debug-logs to see details",
-      });
+      // Simple alert instead of toast to avoid any side effects
+      alert(`URL copied to clipboard: ${finalUrl.substring(0, 50)}...`);
       
     } catch (error) {
-      logToStorage('ERROR in handleQuickShare:', error);
-      
-      // Show error in toast so it's visible
-      toast({
-        title: "Share failed",
-        description: `Error: ${error instanceof Error ? error.message : String(error)}. Check console and localStorage 'debug-logs'`,
-        variant: "destructive",
-      });
+      console.error('Share error:', error);
+      alert(`Share failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
 
