@@ -244,44 +244,38 @@ export default function JsonParser() {
     if (!parsedData) return;
 
     try {
-      // Skip encryption entirely and test basic functionality
-      const testId = Math.floor(100000000 + Math.random() * 900000000).toString();
-      const testKey = btoa(Math.random().toString()).substring(0, 32);
+      // Use the original encryption system
+      const { storeJsonData } = await import("@/lib/json-utils");
+      const result = await storeJsonData(parsedData, 48);
       
-      console.log('Test ID:', testId);
-      console.log('Test Key:', testKey);
+      console.log('Encryption result:', result);
+      console.log('Result type:', typeof result);
+      console.log('Result keys:', Object.keys(result || {}));
       
-      // Store unencrypted data temporarily for testing
-      const response = await fetch('/api/json', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          id: testId, 
-          data: parsedData,
-          expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to store data');
+      if (!result || !result.id || !result.key) {
+        throw new Error('Invalid encryption result');
       }
 
-      const testUrl = `${window.location.origin}/${testId}#key=${testKey}`;
-      console.log('Generated URL:', testUrl);
+      const shareableUrl = `${window.location.origin}/${result.id}#key=${result.key}`;
+      console.log('Generated URL:', shareableUrl);
       
-      await navigator.clipboard.writeText(testUrl);
+      await navigator.clipboard.writeText(shareableUrl);
       
       toast({
-        title: "Test URL created",
-        description: `Non-encrypted test URL: /${testId}`,
+        title: "URL copied to clipboard!",
+        description: "Encrypted shareable URL created (expires in 48 hours)",
       });
       
     } catch (error) {
-      console.error('Test error:', error);
+      console.error('Share error:', error);
+      // Fallback to sessionStorage
+      sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
+      const fullscreenUrl = `${window.location.origin}/fullscreen`;
+      window.open(fullscreenUrl, '_blank');
+
       toast({
-        title: "Test failed",
-        description: error instanceof Error ? error.message : String(error),
-        variant: "destructive",
+        title: "Opened in new tab",
+        description: "JSON is now displayed in full-screen mode",
       });
     }
   };
