@@ -12,6 +12,7 @@ export const jsonData = pgTable("json_data", {
   id: text("id").primaryKey(),
   data: json("data").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -22,6 +23,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertJsonDataSchema = createInsertSchema(jsonData).pick({
   id: true,
   data: true,
+  expiresAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

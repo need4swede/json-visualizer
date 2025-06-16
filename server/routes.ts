@@ -20,11 +20,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const jsonData = await storage.getJsonData(id);
-      
+
       if (!jsonData) {
-        return res.status(404).json({ error: "JSON data not found" });
+        return res.status(404).json({ error: "JSON data not found or expired" });
       }
-      
+
       res.json(jsonData);
     } catch (error) {
       console.error("Error retrieving JSON data:", error);

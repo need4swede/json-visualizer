@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { storage } from "./storage";
 
 const app = express();
 app.use(express.json());
@@ -58,11 +59,36 @@ app.use((req, res, next) => {
 
   // Use PORT environment variable for Docker deployment, fallback to 5000 for development
   const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  server.listen(port, () => {
     log(`serving on port ${port}`);
   });
+
+  // Start background cleanup process for expired JSON data
+  const startCleanupProcess = () => {
+    const cleanupInterval = setInterval(async () => {
+      try {
+        const cleanedCount = await storage.cleanupExpiredData();
+        if (cleanedCount > 0) {
+          log(`Cleaned up ${cleanedCount} expired JSON records`);
+        }
+      } catch (error) {
+        console.error("Error during cleanup process:", error);
+      }
+    }, 60 * 60 * 1000); // Run every hour (60 minutes * 60 seconds * 1000 ms)
+
+    // Cleanup on process termination
+    process.on('SIGINT', () => {
+      clearInterval(cleanupInterval);
+      process.exit(0);
+    });
+
+    process.on('SIGTERM', () => {
+      clearInterval(cleanupInterval);
+      process.exit(0);
+    });
+
+    log("Background cleanup process started (runs every hour)");
+  };
+
+  startCleanupProcess();
 })();

@@ -9,6 +9,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   storeJsonData(data: InsertJsonData): Promise<JsonData>;
   getJsonData(id: string): Promise<JsonData | undefined>;
+  cleanupExpiredData(): Promise<number>;
 }
 
 export class MemStorage implements IStorage {
@@ -43,13 +44,38 @@ export class MemStorage implements IStorage {
     const jsonRecord: JsonData = {
       ...data,
       createdAt: new Date(),
+      expiresAt: data.expiresAt,
     };
     this.jsonData.set(data.id, jsonRecord);
     return jsonRecord;
   }
 
   async getJsonData(id: string): Promise<JsonData | undefined> {
-    return this.jsonData.get(id);
+    const jsonRecord = this.jsonData.get(id);
+
+    // Check if data exists and hasn't expired
+    if (jsonRecord && new Date() > jsonRecord.expiresAt) {
+      // Data has expired, remove it and return undefined
+      this.jsonData.delete(id);
+      return undefined;
+    }
+
+    return jsonRecord;
+  }
+
+  async cleanupExpiredData(): Promise<number> {
+    const now = new Date();
+    let cleanedCount = 0;
+
+    const entries = Array.from(this.jsonData.entries());
+    for (const [id, jsonRecord] of entries) {
+      if (now > jsonRecord.expiresAt) {
+        this.jsonData.delete(id);
+        cleanedCount++;
+      }
+    }
+
+    return cleanedCount;
   }
 }
 

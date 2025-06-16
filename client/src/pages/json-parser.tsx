@@ -1,35 +1,40 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { 
-  Upload, 
-  Download, 
-  Copy, 
-  Trash2, 
-  Code, 
-  TreePine, 
-  Search, 
+import {
+  Upload,
+  Download,
+  Copy,
+  Trash2,
+  Code,
+  TreePine,
+  Search,
   Check,
   X,
   AlertCircle,
   FileCode,
   Activity,
   Maximize2,
-  ExternalLink
+  ExternalLink,
+  Clock,
+  Share2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 import { useToast } from "@/hooks/use-toast";
 import { JsonTree } from "@/components/json-tree";
 import { JsonRenderer } from "@/components/json-renderer";
-import { 
-  validateJson, 
-  formatJson, 
-  calculateStats, 
-  downloadJson, 
+import {
+  validateJson,
+  formatJson,
+  calculateStats,
+  downloadJson,
   copyToClipboard,
   encodeJsonForUrl,
-  type JsonStats 
+  type JsonStats
 } from "@/lib/json-utils";
 import { cn } from "@/lib/utils";
 
@@ -44,18 +49,21 @@ export default function JsonParser() {
   const [searchQuery, setSearchQuery] = useState("");
   const [stats, setStats] = useState<JsonStats>({ lines: 0, size: 0, objects: 0 });
   const [isDragOver, setIsDragOver] = useState(false);
-  
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [expirationHours, setExpirationHours] = useState("24");
+  const [isSharing, setIsSharing] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const validateAndParse = useCallback((input: string) => {
     const result = validateJson(input);
-    
+
     if (result.isValid) {
       setParsedData(result.data);
       setIsValid(true);
       setErrorMessage("");
-      
+
       const newStats = calculateStats(input, result.data);
       setStats(newStats);
     } else {
@@ -100,12 +108,12 @@ export default function JsonParser() {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
-    const jsonFile = files.find(file => 
+    const jsonFile = files.find(file =>
       file.type === "application/json" || file.name.endsWith(".json")
     );
-    
+
     if (jsonFile) {
       handleFileUpload(jsonFile);
     } else {
@@ -156,10 +164,10 @@ export default function JsonParser() {
 
   const handleCopy = async () => {
     try {
-      const textToCopy = (viewMode === "raw" || viewMode === "rendered") && parsedData 
-        ? formatJson(parsedData) 
+      const textToCopy = (viewMode === "raw" || viewMode === "rendered") && parsedData
+        ? formatJson(parsedData)
         : jsonInput;
-      
+
       await copyToClipboard(textToCopy);
       toast({
         title: "Copied to clipboard",
@@ -184,27 +192,76 @@ export default function JsonParser() {
     }
   };
 
-  const handleFullscreen = async () => {
+  const handleShare = async () => {
     if (!parsedData) return;
-    
+
+    setIsSharing(true);
+
     try {
-      // Generate short ID and store JSON data
-      const shortId = await encodeJsonForUrl(parsedData);
-      
+      // Use storeJsonData with expiration
+      const { storeJsonData } = await import("@/lib/json-utils");
+      const shortId = await storeJsonData(parsedData, parseInt(expirationHours));
+
       // Create shareable URL with short ID
-      const fullscreenUrl = `${window.location.origin}/${shortId}`;
+      const shareableUrl = `${window.location.origin}/${shortId}`;
+
+      // Copy URL to clipboard
+      await copyToClipboard(shareableUrl);
+
+      // Open in new tab
+      window.open(shareableUrl, '_blank');
+
+      const expirationText = expirationHours === "24" ? "24 hours" :
+                           expirationHours === "48" ? "48 hours" :
+                           expirationHours === "168" ? "7 days" : `${expirationHours} hours`;
+
+      toast({
+        title: "Shareable link created",
+        description: `URL copied to clipboard. Expires in ${expirationText}.`,
+      });
+
+      setIsShareDialogOpen(false);
+    } catch (error) {
+      console.error('Error creating shareable link:', error);
+
+      // Fallback to sessionStorage for very large JSON
+      sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
+      const fullscreenUrl = `${window.location.origin}/fullscreen`;
       window.open(fullscreenUrl, '_blank');
-      
+
       toast({
         title: "Opened in new tab",
-        description: `Shareable URL: /${shortId}`,
+        description: "JSON is now displayed in full-screen mode (local storage fallback)",
+      });
+
+      setIsShareDialogOpen(false);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
+  const handleQuickShare = async () => {
+    if (!parsedData) return;
+
+    try {
+      // Quick share with default 48-hour expiration
+      const { storeJsonData } = await import("@/lib/json-utils");
+      const shortId = await storeJsonData(parsedData, 48);
+
+      // Create shareable URL with short ID
+      const shareableUrl = `${window.location.origin}/${shortId}`;
+      window.open(shareableUrl, '_blank');
+
+      toast({
+        title: "Opened in new tab",
+        description: `Shareable URL: /${shortId} (expires in 48 hours)`,
       });
     } catch (error) {
       // Fallback to sessionStorage for very large JSON
       sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
       const fullscreenUrl = `${window.location.origin}/fullscreen`;
       window.open(fullscreenUrl, '_blank');
-      
+
       toast({
         title: "Opened in new tab",
         description: "JSON is now displayed in full-screen mode",
@@ -216,8 +273,8 @@ export default function JsonParser() {
     if (isValid === null) {
       return <AlertCircle className="w-4 h-4 text-muted-foreground" />;
     }
-    return isValid ? 
-      <Check className="w-4 h-4 text-green-500" /> : 
+    return isValid ?
+      <Check className="w-4 h-4 text-green-500" /> :
       <X className="w-4 h-4 text-red-500" />;
   };
 
@@ -286,9 +343,9 @@ export default function JsonParser() {
                 </Button>
               </div>
             </div>
-            
+
             <div className="space-y-4">
-              <div 
+              <div
                 className="relative h-96"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -300,7 +357,7 @@ export default function JsonParser() {
                   placeholder="Enter your JSON here or upload a file..."
                   className="w-full h-full p-4 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-white/30 dark:border-white/10 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 custom-scrollbar font-mono text-sm"
                 />
-                
+
                 {isDragOver && (
                   <div className="absolute inset-0 border-2 border-dashed border-purple-500/50 rounded-xl bg-purple-500/5 flex items-center justify-center">
                     <div className="text-center">
@@ -310,7 +367,7 @@ export default function JsonParser() {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <input
@@ -333,7 +390,7 @@ export default function JsonParser() {
                     Upload File
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   {getValidationIcon()}
                   <span className={cn("text-sm", getValidationColor())}>
@@ -356,9 +413,9 @@ export default function JsonParser() {
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse-gentle"></div>
                     <span className="text-green-400 font-medium">Valid JSON</span>
                   </div>
-                  
+
                   <div className="w-px h-5 bg-white/20 dark:bg-white/10"></div>
-                  
+
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <Activity className="w-4 h-4" />
@@ -367,9 +424,9 @@ export default function JsonParser() {
                     <div>Size: {stats.size}b</div>
                     <div>Objects: {stats.objects}</div>
                   </div>
-                  
+
                   <div className="w-px h-5 bg-white/20 dark:bg-white/10"></div>
-                  
+
                   <div className="flex items-center space-x-3 text-xs text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <kbd className="px-1.5 py-0.5 bg-black/20 rounded text-xs">⌘</kbd>
@@ -383,20 +440,32 @@ export default function JsonParser() {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Right Section - Actions */}
                 <div className="flex items-center space-x-2">
+                  <Select value={expirationHours} onValueChange={setExpirationHours}>
+                    <SelectTrigger className="w-32 h-8 text-xs glass-button border-white/20 dark:border-white/10" style={{borderRadius: '10rem'}}>
+                      <Clock className="w-3 h-3 mr-1" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="24">24 hours</SelectItem>
+                      <SelectItem value="48">48 hours</SelectItem>
+                      <SelectItem value="168">7 days</SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleFullscreen}
+                    onClick={handleShare}
                     className="glass-button text-purple-600 dark:text-purple-400 hover:scale-105 transition-transform"
                     style={{borderRadius: '10rem'}}
                   >
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Open Rendered View
+                    View Rendered JSON
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -407,7 +476,7 @@ export default function JsonParser() {
                   >
                     <Copy className="w-4 h-4" />
                   </Button>
-                  
+
                   <Button
                     variant="ghost"
                     size="sm"
@@ -423,8 +492,6 @@ export default function JsonParser() {
             </div>
           </div>
         )}
-
-
       </main>
     </div>
   );
