@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Copy, ExternalLink, Mail, Phone, MapPin, Calendar, User, Building2, Globe, Tag, Hash, DollarSign } from "lucide-react";
+import { Copy, ExternalLink, Mail, Phone, MapPin, Calendar, User, Building2, Globe, Tag, Hash, DollarSign, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights, createSectionId, createAnchorUrl } from "@/lib/json-utils";
+import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights, createSectionId, createAnchorUrl, storeJsonData, createShareableUrl } from "@/lib/json-utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface WebPageRendererProps {
@@ -588,7 +588,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   </div>
                 </div>
                 
-                {/* Copy and Anchor buttons for array items */}
+                {/* Copy, Anchor, and Share buttons for array items */}
                 <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     variant="ghost"
@@ -616,6 +616,25 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                     title="Copy anchor link"
                   >
                     <Hash className="w-3 h-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        handleToast("Creating secure share link...", "Encrypting and storing data");
+                        const { id, key } = await storeJsonData(item);
+                        const shareUrl = createShareableUrl(id, key);
+                        await copyToClipboard(shareUrl);
+                        handleToast("Element shared", `Secure link for item ${index + 1} copied to clipboard`);
+                      } catch (error) {
+                        handleToast("Share failed", "Could not create shareable link");
+                      }
+                    }}
+                    className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                    title="Share this element"
+                  >
+                    <Lock className="w-3 h-3" />
                   </Button>
                 </div>
               </div>
@@ -756,7 +775,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                 </div>
               </div>
               
-              {/* Copy and Anchor buttons */}
+              {/* Copy, Anchor, and Share buttons */}
               <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                 <Button
                   variant="ghost"
@@ -784,6 +803,25 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   title="Copy anchor link"
                 >
                   <Hash className="w-3.5 h-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      handleToast("Creating secure share link...", "Encrypting and storing data");
+                      const { id, key } = await storeJsonData(value);
+                      const shareUrl = createShareableUrl(id, key);
+                      await copyToClipboard(shareUrl);
+                      handleToast("Element shared", `Secure link for ${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')} copied to clipboard`);
+                    } catch (error) {
+                      handleToast("Share failed", "Could not create shareable link");
+                    }
+                  }}
+                  className="h-7 w-7 p-0 hover:bg-white/15 rounded-lg transition-colors"
+                  title="Share this element"
+                >
+                  <Lock className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
