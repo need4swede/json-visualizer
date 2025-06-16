@@ -248,19 +248,36 @@ export default function JsonParser() {
       const { storeJsonData } = await import("@/lib/json-utils");
       const result = await storeJsonData(parsedData, 48);
       
-      console.log('Store result:', result);
-      console.log('Type of result:', typeof result);
-      console.log('ID:', result.id);
-      console.log('Key:', result.key);
+      // Ensure we have valid string values
+      const id = String(result.id || '');
+      const key = String(result.key || '');
+      
+      console.log('After String conversion - ID:', id, 'Key:', key);
+      console.log('ID type:', typeof id, 'Key type:', typeof key);
+      
+      if (!id || !key || id === 'undefined' || key === 'undefined') {
+        console.error('Invalid ID or key:', { id, key, result });
+        throw new Error('Failed to generate valid ID or encryption key');
+      }
 
       // Create shareable URL with encryption key in fragment
-      const shareableUrl = `${window.location.origin}/${result.id}#key=${result.key}`;
-      console.log('Shareable URL:', shareableUrl);
-      window.open(shareableUrl, '_blank');
-
+      const shareableUrl = `${window.location.origin}/${id}#key=${key}`;
+      console.log('Final URL before opening:', shareableUrl);
+      
+      // Copy to clipboard instead of opening immediately to prevent navigation
+      await navigator.clipboard.writeText(shareableUrl);
+      
       toast({
-        title: "Opened in new tab",
-        description: `Encrypted shareable URL created (expires in 48 hours)`,
+        title: "URL copied to clipboard!",
+        description: "The encrypted shareable URL has been copied. Click to open in new tab.",
+        action: (
+          <button 
+            onClick={() => window.open(shareableUrl, '_blank')}
+            className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
+          >
+            Open
+          </button>
+        ),
       });
     } catch (error) {
       // Fallback to sessionStorage for very large JSON

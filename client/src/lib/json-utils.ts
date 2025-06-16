@@ -156,13 +156,20 @@ async function generateEncryptionKey(): Promise<CryptoKey> {
 }
 
 async function exportKey(key: CryptoKey): Promise<string> {
-  const exported = await crypto.subtle.exportKey('raw', key);
-  const uint8Array = new Uint8Array(exported);
-  let binaryString = '';
-  for (let i = 0; i < uint8Array.length; i++) {
-    binaryString += String.fromCharCode(uint8Array[i]);
+  try {
+    const exported = await crypto.subtle.exportKey('raw', key);
+    const uint8Array = new Uint8Array(exported);
+    let binaryString = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binaryString += String.fromCharCode(uint8Array[i]);
+    }
+    const base64Key = btoa(binaryString);
+    console.log('Exported key length:', base64Key.length);
+    return base64Key;
+  } catch (error) {
+    console.error('Error exporting key:', error);
+    throw error;
   }
-  return btoa(binaryString);
 }
 
 async function importKey(keyString: string): Promise<CryptoKey> {
@@ -233,10 +240,16 @@ export async function storeJsonData(data: any, expirationHours: number = 48): Pr
   const id = generateShortId();
   const expiresAt = new Date(Date.now() + expirationHours * 60 * 60 * 1000);
 
+  console.log('Generated ID:', id, 'Type:', typeof id);
+
   try {
     // Generate encryption key and encrypt data client-side
     const encryptionKey = await generateEncryptionKey();
     const keyString = await exportKey(encryptionKey);
+    
+    console.log('Generated key string:', keyString, 'Type:', typeof keyString);
+    console.log('Key string length:', keyString.length);
+    
     const { encryptedData, iv } = await encryptData(data, encryptionKey);
 
     // Store only encrypted data on server
@@ -256,7 +269,12 @@ export async function storeJsonData(data: any, expirationHours: number = 48): Pr
       throw new Error('Failed to store JSON data');
     }
 
-    return { id, key: keyString };
+    const result = { id, key: keyString };
+    console.log('Final result:', result);
+    console.log('Result type:', typeof result);
+    console.log('Result keys:', Object.keys(result));
+    
+    return result;
   } catch (error) {
     console.error('Error storing JSON data:', error);
     // Fallback to localStorage with encryption
