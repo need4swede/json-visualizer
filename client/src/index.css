@@ -104,25 +104,25 @@
   }
   
   .apple-card {
-    @apply bg-white/[0.03] backdrop-blur-2xl border border-white/[0.1] rounded-2xl transition-all duration-300;
+    @apply bg-white/[0.02] backdrop-blur-sm border border-white/[0.08] rounded-xl transition-all duration-300;
     box-shadow: 
-      0 12px 40px rgba(0, 0, 0, 0.15),
-      0 4px 12px rgba(0, 0, 0, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      0 4px 20px rgba(0, 0, 0, 0.08),
+      0 1px 4px rgba(0, 0, 0, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
   
-  /* Only apply hover effects to leaf nodes (data elements) */
+  /* Enhanced hover effects for data elements */
   .apple-card.data-leaf:hover {
-    @apply bg-white/[0.1] border-white/[0.15] -translate-y-1;
+    @apply bg-white/[0.06] border-white/[0.12] -translate-y-0.5;
     box-shadow: 
-      0 20px 60px rgba(0, 0, 0, 0.2),
-      0 8px 24px rgba(0, 0, 0, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   
-  /* Parent containers should have subtle hover only */
+  /* Subtle hover for parent containers */
   .apple-card.data-parent:hover {
-    @apply border-white/[0.12];
+    @apply border-white/[0.1] bg-white/[0.025];
   }
   
   .custom-scrollbar {

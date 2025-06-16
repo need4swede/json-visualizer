@@ -632,7 +632,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
   // Handle objects
   const entries = Object.entries(data);
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {entries.filter(([key, value]) => matchesSearchData(value, key)).map(([key, value]) => {
         const fieldPath = path ? `${path}.${key}` : key;
         const isObject = typeof value === 'object' && value !== null;
@@ -677,31 +677,33 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
           <div 
             key={key} 
             id={`section-${fieldPath.replace(/[\[\]\.]/g, '-')}`}
-            className={`${cardClass} group relative p-6`}
+            className={`${cardClass} group relative ${isLeafNode ? 'p-4' : 'p-5'} ${isLeafNode ? 'mb-3' : 'mb-4'}`}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
                 <div className={cn(
-                  "w-4 h-4 rounded-full bg-gradient-to-r shadow-lg",
+                  "w-3 h-3 rounded-full bg-gradient-to-r shadow-sm flex-shrink-0",
                   colorParts.slice(0, 2).join(' ')
                 )}></div>
-                <h4 className="font-semibold text-lg text-white/95 tracking-tight capitalize">
-                  {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
-                </h4>
-                {isArray && (
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/70 font-medium border border-white/20">
-                    {value.length} items
-                  </span>
-                )}
-                {isObject && !isArray && (
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white/70 font-medium border border-white/20">
-                    {Object.keys(value).length} fields
-                  </span>
-                )}
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <h4 className={`font-medium ${isLeafNode ? 'text-base' : 'text-lg'} text-white/90 tracking-tight capitalize truncate`}>
+                    {highlightText(key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' '))}
+                  </h4>
+                  {isArray && (
+                    <span className="text-xs px-2 py-1 rounded-md bg-white/8 text-white/60 font-medium border border-white/10 flex-shrink-0">
+                      {value.length} items
+                    </span>
+                  )}
+                  {isObject && !isArray && (
+                    <span className="text-xs px-2 py-1 rounded-md bg-white/8 text-white/60 font-medium border border-white/10 flex-shrink-0">
+                      {Object.keys(value).length} fields
+                    </span>
+                  )}
+                </div>
               </div>
               
               {/* Copy and Anchor buttons */}
-              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -710,10 +712,10 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                       onCopy(value);
                     }
                   }}
-                  className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                  className="h-7 w-7 p-0 hover:bg-white/15 rounded-lg transition-colors"
                   title="Copy value"
                 >
-                  <Copy className="w-3 h-3" />
+                  <Copy className="w-3.5 h-3.5" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -725,21 +727,28 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                     navigator.clipboard.writeText(url.toString());
                     handleToast("Anchor link copied", "Direct link to this section copied to clipboard");
                   }}
-                  className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
+                  className="h-7 w-7 p-0 hover:bg-white/15 rounded-lg transition-colors"
                   title="Copy anchor link"
                 >
-                  <Hash className="w-3 h-3" />
+                  <Hash className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
             
-            <div className={cn(
-              "relative",
-              !isPrimitive && "pl-4 border-l-2",
-              !isPrimitive && colorParts.slice(-2).join(' ')
-            )}>
-              {renderCompleteData(value, searchQuery, level + 1, fieldPath, onCopy, handleToast)}
-            </div>
+            {!isPrimitive && (
+              <div className={cn(
+                "relative mt-3",
+                "pl-5 border-l border-white/10",
+                level === 0 && "pl-6"
+              )}>
+                {renderCompleteData(value, searchQuery, level + 1, fieldPath, onCopy, handleToast)}
+              </div>
+            )}
+            {isPrimitive && (
+              <div className="mt-2 pl-6">
+                {renderPrimitive(value, key)}
+              </div>
+            )}
           </div>
         );
       })}
@@ -809,7 +818,7 @@ export function WebPageRenderer({ data, searchQuery }: WebPageRendererProps) {
       </div>
       
       {/* Content with enhanced spacing and typography */}
-      <div className="w-full max-w-6xl mx-auto space-y-8">
+      <div className="w-full max-w-5xl mx-auto space-y-6 px-4">
         {renderCompleteData(data, searchQuery, 0, "", handleCopyValue, (title: string, description: string) => {
           toast({
             title,
