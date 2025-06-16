@@ -244,53 +244,45 @@ export default function JsonParser() {
     if (!parsedData) return;
 
     try {
-      // Test without any complex functions first
-      console.log('=== SHARE TEST START ===');
-      console.log('parsedData:', parsedData);
+      // Skip encryption entirely and test basic functionality
+      const testId = Math.floor(100000000 + Math.random() * 900000000).toString();
+      const testKey = btoa(Math.random().toString()).substring(0, 32);
       
-      // Simple test: just try to generate a basic URL
-      const simpleId = '123456789';
-      const simpleKey = 'test-key-123';
-      const simpleUrl = `${window.location.origin}/${simpleId}#key=${simpleKey}`;
-      console.log('Simple URL test:', simpleUrl);
+      console.log('Test ID:', testId);
+      console.log('Test Key:', testKey);
       
-      // Now try the encryption function
-      const { storeJsonData } = await import("@/lib/json-utils");
-      console.log('Imported storeJsonData');
-      
-      const encryptionResult = await storeJsonData(parsedData, 48);
-      console.log('Encryption result:', encryptionResult);
-      console.log('Result type:', typeof encryptionResult);
-      
-      if (!encryptionResult || typeof encryptionResult !== 'object') {
-        throw new Error('Invalid encryption result');
+      // Store unencrypted data temporarily for testing
+      const response = await fetch('/api/json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          id: testId, 
+          data: parsedData,
+          expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to store data');
       }
+
+      const testUrl = `${window.location.origin}/${testId}#key=${testKey}`;
+      console.log('Generated URL:', testUrl);
       
-      console.log('ID from result:', encryptionResult.id);
-      console.log('Key from result:', encryptionResult.key);
-      console.log('ID type:', typeof encryptionResult.id);
-      console.log('Key type:', typeof encryptionResult.key);
+      await navigator.clipboard.writeText(testUrl);
       
-      // Manually construct URL to avoid any object conversion issues
-      const urlId = String(encryptionResult.id);
-      const urlKey = String(encryptionResult.key);
-      
-      console.log('String converted ID:', urlId);
-      console.log('String converted Key:', urlKey);
-      
-      const finalUrl = window.location.origin + '/' + urlId + '#key=' + urlKey;
-      console.log('Final URL:', finalUrl);
-      
-      // Copy to clipboard
-      await navigator.clipboard.writeText(finalUrl);
-      console.log('URL copied to clipboard');
-      
-      // Simple alert instead of toast to avoid any side effects
-      alert(`URL copied to clipboard: ${finalUrl.substring(0, 50)}...`);
+      toast({
+        title: "Test URL created",
+        description: `Non-encrypted test URL: /${testId}`,
+      });
       
     } catch (error) {
-      console.error('Share error:', error);
-      alert(`Share failed: ${error instanceof Error ? error.message : String(error)}`);
+      console.error('Test error:', error);
+      toast({
+        title: "Test failed",
+        description: error instanceof Error ? error.message : String(error),
+        variant: "destructive",
+      });
     }
   };
 
