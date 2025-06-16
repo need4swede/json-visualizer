@@ -621,7 +621,7 @@ export default function JsonParser() {
                         <span className="font-semibold text-amber-800 dark:text-amber-200">Important Security Note</span>
                         <p className="text-amber-700 dark:text-amber-300 mt-1">
                           While industry-standard security measures are implemented, avoid sharing extremely sensitive data. 
-                          Always verify the recipient before sharing encrypted URLs.
+                          <br></br>Always verify the recipient before sharing encrypted URLs.
                         </p>
                       </div>
                     </div>
