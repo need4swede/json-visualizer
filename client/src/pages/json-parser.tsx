@@ -246,10 +246,16 @@ export default function JsonParser() {
     try {
       // Quick share with client-side encryption and 48-hour expiration
       const { storeJsonData } = await import("@/lib/json-utils");
-      const { id, key } = await storeJsonData(parsedData, 48);
+      const result = await storeJsonData(parsedData, 48);
+      
+      console.log('Store result:', result);
+      console.log('Type of result:', typeof result);
+      console.log('ID:', result.id);
+      console.log('Key:', result.key);
 
       // Create shareable URL with encryption key in fragment
-      const shareableUrl = `${window.location.origin}/${id}#key=${key}`;
+      const shareableUrl = `${window.location.origin}/${result.id}#key=${result.key}`;
+      console.log('Shareable URL:', shareableUrl);
       window.open(shareableUrl, '_blank');
 
       toast({
