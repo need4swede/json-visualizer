@@ -639,31 +639,44 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
         const isArray = Array.isArray(value);
         const isPrimitive = !isObject;
         
-        // Determine color scheme based on key type
+        // Determine color scheme with level-based rotation for visual hierarchy
         type ColorScheme = 'id' | 'name' | 'text' | 'date' | 'link' | 'email' | 'number' | 'array' | 'object' | 'default';
-        let colorScheme: ColorScheme = 'default';
         const lowerKey = key.toLowerCase();
-        if (lowerKey.includes('id') || lowerKey.includes('key')) colorScheme = 'id';
-        else if (lowerKey.includes('name') || lowerKey.includes('title')) colorScheme = 'name';
-        else if (lowerKey.includes('description') || lowerKey.includes('content') || lowerKey.includes('text')) colorScheme = 'text';
-        else if (lowerKey.includes('date') || lowerKey.includes('time')) colorScheme = 'date';
-        else if (lowerKey.includes('url') || lowerKey.includes('link')) colorScheme = 'link';
-        else if (lowerKey.includes('email')) colorScheme = 'email';
-        else if (lowerKey.includes('phone') || lowerKey.includes('number')) colorScheme = 'number';
-        else if (isArray) colorScheme = 'array';
-        else if (isObject) colorScheme = 'object';
+        
+        // Create a color rotation array for different nesting levels
+        const colorRotation: ColorScheme[] = [
+          'id', 'name', 'text', 'date', 'link', 'email', 'number', 'array', 'object'
+        ];
+        
+        let baseColorScheme: ColorScheme = 'default';
+        
+        // Determine base color from key content
+        if (lowerKey.includes('id') || lowerKey.includes('key')) baseColorScheme = 'id';
+        else if (lowerKey.includes('name') || lowerKey.includes('title')) baseColorScheme = 'name';
+        else if (lowerKey.includes('description') || lowerKey.includes('content') || lowerKey.includes('text')) baseColorScheme = 'text';
+        else if (lowerKey.includes('date') || lowerKey.includes('time')) baseColorScheme = 'date';
+        else if (lowerKey.includes('url') || lowerKey.includes('link')) baseColorScheme = 'link';
+        else if (lowerKey.includes('email')) baseColorScheme = 'email';
+        else if (lowerKey.includes('phone') || lowerKey.includes('number')) baseColorScheme = 'number';
+        else if (isArray) baseColorScheme = 'array';
+        else if (isObject) baseColorScheme = 'object';
+        
+        // Apply level-based color rotation to create visual hierarchy
+        const baseIndex = colorRotation.indexOf(baseColorScheme);
+        const rotatedIndex = baseIndex >= 0 ? (baseIndex + level * 2) % colorRotation.length : level % colorRotation.length;
+        const colorScheme = colorRotation[rotatedIndex];
         
         const colorClasses: Record<ColorScheme, string> = {
-          id: 'from-blue-400 to-cyan-400 bg-gradient-to-br bg-blue-500/15 border-blue-400/30',
-          name: 'from-violet-400 to-purple-400 bg-gradient-to-br bg-violet-500/15 border-violet-400/30',
-          text: 'from-green-400 to-emerald-400 bg-gradient-to-br bg-green-500/15 border-green-400/30',
-          date: 'from-orange-400 to-amber-400 bg-gradient-to-br bg-orange-500/15 border-orange-400/30',
-          link: 'from-indigo-400 to-blue-400 bg-gradient-to-br bg-indigo-500/15 border-indigo-400/30',
-          email: 'from-pink-400 to-rose-400 bg-gradient-to-br bg-pink-500/15 border-pink-400/30',
-          number: 'from-teal-400 to-cyan-400 bg-gradient-to-br bg-teal-500/15 border-teal-400/30',
-          array: 'from-purple-400 to-fuchsia-400 bg-gradient-to-br bg-purple-500/15 border-purple-400/30',
-          object: 'from-slate-400 to-gray-400 bg-gradient-to-br bg-slate-500/15 border-slate-400/30',
-          default: 'from-gray-400 to-slate-400 bg-gradient-to-br bg-gray-500/15 border-gray-400/30'
+          id: 'from-blue-400 to-cyan-400 bg-blue-500/15 border-blue-400/30',
+          name: 'from-violet-400 to-purple-400 bg-violet-500/15 border-violet-400/30',
+          text: 'from-green-400 to-emerald-400 bg-green-500/15 border-green-400/30',
+          date: 'from-orange-400 to-amber-400 bg-orange-500/15 border-orange-400/30',
+          link: 'from-indigo-400 to-blue-400 bg-indigo-500/15 border-indigo-400/30',
+          email: 'from-pink-400 to-rose-400 bg-pink-500/15 border-pink-400/30',
+          number: 'from-teal-400 to-cyan-400 bg-teal-500/15 border-teal-400/30',
+          array: 'from-purple-400 to-fuchsia-400 bg-purple-500/15 border-purple-400/30',
+          object: 'from-slate-400 to-gray-400 bg-slate-500/15 border-slate-400/30',
+          default: 'from-gray-400 to-slate-400 bg-gray-500/15 border-gray-400/30'
         };
         
         const currentColorClass = colorClasses[colorScheme];
@@ -680,20 +693,14 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
             className={cn(
               cardClass,
               "group relative p-6 mb-6 border-l-4 transition-all duration-500",
-              // Add vibrant gradient backgrounds based on color scheme
-              colorScheme === 'id' && "bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-cyan-500/20",
-              colorScheme === 'name' && "bg-gradient-to-br from-violet-500/20 via-purple-600/10 to-purple-500/20",
-              colorScheme === 'text' && "bg-gradient-to-br from-green-500/20 via-emerald-600/10 to-emerald-500/20",
-              colorScheme === 'date' && "bg-gradient-to-br from-orange-500/20 via-amber-600/10 to-amber-500/20",
-              colorScheme === 'link' && "bg-gradient-to-br from-indigo-500/20 via-blue-600/10 to-blue-500/20",
-              colorScheme === 'email' && "bg-gradient-to-br from-pink-500/20 via-rose-600/10 to-rose-500/20",
-              colorScheme === 'number' && "bg-gradient-to-br from-teal-500/20 via-cyan-600/10 to-cyan-500/20",
-              colorScheme === 'array' && "bg-gradient-to-br from-purple-500/20 via-fuchsia-600/10 to-fuchsia-500/20",
-              colorScheme === 'object' && "bg-gradient-to-br from-slate-500/20 via-gray-600/10 to-gray-500/20",
-              colorScheme === 'default' && "bg-gradient-to-br from-gray-500/20 via-slate-600/10 to-slate-500/20",
-              colorParts[5], // border color with increased opacity
-              `hover:shadow-2xl hover:shadow-${colorScheme}-500/20`,
-              isLeafNode && "hover:-translate-y-2 hover:scale-[1.03]",
+              // Different background opacity based on nesting level for better hierarchy
+              level === 0 && colorParts[2], // Full opacity for top level
+              level === 1 && colorParts[2].replace('/15', '/12'), // Slightly less for level 1
+              level === 2 && colorParts[2].replace('/15', '/10'), // Even less for level 2
+              level >= 3 && colorParts[2].replace('/15', '/8'), // Minimal for deeper levels
+              colorParts[3], // border color
+              "hover:bg-white/[0.08] hover:border-white/[0.15]", // Consistent hover state like the good one you saw
+              isLeafNode && "hover:-translate-y-2 hover:scale-[1.02]",
               !isLeafNode && "hover:shadow-2xl hover:-translate-y-1"
             )}
             style={{
@@ -704,7 +711,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-4 flex-1 min-w-0">
                 <div className={cn(
-                  "w-5 h-5 rounded-full bg-gradient-to-br shadow-lg flex-shrink-0 animate-pulse",
+                  "w-5 h-5 rounded-full bg-gradient-to-br shadow-lg flex-shrink-0 animate-color-pulse border-2 border-white/20",
                   colorParts.slice(0, 2).join(' ')
                 )}></div>
                 <div className="flex flex-col lg:flex-row lg:items-center space-y-2 lg:space-y-0 lg:space-x-4 flex-1 min-w-0">
@@ -718,16 +725,16 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   <div className="flex items-center space-x-2 flex-shrink-0">
                     {isArray && (
                       <span className={cn(
-                        "text-xs px-3 py-1.5 rounded-full font-bold border-2 animate-gentle-bounce shadow-lg",
-                        colorScheme === 'array' && "bg-gradient-to-r from-purple-500 to-fuchsia-500 border-purple-400/50 text-white"
+                        "text-xs px-3 py-1.5 rounded-full font-bold border-2 animate-gentle-bounce shadow-lg text-white",
+                        `bg-gradient-to-r ${colorParts.slice(0, 2).join(' ')} ${colorParts[3]}`
                       )}>
                         📋 {value.length} items
                       </span>
                     )}
                     {isObject && !isArray && (
                       <span className={cn(
-                        "text-xs px-3 py-1.5 rounded-full font-bold border-2 animate-color-pulse shadow-lg",
-                        colorScheme === 'object' && "bg-gradient-to-r from-slate-500 to-gray-500 border-slate-400/50 text-white"
+                        "text-xs px-3 py-1.5 rounded-full font-bold border-2 animate-color-pulse shadow-lg text-white",
+                        `bg-gradient-to-r ${colorParts.slice(0, 2).join(' ')} ${colorParts[3]}`
                       )}>
                         🏗️ {Object.keys(value).length} fields
                       </span>
