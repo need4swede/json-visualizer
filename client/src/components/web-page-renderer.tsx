@@ -707,27 +707,20 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
             onMouseEnter={(e) => {
               e.stopPropagation();
               const target = e.currentTarget;
-              const elementInfo = `${key} (level ${level}, ${isLeafNode ? 'leaf' : 'parent'})`;
-              console.log('🟢 Mouse ENTER:', elementInfo, target);
               
               // Remove direct-hover from all other cards first
               document.querySelectorAll('.apple-card.direct-hover').forEach(el => {
                 if (el !== target) {
-                  console.log('🔴 Removing hover from:', el.getAttribute('id'));
                   el.classList.remove('direct-hover');
                 }
               });
               
               target.classList.add('direct-hover');
-              console.log('✅ Added direct-hover to:', elementInfo);
             }}
             onMouseLeave={(e) => {
               e.stopPropagation();
               const target = e.currentTarget;
-              const elementInfo = `${key} (level ${level}, ${isLeafNode ? 'leaf' : 'parent'})`;
-              console.log('🔵 Mouse LEAVE:', elementInfo);
               target.classList.remove('direct-hover');
-              console.log('❌ Removed direct-hover from:', elementInfo);
             }}
           >
             <div className="flex items-start justify-between mb-4">
