@@ -399,6 +399,25 @@ export function extractKeyFromUrl(): string | null {
   return match ? match[1] : null;
 }
 
+// Extract section from URL fragment
+export function extractSectionFromUrl(): string | null {
+  const hash = window.location.hash;
+  if (!hash) return null;
+  
+  const sectionMatch = hash.match(/section=([^&]+)/);
+  if (sectionMatch) {
+    return sectionMatch[1];
+  }
+  
+  // If no section parameter, check if the entire hash is a section ID
+  const hashWithoutHash = hash.substring(1);
+  if (hashWithoutHash.startsWith('section-')) {
+    return hashWithoutHash;
+  }
+  
+  return null;
+}
+
 // Create shareable URL with encrypted data and key in fragment
 export function createShareableUrl(id: string, key: string): string {
   const baseUrl = window.location.origin;
@@ -407,6 +426,25 @@ export function createShareableUrl(id: string, key: string): string {
 
 export function createSectionId(path: string): string {
   return `section-${path.replace(/[\[\]\.]/g, '-')}`;
+}
+
+// Create anchor URL with encryption key preserved
+export function createAnchorUrl(sectionId: string): string {
+  const url = new URL(window.location.href);
+  const currentHash = url.hash;
+  
+  // Extract existing key from current URL
+  const keyMatch = currentHash.match(/key=([^&]+)/);
+  const key = keyMatch ? keyMatch[1] : null;
+  
+  // Create new hash with both key and section
+  if (key) {
+    url.hash = `key=${key}&section=${sectionId}`;
+  } else {
+    url.hash = sectionId;
+  }
+  
+  return url.toString();
 }
 
 export function scrollToSection(sectionId: string, highlight: boolean = true): void {

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights, createSectionId } from "@/lib/json-utils";
+import { copyToClipboard, normalizeSearchText, createSearchRegex, matchesSearchQuery, getSearchHighlights, createSectionId, createAnchorUrl } from "@/lib/json-utils";
 import { useToast } from "@/hooks/use-toast";
 
 interface WebPageRendererProps {
@@ -344,9 +344,8 @@ function DataCard({ title, data, searchQuery, icon, path }: DataCardProps) {
           {path && (
             <button
               onClick={() => {
-                const url = new URL(window.location.href);
-                url.hash = sectionId || '';
-                navigator.clipboard.writeText(url.toString());
+                const url = createAnchorUrl(sectionId || '');
+                navigator.clipboard.writeText(url);
                 toast({
                   title: "Link copied",
                   description: "Shareable link to this section copied to clipboard",
@@ -609,9 +608,8 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                     size="sm"
                     onClick={() => {
                       const sectionId = createSectionId(itemPath);
-                      const url = new URL(window.location.href);
-                      url.hash = sectionId;
-                      navigator.clipboard.writeText(url.toString());
+                      const url = createAnchorUrl(sectionId);
+                      navigator.clipboard.writeText(url);
                       handleToast("Anchor link copied", "Direct link to this item copied to clipboard");
                     }}
                     className="h-6 w-6 p-0 hover:bg-white/20 dark:hover:bg-black/20"
@@ -778,9 +776,8 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   size="sm"
                   onClick={() => {
                     const sectionId = createSectionId(fieldPath);
-                    const url = new URL(window.location.href);
-                    url.hash = sectionId;
-                    navigator.clipboard.writeText(url.toString());
+                    const url = createAnchorUrl(sectionId);
+                    navigator.clipboard.writeText(url);
                     handleToast("Anchor link copied", "Direct link to this section copied to clipboard");
                   }}
                   className="h-7 w-7 p-0 hover:bg-white/15 rounded-lg transition-colors"
