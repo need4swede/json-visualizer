@@ -243,58 +243,73 @@ export default function JsonParser() {
   const handleQuickShare = async () => {
     if (!parsedData) return;
 
+    // Store logs in localStorage so we can see them even after navigation
+    const logToStorage = (message: string, data?: any) => {
+      const logs = JSON.parse(localStorage.getItem('debug-logs') || '[]');
+      logs.push({ timestamp: Date.now(), message, data });
+      localStorage.setItem('debug-logs', JSON.stringify(logs));
+      console.log(message, data);
+    };
+
+    // Clear previous logs
+    localStorage.removeItem('debug-logs');
+
     try {
-      // Generate a simple ID for testing
-      const testId = Math.floor(100000000 + Math.random() * 900000000).toString();
-      const testKey = 'test-key-' + Math.random().toString(36).substring(7);
+      logToStorage('=== Starting handleQuickShare ===');
       
-      // Test URL construction first
+      // Test basic URL construction
+      const testId = '123456789';
+      const testKey = 'abcdef123456';
       const testUrl = `${window.location.origin}/${testId}#key=${testKey}`;
-      console.log('Test URL:', testUrl);
+      logToStorage('Test URL construction:', testUrl);
       
-      // Now try the actual encryption
+      // Try the actual encryption
+      logToStorage('Importing storeJsonData...');
       const { storeJsonData } = await import("@/lib/json-utils");
+      logToStorage('storeJsonData imported successfully');
+      
+      logToStorage('Calling storeJsonData with parsedData...');
       const result = await storeJsonData(parsedData, 48);
+      logToStorage('storeJsonData result:', result);
       
-      console.log('Store result:', result);
-      console.log('Result type:', typeof result);
-      console.log('Result keys:', Object.keys(result || {}));
-      
-      if (!result || typeof result !== 'object') {
-        throw new Error('Invalid result from storeJsonData');
+      if (!result) {
+        throw new Error('No result from storeJsonData');
       }
       
+      logToStorage('Result properties:', {
+        id: result.id,
+        key: result.key,
+        idType: typeof result.id,
+        keyType: typeof result.key
+      });
+
+      // Create URL step by step to identify the issue
+      const baseUrl = window.location.origin;
       const id = result.id;
       const key = result.key;
       
-      console.log('Extracted ID:', id, 'Type:', typeof id);
-      console.log('Extracted Key:', key, 'Type:', typeof key);
+      logToStorage('URL components:', { baseUrl, id, key });
       
-      if (!id || !key) {
-        throw new Error('Missing ID or key in result');
-      }
-
-      // Create shareable URL with encryption key in fragment
-      const shareableUrl = `${window.location.origin}/${id}#key=${key}`;
-      console.log('Final URL:', shareableUrl);
+      const shareableUrl = `${baseUrl}/${id}#key=${key}`;
+      logToStorage('Final constructed URL:', shareableUrl);
       
       // Copy to clipboard
       await navigator.clipboard.writeText(shareableUrl);
+      logToStorage('URL copied to clipboard successfully');
       
       toast({
         title: "URL copied to clipboard!",
-        description: "Encrypted shareable URL has been copied",
+        description: "Open DevTools → Application → Local Storage → debug-logs to see details",
       });
+      
     } catch (error) {
-      console.error('Share error:', error);
-      // Fallback to sessionStorage for very large JSON
-      sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
-      const fullscreenUrl = `${window.location.origin}/fullscreen`;
-      window.open(fullscreenUrl, '_blank');
-
+      logToStorage('ERROR in handleQuickShare:', error);
+      
+      // Show error in toast so it's visible
       toast({
-        title: "Opened in new tab",
-        description: "JSON is now displayed in full-screen mode",
+        title: "Share failed",
+        description: `Error: ${error instanceof Error ? error.message : String(error)}. Check console and localStorage 'debug-logs'`,
+        variant: "destructive",
       });
     }
   };
