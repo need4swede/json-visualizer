@@ -15,7 +15,9 @@ import {
   Maximize2,
   ExternalLink,
   Clock,
-  Share2
+  Share2,
+  Shield,
+  Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +54,8 @@ export default function JsonParser() {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [expirationHours, setExpirationHours] = useState("24");
   const [isSharing, setIsSharing] = useState(false);
+  const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
+  const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -419,6 +423,204 @@ export default function JsonParser() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Footer Links */}
+        <div className="max-w-4xl mx-auto mt-6">
+          <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground">
+            <Dialog open={isAboutModalOpen} onOpenChange={setIsAboutModalOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Info className="w-4 h-4 mr-2" />
+                  About
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center space-x-2">
+                    <Info className="w-5 h-5 text-blue-500" />
+                    <span>About JSON Parser</span>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-sm">
+                  <p>
+                    A sophisticated JSON visualization and security platform that transforms complex data structures into an intuitive, interactive web interface with advanced debugging and dynamic navigation capabilities.
+                  </p>
+                  <div className="grid grid-cols-2 gap-4 mt-6">
+                    <div>
+                      <h4 className="font-semibold mb-2">Key Features</h4>
+                      <ul className="space-y-1 text-muted-foreground">
+                        <li>• Real-time JSON validation</li>
+                        <li>• Interactive data visualization</li>
+                        <li>• Secure encrypted sharing</li>
+                        <li>• Advanced search capabilities</li>
+                        <li>• Keyboard shortcuts</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Technology</h4>
+                      <ul className="space-y-1 text-muted-foreground">
+                        <li>• React.js with TypeScript</li>
+                        <li>• Web Crypto API encryption</li>
+                        <li>• Tailwind CSS styling</li>
+                        <li>• Framer Motion animations</li>
+                        <li>• Zero-knowledge architecture</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <div className="w-px h-4 bg-border"></div>
+
+            <Dialog open={isSecurityModalOpen} onOpenChange={setIsSecurityModalOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  Security
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center space-x-2">
+                    <Shield className="w-5 h-5 text-green-500" />
+                    <span>Security & Privacy</span>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-6 text-sm">
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Shield className="w-4 h-4 text-green-600" />
+                      <span className="font-semibold text-green-800 dark:text-green-200">Zero-Knowledge Architecture</span>
+                    </div>
+                    <p className="text-green-700 dark:text-green-300">
+                      Your data is encrypted on your device before being sent to our servers. We never see your unencrypted data.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-semibold mb-2 flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <span>Client-Side Encryption</span>
+                        </h3>
+                        <ul className="space-y-1 text-muted-foreground ml-4">
+                          <li>• AES-256-GCM encryption standard</li>
+                          <li>• Keys generated in your browser</li>
+                          <li>• Encryption happens before transmission</li>
+                          <li>• Keys stored in URL fragments (never sent to server)</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold mb-2 flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                          <span>Content Security</span>
+                        </h3>
+                        <ul className="space-y-1 text-muted-foreground ml-4">
+                          <li>• Automatic malicious content filtering</li>
+                          <li>• XSS attack prevention</li>
+                          <li>• Script injection blocking</li>
+                          <li>• Safe URL validation</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold mb-2 flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                          <span>Data Expiration</span>
+                        </h3>
+                        <ul className="space-y-1 text-muted-foreground ml-4">
+                          <li>• Automatic data deletion</li>
+                          <li>• Configurable expiration (24h - 7 days)</li>
+                          <li>• No permanent storage</li>
+                          <li>• Regular cleanup processes</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-semibold mb-2 flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <span>Server Security</span>
+                        </h3>
+                        <ul className="space-y-1 text-muted-foreground ml-4">
+                          <li>• HTTPS-only connections</li>
+                          <li>• Strict security headers</li>
+                          <li>• Content Security Policy</li>
+                          <li>• Anti-clickjacking protection</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold mb-2 flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                          <span>Privacy Protection</span>
+                        </h3>
+                        <ul className="space-y-1 text-muted-foreground ml-4">
+                          <li>• No user tracking or analytics</li>
+                          <li>• No data collection or profiling</li>
+                          <li>• No third-party integrations</li>
+                          <li>• Minimal server logging</li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold mb-2 flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                          <span>Audit & Monitoring</span>
+                        </h3>
+                        <ul className="space-y-1 text-muted-foreground ml-4">
+                          <li>• Security event logging</li>
+                          <li>• Threat pattern detection</li>
+                          <li>• Automated vulnerability scanning</li>
+                          <li>• Regular security assessments</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold mb-3">How Encryption Works</h3>
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <ol className="space-y-2 text-muted-foreground">
+                        <li><strong>1.</strong> Your JSON data is encrypted using AES-256-GCM in your browser</li>
+                        <li><strong>2.</strong> Only the encrypted payload is sent to our servers</li>
+                        <li><strong>3.</strong> The decryption key stays in your URL fragment (#key=...)</li>
+                        <li><strong>4.</strong> URL fragments are never transmitted to servers</li>
+                        <li><strong>5.</strong> Data is decrypted in the recipient's browser</li>
+                        <li><strong>6.</strong> Encrypted data expires and is automatically deleted</li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                    <div className="flex items-start space-x-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5" />
+                      <div>
+                        <span className="font-semibold text-amber-800 dark:text-amber-200">Important Security Note</span>
+                        <p className="text-amber-700 dark:text-amber-300 mt-1">
+                          While we implement industry-standard security measures, please avoid sharing extremely sensitive data. 
+                          Always verify the recipient before sharing encrypted URLs.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
