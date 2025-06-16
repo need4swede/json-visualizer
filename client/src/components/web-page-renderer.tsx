@@ -342,20 +342,49 @@ function DataCard({ title, data, searchQuery, icon, path }: DataCardProps) {
           {icon}
           <span>{title}</span>
           {path && (
-            <button
-              onClick={() => {
-                const url = createAnchorUrl(sectionId || '');
-                navigator.clipboard.writeText(url);
-                toast({
-                  title: "Link copied",
-                  description: "Shareable link to this section copied to clipboard",
-                });
-              }}
-              className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded"
-              title="Copy link to this section"
-            >
-              <Hash className="w-4 h-4" />
-            </button>
+            <div className="ml-auto flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => {
+                  const url = createAnchorUrl(sectionId || '');
+                  navigator.clipboard.writeText(url);
+                  toast({
+                    title: "Link copied",
+                    description: "Shareable link to this section copied to clipboard",
+                  });
+                }}
+                className="p-1 hover:bg-white/10 rounded"
+                title="Copy link to this section"
+              >
+                <Hash className="w-4 h-4" />
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    toast({
+                      title: "Creating secure share link...",
+                      description: "Encrypting and storing data",
+                    });
+                    const { id, key } = await storeJsonData(data);
+                    const shareUrl = createShareableUrl(id, key);
+                    await copyToClipboard(shareUrl);
+                    toast({
+                      title: "Section shared",
+                      description: `Secure link for "${title}" copied to clipboard`,
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Share failed",
+                      description: "Could not create shareable link",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                className="p-1 hover:bg-white/10 rounded"
+                title="Share this section"
+              >
+                <Lock className="w-4 h-4" />
+              </button>
+            </div>
           )}
         </CardTitle>
       </CardHeader>
@@ -810,10 +839,10 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   onClick={async () => {
                     try {
                       handleToast("Creating secure share link...", "Encrypting and storing data");
-                      const { id, key } = await storeJsonData(value);
-                      const shareUrl = createShareableUrl(id, key);
+                      const { id, key: encryptionKey } = await storeJsonData(value);
+                      const shareUrl = createShareableUrl(id, encryptionKey);
                       await copyToClipboard(shareUrl);
-                      handleToast("Element shared", `Secure link for ${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')} copied to clipboard`);
+                      handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
                     } catch (error) {
                       handleToast("Share failed", "Could not create shareable link");
                     }
