@@ -307,8 +307,9 @@ export async function retrieveJsonData(id: string, key?: string): Promise<any | 
     const result = await response.json();
     const encryptedPayload = result.data;
     
-    // If no key provided or data is not encrypted, return as-is (backward compatibility)
+    // If no key provided or data is not encrypted, return just the data content (backward compatibility)
     if (!key || !encryptedPayload.encryptedData || !encryptedPayload.iv) {
+      // For unencrypted data, return just the data content, not the server metadata
       return encryptedPayload;
     }
     
