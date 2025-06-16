@@ -315,9 +315,9 @@ export default function JsonParser() {
 
   return (
     <div className="min-h-screen">
-      <main className="max-w-7xl mx-auto px-6 py-16">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         {/* JSON Input Panel - Full Width */}
-        <div className="max-w-4xl mx-auto mt-20">
+        <div className="max-w-4xl mx-auto mt-8">
           <div className="glass-panel rounded-2xl p-6 animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-foreground">JSON Input</h2>
