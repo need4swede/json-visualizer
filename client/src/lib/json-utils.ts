@@ -273,30 +273,45 @@ export async function storeJsonData(data: any, expirationHours: number = 48): Pr
   }
 }
 
-// Retrieve JSON data by short ID from backend API
-export async function retrieveJsonData(id: string): Promise<any | null> {
+// Retrieve and decrypt JSON data by ID and key
+export async function retrieveJsonData(id: string, key?: string): Promise<any | null> {
   try {
     const response = await fetch(`/api/json/${id}`);
 
     if (!response.ok) {
       if (response.status === 404) {
-        // Try localStorage fallback
-        return getFromLocalStorageWithExpiration(id);
+        // Try localStorage fallback with decryption
+        return await getFromLocalStorageWithExpiration(id, key);
       }
       return null;
     }
 
     const result = await response.json();
-    return result.data;
+    const encryptedPayload = result.data;
+    
+    // If no key provided or data is not encrypted, return as-is (backward compatibility)
+    if (!key || !encryptedPayload.encryptedData || !encryptedPayload.iv) {
+      return encryptedPayload;
+    }
+    
+    // Decrypt the data using the provided key
+    const decryptionKey = await importKey(key);
+    const decryptedData = await decryptData(
+      encryptedPayload.encryptedData,
+      encryptedPayload.iv,
+      decryptionKey
+    );
+    
+    return decryptedData;
   } catch (error) {
     console.error('Error retrieving JSON data:', error);
-    // Fallback to localStorage
-    return getFromLocalStorageWithExpiration(id);
+    // Fallback to localStorage with decryption
+    return await getFromLocalStorageWithExpiration(id, key);
   }
 }
 
-// Helper function to get data from localStorage with expiration check
-function getFromLocalStorageWithExpiration(id: string): any | null {
+// Helper function to get data from localStorage with expiration check and decryption
+async function getFromLocalStorageWithExpiration(id: string, key?: string): Promise<any | null> {
   const jsonString = localStorage.getItem(`json-data-${id}`);
   const expiresString = localStorage.getItem(`json-data-${id}-expires`);
 
@@ -314,26 +329,61 @@ function getFromLocalStorageWithExpiration(id: string): any | null {
     }
 
     try {
-      return JSON.parse(jsonString);
+      const encryptedPayload = JSON.parse(jsonString);
+      const storedKey = localStorage.getItem(`json-data-${id}-key`);
+      
+      // If no key available or data is not encrypted, return as-is
+      const decryptionKey = key || storedKey;
+      if (!decryptionKey || !encryptedPayload.encryptedData || !encryptedPayload.iv) {
+        return encryptedPayload;
+      }
+      
+      // Decrypt the data
+      const cryptoKey = await importKey(decryptionKey);
+      const decryptedData = await decryptData(
+        encryptedPayload.encryptedData,
+        encryptedPayload.iv,
+        cryptoKey
+      );
+      
+      return decryptedData;
     } catch (parseError) {
-      console.error('Failed to parse localStorage JSON:', parseError);
+      console.error('Failed to parse/decrypt localStorage JSON:', parseError);
       // Clean up corrupted data
       localStorage.removeItem(`json-data-${id}`);
       localStorage.removeItem(`json-data-${id}-timestamp`);
       localStorage.removeItem(`json-data-${id}-expires`);
+      localStorage.removeItem(`json-data-${id}-key`);
     }
   }
 
   return null;
 }
 
-// URL utilities for sharing JSON data
+// URL utilities for sharing encrypted JSON data
 export async function encodeJsonForUrl(data: any): Promise<string> {
-  return await storeJsonData(data);
+  const { id, key } = await storeJsonData(data);
+  return `${id}#key=${key}`;
 }
 
 export async function decodeJsonFromUrl(id: string): Promise<any> {
-  return await retrieveJsonData(id);
+  const key = extractKeyFromUrl();
+  return await retrieveJsonData(id, key);
+}
+
+// Extract encryption key from URL fragment
+export function extractKeyFromUrl(): string | null {
+  const hash = window.location.hash;
+  if (!hash) return null;
+  
+  const match = hash.match(/key=([^&]+)/);
+  return match ? match[1] : null;
+}
+
+// Create shareable URL with encrypted data and key in fragment
+export function createShareableUrl(id: string, key: string): string {
+  const baseUrl = window.location.origin;
+  return `${baseUrl}/${id}#key=${key}`;
 }
 
 export function createSectionId(path: string): string {
