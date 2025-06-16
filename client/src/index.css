@@ -144,6 +144,8 @@
   /* Enhanced hover effects - only when directly hovering the element */
   .apple-card.data-leaf.direct-hover {
     transform: translateY(-4px) scale(1.02);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
     box-shadow: 
       0 20px 60px rgba(0, 0, 0, 0.15),
       0 8px 24px rgba(0, 0, 0, 0.1),
@@ -153,6 +155,8 @@
   /* Subtle hover for parent containers - only when directly hovering */
   .apple-card.data-parent.direct-hover {
     transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
     box-shadow: 
       0 12px 40px rgba(0, 0, 0, 0.12),
       0 4px 16px rgba(0, 0, 0, 0.08);
@@ -163,14 +167,14 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Protect content from opacity changes during hover */
-  .apple-card:hover * {
+  /* Protect content from opacity changes during direct hover */
+  .apple-card.direct-hover * {
     opacity: 1 !important;
   }
 
-  /* Pause animations on hover to prevent conflicts */
-  .apple-card:hover .animate-color-pulse,
-  .apple-card:hover .animate-gentle-bounce {
+  /* Pause animations on direct hover to prevent conflicts */
+  .apple-card.direct-hover .animate-color-pulse,
+  .apple-card.direct-hover .animate-gentle-bounce {
     animation-play-state: paused;
   }
 

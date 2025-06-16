@@ -698,8 +698,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
               level === 1 && colorParts[2].replace('/15', '/12'), // Slightly less for level 1
               level === 2 && colorParts[2].replace('/15', '/10'), // Even less for level 2
               level >= 3 && colorParts[2].replace('/15', '/8'), // Minimal for deeper levels
-              colorParts[3], // border color
-              "hover:bg-white/[0.08] hover:border-white/[0.15]" // Consistent hover state
+              colorParts[3] // border color
             )}
             style={{
               animationDelay: `${(level * 100)}ms`,
