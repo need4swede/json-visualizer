@@ -699,14 +699,20 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
               level === 2 && colorParts[2].replace('/15', '/10'), // Even less for level 2
               level >= 3 && colorParts[2].replace('/15', '/8'), // Minimal for deeper levels
               colorParts[3], // border color
-              "hover:bg-white/[0.08] hover:border-white/[0.15]", // Consistent hover state like the good one you saw
-              isLeafNode && "hover:-translate-y-2 hover:scale-[1.02]",
-              !isLeafNode && "hover:shadow-2xl hover:-translate-y-1"
+              "hover:bg-white/[0.08] hover:border-white/[0.15]" // Consistent hover state
             )}
             style={{
               animationDelay: `${(level * 100)}ms`,
               '--color-scheme': colorScheme
             } as React.CSSProperties & { '--color-scheme': string }}
+            onMouseEnter={(e) => {
+              e.stopPropagation();
+              e.currentTarget.classList.add('direct-hover');
+            }}
+            onMouseLeave={(e) => {
+              e.stopPropagation();
+              e.currentTarget.classList.remove('direct-hover');
+            }}
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-4 flex-1 min-w-0">

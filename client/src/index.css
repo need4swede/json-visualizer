@@ -141,8 +141,8 @@
     50% { transform: translateX(100%); }
   }
   
-  /* Enhanced hover effects for data elements */
-  .apple-card.data-leaf:hover {
+  /* Enhanced hover effects - only when directly hovering the element */
+  .apple-card.data-leaf.direct-hover {
     transform: translateY(-4px) scale(1.02);
     box-shadow: 
       0 20px 60px rgba(0, 0, 0, 0.15),
@@ -150,8 +150,8 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
   
-  /* Subtle hover for parent containers */
-  .apple-card.data-parent:hover {
+  /* Subtle hover for parent containers - only when directly hovering */
+  .apple-card.data-parent.direct-hover {
     transform: translateY(-2px);
     box-shadow: 
       0 12px 40px rgba(0, 0, 0, 0.12),
@@ -159,7 +159,7 @@
   }
 
   /* Color-specific glow effects */
-  .apple-card:hover {
+  .apple-card {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
