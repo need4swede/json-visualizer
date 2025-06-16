@@ -476,7 +476,7 @@ export default function JsonParser() {
                   <div className="border-t pt-4 mt-6">
                     <div className="text-center text-muted-foreground">
                       <p className="text-sm">
-                        Developer & Creator <span className="font-medium text-foreground">Mike Afshari</span>
+                        Developed by <span className="font-medium text-foreground">Mike Afshari</span>
                       </p>
                       <p className="text-xs mt-1 opacity-70">@need4swede</p>
                     </div>
