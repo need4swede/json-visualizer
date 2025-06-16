@@ -244,42 +244,49 @@ export default function JsonParser() {
     if (!parsedData) return;
 
     try {
-      // Quick share with client-side encryption and 48-hour expiration
+      // Generate a simple ID for testing
+      const testId = Math.floor(100000000 + Math.random() * 900000000).toString();
+      const testKey = 'test-key-' + Math.random().toString(36).substring(7);
+      
+      // Test URL construction first
+      const testUrl = `${window.location.origin}/${testId}#key=${testKey}`;
+      console.log('Test URL:', testUrl);
+      
+      // Now try the actual encryption
       const { storeJsonData } = await import("@/lib/json-utils");
       const result = await storeJsonData(parsedData, 48);
       
-      // Ensure we have valid string values
-      const id = String(result.id || '');
-      const key = String(result.key || '');
+      console.log('Store result:', result);
+      console.log('Result type:', typeof result);
+      console.log('Result keys:', Object.keys(result || {}));
       
-      console.log('After String conversion - ID:', id, 'Key:', key);
-      console.log('ID type:', typeof id, 'Key type:', typeof key);
+      if (!result || typeof result !== 'object') {
+        throw new Error('Invalid result from storeJsonData');
+      }
       
-      if (!id || !key || id === 'undefined' || key === 'undefined') {
-        console.error('Invalid ID or key:', { id, key, result });
-        throw new Error('Failed to generate valid ID or encryption key');
+      const id = result.id;
+      const key = result.key;
+      
+      console.log('Extracted ID:', id, 'Type:', typeof id);
+      console.log('Extracted Key:', key, 'Type:', typeof key);
+      
+      if (!id || !key) {
+        throw new Error('Missing ID or key in result');
       }
 
       // Create shareable URL with encryption key in fragment
       const shareableUrl = `${window.location.origin}/${id}#key=${key}`;
-      console.log('Final URL before opening:', shareableUrl);
+      console.log('Final URL:', shareableUrl);
       
-      // Copy to clipboard instead of opening immediately to prevent navigation
+      // Copy to clipboard
       await navigator.clipboard.writeText(shareableUrl);
       
       toast({
         title: "URL copied to clipboard!",
-        description: "The encrypted shareable URL has been copied. Click to open in new tab.",
-        action: (
-          <button 
-            onClick={() => window.open(shareableUrl, '_blank')}
-            className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
-          >
-            Open
-          </button>
-        ),
+        description: "Encrypted shareable URL has been copied",
       });
     } catch (error) {
+      console.error('Share error:', error);
       // Fallback to sessionStorage for very large JSON
       sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
       const fullscreenUrl = `${window.location.origin}/fullscreen`;

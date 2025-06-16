@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Encryption</title>
+</head>
+<body>
+    <button onclick="testEncryption()">Test Encryption</button>
+    <div id="output"></div>
+
+    <script>
+        async function generateEncryptionKey() {
+          return await crypto.subtle.generateKey(
+            {
+              name: 'AES-GCM',
+              length: 256
+            },
+            true,
+            ['encrypt', 'decrypt']
+          );
+        }
+
+        async function exportKey(key) {
+          try {
+            const exported = await crypto.subtle.exportKey('raw', key);
+            const uint8Array = new Uint8Array(exported);
+            let binaryString = '';
+            for (let i = 0; i < uint8Array.length; i++) {
+              binaryString += String.fromCharCode(uint8Array[i]);
+            }
+            const base64Key = btoa(binaryString);
+            console.log('Exported key length:', base64Key.length);
+            return base64Key;
+          } catch (error) {
+            console.error('Error exporting key:', error);
+            throw error;
+          }
+        }
+
+        function generateShortId() {
+          return Math.floor(100000000 + Math.random() * 900000000).toString();
+        }
+
+        async function testEncryption() {
+            try {
+                const id = generateShortId();
+                const key = await generateEncryptionKey();
+                const keyString = await exportKey(key);
+                
+                console.log('ID:', id, 'Type:', typeof id);
+                console.log('Key String:', keyString, 'Type:', typeof keyString);
+                
+                const result = { id, key: keyString };
+                console.log('Result:', result);
+                
+                const url = `http://localhost:5000/${result.id}#key=${result.key}`;
+                console.log('URL:', url);
+                
+                document.getElementById('output').innerHTML = `
+                    <p>ID: ${id}</p>
+                    <p>Key: ${keyString.substring(0, 20)}...</p>
+                    <p>URL: ${url}</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('output').innerHTML = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
