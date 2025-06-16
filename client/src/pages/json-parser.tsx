@@ -200,10 +200,13 @@ export default function JsonParser() {
     try {
       // Use storeJsonData with expiration
       const { storeJsonData } = await import("@/lib/json-utils");
-      const shortId = await storeJsonData(parsedData, parseInt(expirationHours));
+      const result = await storeJsonData(parsedData, parseInt(expirationHours));
 
-      // Create shareable URL with short ID
-      const shareableUrl = `${window.location.origin}/${shortId}`;
+      // Extract ID and key from result
+      const { id, key } = result;
+      
+      // Create shareable URL with encryption key in fragment
+      const shareableUrl = `${window.location.origin}/${id}#key=${key}`;
 
       // Copy URL to clipboard
       await copyToClipboard(shareableUrl);
