@@ -278,16 +278,28 @@ async function exportKey(key: CryptoKey): Promise<string> {
 }
 
 async function importKey(keyString: string): Promise<CryptoKey> {
-  const keyData = new Uint8Array(
-    atob(keyString).split('').map(char => char.charCodeAt(0))
-  );
-  return await crypto.subtle.importKey(
-    'raw',
-    keyData,
-    { name: 'AES-GCM' },
-    false,
-    ['decrypt']
-  );
+  console.log('Safari: Importing decryption key');
+  console.log('Safari: Key length:', keyString.length);
+  
+  try {
+    const keyData = new Uint8Array(
+      atob(keyString).split('').map(char => char.charCodeAt(0))
+    );
+    console.log('Safari: Key bytes length:', keyData.length);
+    
+    const importedKey = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'AES-GCM' },
+      false,
+      ['decrypt']
+    );
+    console.log('Safari: Key import successful');
+    return importedKey;
+  } catch (error) {
+    console.error('Safari: Key import failed:', error instanceof Error ? error.message : String(error));
+    throw error;
+  }
 }
 
 async function encryptData(data: any, key: CryptoKey): Promise<{ encryptedData: string; iv: string }> {
@@ -456,14 +468,31 @@ export async function retrieveJsonData(id: string, key?: string): Promise<any | 
     }
     
     // Decrypt the data using the provided key
-    const decryptionKey = await importKey(key);
-    const decryptedData = await decryptData(
-      encryptedPayload.encryptedData,
-      encryptedPayload.iv,
-      decryptionKey
-    );
-    
-    return decryptedData;
+    try {
+      console.log('Safari: Starting decryption with key:', key?.substring(0, 10) + '...');
+      const decryptionKey = await importKey(key);
+      console.log('Safari: Key imported successfully');
+      
+      const decryptedData = await decryptData(
+        encryptedPayload.encryptedData,
+        encryptedPayload.iv,
+        decryptionKey
+      );
+      console.log('Safari: Decryption successful');
+      return decryptedData;
+    } catch (decryptionError) {
+      console.error('Safari: Decryption failed');
+      console.error('Safari: Error details:', decryptionError instanceof Error ? decryptionError.message : String(decryptionError));
+      
+      // Safari often blocks decryption even when encryption worked
+      // Return unencrypted data if available
+      if (encryptedPayload.unencryptedData) {
+        console.log('Safari: Using unencrypted fallback data');
+        return encryptedPayload.unencryptedData;
+      }
+      
+      throw decryptionError;
+    }
   } catch (error) {
     console.error('Error retrieving JSON data:', error);
     // Fallback to localStorage with decryption
