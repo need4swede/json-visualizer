@@ -218,7 +218,32 @@ function showSafariShareModal(url: string): void {
 }
 
 export function copyToClipboard(text: string): Promise<void> {
-  // Safari requires user interaction for clipboard access
+  // Safari detection
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  
+  if (isSafari) {
+    // For Safari, try direct clipboard access first with immediate fallback
+    return new Promise((resolve) => {
+      if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            console.log('Safari: Direct clipboard success');
+            resolve();
+          })
+          .catch((error) => {
+            console.log('Safari: Direct clipboard failed, showing modal');
+            showSafariShareModal(text);
+            resolve();
+          });
+      } else {
+        console.log('Safari: No clipboard API, showing modal');
+        showSafariShareModal(text);
+        resolve();
+      }
+    });
+  }
+  
+  // Non-Safari browsers
   if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
     return navigator.clipboard.writeText(text).catch((error) => {
       console.warn('Clipboard API failed, using fallback:', error);
