@@ -213,21 +213,22 @@ export default function JsonParser() {
       // Create shareable URL with encryption key in fragment
       const shareableUrl = `${window.location.origin}/${id}#key=${key}`;
 
-      // Safari detection
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      
-      if (isSafari) {
-        // For Safari, show the popup disclaimer modal instead of trying popup
-        showSafariPopupDisclaimer(shareableUrl);
-      } else {
-        // For other browsers, try normal popup with detection
-        await copyToClipboard(shareableUrl, { showSafariModal: false });
+      // Copy URL to clipboard first
+      await copyToClipboard(shareableUrl, { showSafariModal: false });
 
-        // Open in new tab with popup blocking detection
-        const newWindow = window.open(shareableUrl, '_blank');
+      // Attempt to open in new tab for all browsers
+      const newWindow = window.open(shareableUrl, '_blank');
+      
+      // Check if popup was blocked
+      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        // Safari detection
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
         
-        // Check if popup was blocked
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        if (isSafari) {
+          // For Safari, show the helpful popup disclaimer modal
+          showSafariPopupDisclaimer(shareableUrl);
+        } else {
+          // For other browsers, show toast notification
           toast({
             title: "Pop-up blocked",
             description: "Please allow pop-ups for this site and try again, or manually copy the URL.",
