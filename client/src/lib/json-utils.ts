@@ -64,18 +64,57 @@ export function downloadJson(data: any, filename: string = 'parsed.json') {
 }
 
 export function copyToClipboard(text: string): Promise<void> {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text);
+  // Safari requires user interaction for clipboard access
+  if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+    return navigator.clipboard.writeText(text).catch((error) => {
+      console.warn('Clipboard API failed, using fallback:', error);
+      return fallbackCopyToClipboard(text);
+    });
   } else {
-    // Fallback for older browsers
+    return fallbackCopyToClipboard(text);
+  }
+}
+
+function fallbackCopyToClipboard(text: string): Promise<void> {
+  return new Promise((resolve, reject) => {
     const textArea = document.createElement('textarea');
     textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.top = '-9999px';
+    textArea.style.left = '-9999px';
+    textArea.style.opacity = '0';
+    textArea.setAttribute('readonly', '');
+    
     document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    return Promise.resolve();
-  }
+    
+    // For Safari/iOS, we need to handle selection differently
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      const range = document.createRange();
+      range.selectNodeContents(textArea);
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      textArea.setSelectionRange(0, textArea.value.length);
+    } else {
+      textArea.select();
+      textArea.setSelectionRange(0, textArea.value.length);
+    }
+    
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        resolve();
+      } else {
+        reject(new Error('Copy command failed'));
+      }
+    } catch (error) {
+      reject(error);
+    } finally {
+      document.body.removeChild(textArea);
+    }
+  });
 }
 
 // Search utility functions for handling spaces and underscores
@@ -145,14 +184,24 @@ export function generateShortId(): string {
 
 // Encryption utilities using Web Crypto API
 async function generateEncryptionKey(): Promise<CryptoKey> {
-  return await crypto.subtle.generateKey(
-    {
-      name: 'AES-GCM',
-      length: 256
-    },
-    true,
-    ['encrypt', 'decrypt']
-  );
+  // Safari compatibility check
+  if (!crypto || !crypto.subtle) {
+    throw new Error('Web Crypto API not supported');
+  }
+  
+  try {
+    return await crypto.subtle.generateKey(
+      {
+        name: 'AES-GCM',
+        length: 256
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
+  } catch (error) {
+    console.error('Safari crypto error:', error);
+    throw new Error('Encryption key generation failed');
+  }
 }
 
 async function exportKey(key: CryptoKey): Promise<string> {

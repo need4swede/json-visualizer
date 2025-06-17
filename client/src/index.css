@@ -82,19 +82,31 @@
 
 @layer components {
   .glass-panel {
-    @apply backdrop-blur-2xl border border-white/[0.12];
+    @apply border border-white/[0.12];
+    /* Safari optimization: reduce backdrop-blur for better performance */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     box-shadow: 
       0 8px 32px rgba(0, 0, 0, 0.12),
       0 1px 3px rgba(0, 0, 0, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    /* Safari performance optimization */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   
   .glass-button {
-    @apply bg-white/[0.12] backdrop-blur-xl border border-white/[0.2] transition-all duration-300 hover:bg-white/[0.18] hover:-translate-y-1;
+    @apply bg-white/[0.12] border border-white/[0.2] transition-all duration-300 hover:bg-white/[0.18] hover:-translate-y-1;
+    /* Safari optimization: reduce backdrop-blur */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     box-shadow: 
       0 4px 16px rgba(0, 0, 0, 0.1),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    /* Safari performance boost */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   
   .glass-button:hover {
@@ -113,6 +125,12 @@
     animation: slideInScale 0.6s ease-out backwards;
     position: relative;
     overflow: hidden;
+    /* Safari performance optimizations */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
 
   .apple-card::before {
@@ -124,6 +142,9 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     animation: shimmer 3s infinite;
+    /* Safari optimization for pseudo-elements */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
 
   @keyframes slideInScale {
@@ -140,6 +161,33 @@
   @keyframes shimmer {
     0%, 100% { transform: translateX(-100%); }
     50% { transform: translateX(100%); }
+  }
+
+  /* Safari performance optimization: reduce animations on low-end devices */
+  @media (prefers-reduced-motion: reduce) {
+    .apple-card {
+      animation: none;
+    }
+    .apple-card::before {
+      animation: none;
+    }
+    .animate-color-pulse,
+    .animate-gentle-bounce {
+      animation: none;
+    }
+  }
+
+  /* Safari-specific optimizations */
+  @supports (-webkit-appearance: none) {
+    .apple-card {
+      /* Reduce animation complexity on Safari */
+      animation-duration: 0.4s;
+    }
+    
+    .apple-card::before {
+      /* Slower shimmer on Safari for better performance */
+      animation-duration: 4s;
+    }
   }
   
   /* Enhanced hover effects - only when directly hovering the element */
