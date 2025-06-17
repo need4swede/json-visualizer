@@ -232,7 +232,8 @@ export default function JsonParser() {
       console.error('Error creating shareable link:', error);
 
       // Check if this is a Safari encryption issue
-      const isSafariError = error.message.includes('Encryption') || error.message.includes('crypto');
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isSafariError = errorMessage.includes('Encryption') || errorMessage.includes('crypto');
       
       if (isSafariError) {
         toast({
@@ -242,7 +243,7 @@ export default function JsonParser() {
       } else {
         toast({
           title: "Unable to create shareable link",
-          description: error.message || "Using local storage fallback instead.",
+          description: errorMessage || "Using local storage fallback instead.",
         });
       }
 
