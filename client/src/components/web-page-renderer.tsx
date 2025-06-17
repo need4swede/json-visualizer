@@ -875,21 +875,23 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
                     
                     if (isSafari) {
-                      // For Safari, we need to attempt clipboard access immediately
-                      // before any async operations lose the user interaction context
-                      try {
-                        handleToast("Creating secure share link...", "Encrypting and storing data");
-                        const { id, key: encryptionKey } = await storeJsonData(value);
-                        const shareUrl = createShareableUrl(id, encryptionKey);
-                        
-                        // Direct clipboard attempt for Safari
-                        try {
-                          await navigator.clipboard.writeText(shareUrl);
-                          handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
-                        } catch (clipboardError) {
-                          // If clipboard fails, copy to a temporary textarea immediately
+                      // Safari hack: Start a write operation immediately to claim clipboard permission
+                      let clipboardResolver: ((value: string) => void) | null = null;
+                      const clipboardPromise = new Promise<string>((resolve) => {
+                        clipboardResolver = resolve;
+                      });
+                      
+                      // Immediately try to write to clipboard with a placeholder to claim permission
+                      const clipboardWrite = navigator.clipboard.writeText("Loading...").then(() => {
+                        // If this succeeds, we have clipboard permission for the duration of this operation
+                        return clipboardPromise.then((actualUrl) => {
+                          return navigator.clipboard.writeText(actualUrl);
+                        });
+                      }).catch(() => {
+                        // If immediate clipboard fails, use the execCommand fallback
+                        return clipboardPromise.then((actualUrl) => {
                           const textarea = document.createElement('textarea');
-                          textarea.value = shareUrl;
+                          textarea.value = actualUrl;
                           textarea.style.position = 'fixed';
                           textarea.style.opacity = '0';
                           document.body.appendChild(textarea);
@@ -898,12 +900,27 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                           
                           const success = document.execCommand('copy');
                           document.body.removeChild(textarea);
-                          
-                          if (success) {
-                            handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
-                          } else {
-                            handleToast("Copy to clipboard manually", shareUrl);
-                          }
+                          return success;
+                        });
+                      });
+                      
+                      try {
+                        handleToast("Creating secure share link...", "Encrypting and storing data");
+                        const { id, key: encryptionKey } = await storeJsonData(value);
+                        const shareUrl = createShareableUrl(id, encryptionKey);
+                        
+                        // Resolve the promise with the actual URL
+                        if (clipboardResolver) {
+                          clipboardResolver(shareUrl);
+                        }
+                        
+                        // Wait for clipboard operation to complete
+                        const success = await clipboardWrite;
+                        
+                        if (success !== false) {
+                          handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
+                        } else {
+                          handleToast("Copy to clipboard manually", shareUrl);
                         }
                       } catch (error) {
                         handleToast("Share failed", "Could not create shareable link");
