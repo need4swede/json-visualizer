@@ -188,15 +188,15 @@ function isCryptoAvailable(): boolean {
   const hasSubtle = crypto && crypto.subtle !== undefined;
   const isSecure = window.isSecureContext;
   
-  console.log('Safari Crypto Debug:', {
-    hasCrypto,
-    hasSubtle,
-    isSecure,
-    userAgent: navigator.userAgent,
-    location: window.location.protocol,
-    cryptoType: typeof crypto,
-    subtleType: crypto ? typeof crypto.subtle : 'undefined'
-  });
+  console.log('🔐 SAFARI CRYPTO ANALYSIS 🔐');
+  console.log('✓ Crypto Object:', hasCrypto);
+  console.log('✓ Subtle API:', hasSubtle);
+  console.log('✓ Secure Context:', isSecure);
+  console.log('🌐 Browser:', navigator.userAgent.includes('Safari') ? 'Safari' : 'Other');
+  console.log('🔒 Protocol:', window.location.protocol);
+  console.log('🏠 Host:', window.location.host);
+  console.log('⚡ Crypto Available:', hasCrypto && hasSubtle && isSecure);
+  console.log('🔐 END ANALYSIS 🔐');
   
   return hasCrypto && hasSubtle && isSecure;
 }

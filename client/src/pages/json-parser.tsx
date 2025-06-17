@@ -262,7 +262,8 @@ export default function JsonParser() {
     if (!parsedData) return;
 
     try {
-      console.log('=== SHARE BUTTON CLICKED ===');
+      console.log('=== SAFARI LOCK BUTTON CLICKED ===');
+      console.log('Browser:', navigator.userAgent);
       console.log('Starting encryption process...');
       
       // Use the original encryption system
@@ -282,8 +283,9 @@ export default function JsonParser() {
       console.log('Generated URL:', shareableUrl);
       console.log('URL length:', shareableUrl.length);
       
+      console.log('Attempting clipboard write...');
       await navigator.clipboard.writeText(shareableUrl);
-      console.log('URL copied to clipboard successfully');
+      console.log('✅ URL copied to clipboard successfully');
       
       toast({
         title: "URL copied to clipboard!",
