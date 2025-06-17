@@ -231,15 +231,25 @@ export default function JsonParser() {
     } catch (error) {
       console.error('Error creating shareable link:', error);
 
+      // Check if this is a Safari encryption issue
+      const isSafariError = error.message.includes('Encryption') || error.message.includes('crypto');
+      
+      if (isSafariError) {
+        toast({
+          title: "Encryption not available",
+          description: "Safari requires HTTPS for encrypted links. Using local storage instead.",
+        });
+      } else {
+        toast({
+          title: "Unable to create shareable link",
+          description: error.message || "Using local storage fallback instead.",
+        });
+      }
+
       // Fallback to sessionStorage for very large JSON
       sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
       const fullscreenUrl = `${window.location.origin}/fullscreen`;
       window.open(fullscreenUrl, '_blank');
-
-      toast({
-        title: "Opened in new tab",
-        description: "JSON is now displayed in full-screen mode (local storage fallback)",
-      });
 
       setIsShareDialogOpen(false);
     } finally {

@@ -182,15 +182,35 @@ export function generateShortId(): string {
   return Math.floor(Math.random() * (max - min + 1) + min).toString();
 }
 
+// Check if Web Crypto API is available (Safari has specific requirements)
+function isCryptoAvailable(): boolean {
+  const hasCrypto = typeof crypto !== 'undefined';
+  const hasSubtle = crypto && crypto.subtle !== undefined;
+  const isSecure = window.isSecureContext;
+  
+  console.log('Safari Crypto Debug:', {
+    hasCrypto,
+    hasSubtle,
+    isSecure,
+    userAgent: navigator.userAgent,
+    location: window.location.protocol,
+    cryptoType: typeof crypto,
+    subtleType: crypto ? typeof crypto.subtle : 'undefined'
+  });
+  
+  return hasCrypto && hasSubtle && isSecure;
+}
+
 // Encryption utilities using Web Crypto API
 async function generateEncryptionKey(): Promise<CryptoKey> {
-  // Safari compatibility check
-  if (!crypto || !crypto.subtle) {
-    throw new Error('Web Crypto API not supported');
+  // Safari requires HTTPS for Web Crypto API
+  if (!isCryptoAvailable()) {
+    throw new Error('Web Crypto API requires HTTPS. Encryption not available on HTTP.');
   }
   
   try {
-    return await crypto.subtle.generateKey(
+    console.log('Attempting to generate AES-GCM key...');
+    const key = await crypto.subtle.generateKey(
       {
         name: 'AES-GCM',
         length: 256
@@ -198,9 +218,12 @@ async function generateEncryptionKey(): Promise<CryptoKey> {
       true,
       ['encrypt', 'decrypt']
     );
+    console.log('Successfully generated encryption key:', key);
+    return key;
   } catch (error) {
-    console.error('Safari crypto error:', error);
-    throw new Error('Encryption key generation failed');
+    console.error('Safari crypto generation error:', error);
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Encryption key generation failed: ${message}`);
   }
 }
 
@@ -284,12 +307,39 @@ async function decryptData(encryptedData: string, iv: string, key: CryptoKey): P
   return JSON.parse(jsonString);
 }
 
-// Store JSON data with client-side encryption
+// Store JSON data with client-side encryption (if available)
 export async function storeJsonData(data: any, expirationHours: number = 48): Promise<{ id: string; key: string }> {
   const id = generateShortId();
   const expiresAt = new Date(Date.now() + expirationHours * 60 * 60 * 1000);
 
   console.log('Generated ID:', id, 'Type:', typeof id);
+
+  // Check if encryption is available (Safari requires HTTPS)
+  if (!isCryptoAvailable()) {
+    console.warn('Encryption not available - falling back to unencrypted storage');
+    
+    // Store unencrypted data with warning
+    const response = await fetch('/api/json', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        id, 
+        data: { 
+          unencryptedData: data,
+          warning: 'Data stored without encryption - HTTPS required for encryption'
+        },
+        expiresAt 
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to store JSON data');
+    }
+
+    return { id, key: 'no-encryption' };
+  }
 
   try {
     // Generate encryption key and encrypt data client-side
