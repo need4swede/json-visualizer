@@ -64,6 +64,291 @@ export function downloadJson(data: any, filename: string = 'parsed.json') {
 }
 
 // Safari share modal for when clipboard is blocked
+// Safari popup disclaimer modal for main "View Rendered JSON" button
+export function showSafariPopupDisclaimer(url: string): void {
+  // Create modal overlay with app's glassmorphism styling
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 8, 8, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: safariModalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  `;
+
+  // Create modal content with dark glassmorphism
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 520px;
+    width: 90%;
+    max-height: 80vh;
+    box-shadow: 
+      0 32px 64px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: safariModalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  `;
+
+  modal.innerHTML = `
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, hsl(273, 67%, 59%) 0%, hsl(207, 90%, 54%) 100%);
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 32px rgba(159, 122, 234, 0.3);
+      ">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </div>
+      <h3 style="
+        color: rgba(255, 255, 255, 0.95);
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      ">Safari Pop-Up Disclaimer</h3>
+      <p style="
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.4;
+      ">Safari may be blocking a new window from opening. Either allow Pop-Ups for this site or use the buttons below</p>
+    </div>
+    
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <button id="openInNewTab" style="
+        flex: 1;
+        background: linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(207, 90%, 48%) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+        letter-spacing: -0.01em;
+      ">Open in New Tab</button>
+      
+      <button id="copyLink" style="
+        flex: 1;
+        background: linear-gradient(135deg, hsl(145, 83%, 44%) 0%, hsl(145, 83%, 38%) 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+        letter-spacing: -0.01em;
+      ">Copy Link</button>
+    </div>
+    
+    <div style="
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    ">
+      <div style="
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      ">Encrypted Shareable URL</div>
+      <input type="text" readonly value="${url}" style="
+        width: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        outline: none;
+        user-select: all;
+        transition: all 0.2s ease;
+      " onclick="this.select(); this.style.borderColor = 'rgba(159, 122, 234, 0.5)'; this.style.background = 'rgba(159, 122, 234, 0.1)';">
+    </div>
+    
+    <button id="closeModal" style="
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    ">Close</button>
+  `;
+
+  // Add CSS animations matching app's style
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes safariModalFadeIn {
+      from { 
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+      }
+      to { 
+        opacity: 1;
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+    }
+    @keyframes safariModalSlideUp {
+      from { 
+        transform: translateY(32px) scale(0.96);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+    
+    /* Button hover effects */
+    #openInNewTab:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4) !important;
+    }
+    
+    #copyLink:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4) !important;
+    }
+    
+    #closeModal:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* Focus styles for accessibility */
+    #openInNewTab:focus,
+    #copyLink:focus,
+    #closeModal:focus {
+      outline: 2px solid rgba(159, 122, 234, 0.6);
+      outline-offset: 2px;
+    }
+  `;
+  document.head.appendChild(style);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Add event listeners
+  const openInNewTab = modal.querySelector('#openInNewTab') as HTMLButtonElement;
+  const copyLink = modal.querySelector('#copyLink') as HTMLButtonElement;
+  const closeModal = modal.querySelector('#closeModal') as HTMLButtonElement;
+  const urlInput = modal.querySelector('input') as HTMLInputElement;
+
+  openInNewTab.addEventListener('click', () => {
+    const newWindow = window.open(url, '_blank');
+    
+    // Check if popup was blocked
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+      // Show feedback that popup was blocked
+      openInNewTab.textContent = 'Pop-up Blocked';
+      openInNewTab.style.background = 'linear-gradient(135deg, hsl(6, 100%, 59%) 0%, hsl(6, 100%, 53%) 100%)';
+      openInNewTab.style.boxShadow = '0 4px 16px rgba(255, 59, 48, 0.3)';
+      
+      // Create instruction text
+      const instruction = document.createElement('div');
+      instruction.style.cssText = `
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        text-align: center;
+        margin-top: 8px;
+        line-height: 1.4;
+      `;
+      instruction.textContent = 'Please allow pop-ups for this site in Safari settings, then try again';
+      openInNewTab.parentNode?.insertBefore(instruction, openInNewTab.nextSibling);
+      
+      setTimeout(() => {
+        openInNewTab.textContent = 'Open in New Tab';
+        openInNewTab.style.background = 'linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(207, 90%, 48%) 100%)';
+        openInNewTab.style.boxShadow = '0 4px 16px rgba(0, 122, 255, 0.3)';
+        if (instruction.parentNode) {
+          instruction.parentNode.removeChild(instruction);
+        }
+      }, 3000);
+    } else {
+      // Success - close modal
+      document.body.removeChild(overlay);
+      document.head.removeChild(style);
+    }
+  });
+
+  copyLink.addEventListener('click', async () => {
+    urlInput.select();
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        copyLink.textContent = '✓ Copied!';
+        copyLink.style.background = 'linear-gradient(135deg, hsl(145, 83%, 44%) 0%, hsl(145, 83%, 38%) 100%)';
+        setTimeout(() => {
+          document.body.removeChild(overlay);
+          document.head.removeChild(style);
+        }, 1000);
+      } else {
+        copyLink.textContent = 'Copy Failed';
+        copyLink.style.background = 'linear-gradient(135deg, hsl(6, 100%, 59%) 0%, hsl(6, 100%, 53%) 100%)';
+      }
+    } catch (error) {
+      copyLink.textContent = 'Copy Failed';
+      copyLink.style.background = 'linear-gradient(135deg, hsl(6, 100%, 59%) 0%, hsl(6, 100%, 53%) 100%)';
+    }
+  });
+
+  closeModal.addEventListener('click', () => {
+    document.body.removeChild(overlay);
+    document.head.removeChild(style);
+  });
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+      document.head.removeChild(style);
+    }
+  });
+}
+
 function showSafariShareModal(url: string): void {
   // Create modal overlay with app's glassmorphism styling
   const overlay = document.createElement('div');
