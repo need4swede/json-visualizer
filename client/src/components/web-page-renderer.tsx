@@ -875,49 +875,55 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
                     
                     if (isSafari) {
-                      // Safari hack: Start a write operation immediately to claim clipboard permission
-                      let clipboardResolver: ((value: string) => void) | null = null;
-                      const clipboardPromise = new Promise<string>((resolve) => {
-                        clipboardResolver = resolve;
-                      });
-                      
-                      // Immediately try to write to clipboard with a placeholder to claim permission
-                      const clipboardWrite = navigator.clipboard.writeText("Loading...").then(() => {
-                        // If this succeeds, we have clipboard permission for the duration of this operation
-                        return clipboardPromise.then((actualUrl) => {
-                          return navigator.clipboard.writeText(actualUrl);
-                        });
-                      }).catch(() => {
-                        // If immediate clipboard fails, use the execCommand fallback
-                        return clipboardPromise.then((actualUrl) => {
+                      try {
+                        handleToast("Creating secure share link...", "Encrypting and storing data");
+                        
+                        // Start encryption process while we have user interaction
+                        const encryptionPromise = storeJsonData(value);
+                        
+                        // Try to write placeholder to claim clipboard permission immediately
+                        let clipboardPermissionClaimed = false;
+                        try {
+                          await navigator.clipboard.writeText("Loading...");
+                          clipboardPermissionClaimed = true;
+                          console.log('Safari: Clipboard permission claimed with placeholder');
+                        } catch (clipError) {
+                          console.log('Safari: Failed to claim clipboard permission');
+                        }
+                        
+                        // Wait for encryption to complete
+                        const { id, key: encryptionKey } = await encryptionPromise;
+                        const shareUrl = createShareableUrl(id, encryptionKey);
+                        
+                        // Now try to copy the actual URL
+                        let copySuccess = false;
+                        
+                        if (clipboardPermissionClaimed) {
+                          try {
+                            await navigator.clipboard.writeText(shareUrl);
+                            copySuccess = true;
+                            console.log('Safari: Successfully copied actual URL using claimed permission');
+                          } catch (copyError) {
+                            console.log('Safari: Failed to copy actual URL, trying execCommand');
+                          }
+                        }
+                        
+                        if (!copySuccess) {
+                          // Fallback to execCommand
                           const textarea = document.createElement('textarea');
-                          textarea.value = actualUrl;
+                          textarea.value = shareUrl;
                           textarea.style.position = 'fixed';
                           textarea.style.opacity = '0';
                           document.body.appendChild(textarea);
                           textarea.select();
                           textarea.setSelectionRange(0, textarea.value.length);
                           
-                          const success = document.execCommand('copy');
+                          copySuccess = document.execCommand('copy');
                           document.body.removeChild(textarea);
-                          return success;
-                        });
-                      });
-                      
-                      try {
-                        handleToast("Creating secure share link...", "Encrypting and storing data");
-                        const { id, key: encryptionKey } = await storeJsonData(value);
-                        const shareUrl = createShareableUrl(id, encryptionKey);
-                        
-                        // Resolve the promise with the actual URL
-                        if (clipboardResolver) {
-                          clipboardResolver(shareUrl);
+                          console.log('Safari: execCommand copy result:', copySuccess);
                         }
                         
-                        // Wait for clipboard operation to complete
-                        const success = await clipboardWrite;
-                        
-                        if (success !== false) {
+                        if (copySuccess) {
                           handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
                         } else {
                           handleToast("Copy to clipboard manually", shareUrl);
