@@ -870,15 +870,55 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={async () => {
-                    try {
-                      handleToast("Creating secure share link...", "Encrypting and storing data");
-                      const { id, key: encryptionKey } = await storeJsonData(value);
-                      const shareUrl = createShareableUrl(id, encryptionKey);
-                      await copyToClipboard(shareUrl);
-                      handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
-                    } catch (error) {
-                      handleToast("Share failed", "Could not create shareable link");
+                  onClick={async (e) => {
+                    // Safari detection
+                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                    
+                    if (isSafari) {
+                      // For Safari, we need to attempt clipboard access immediately
+                      // before any async operations lose the user interaction context
+                      try {
+                        handleToast("Creating secure share link...", "Encrypting and storing data");
+                        const { id, key: encryptionKey } = await storeJsonData(value);
+                        const shareUrl = createShareableUrl(id, encryptionKey);
+                        
+                        // Direct clipboard attempt for Safari
+                        try {
+                          await navigator.clipboard.writeText(shareUrl);
+                          handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
+                        } catch (clipboardError) {
+                          // If clipboard fails, copy to a temporary textarea immediately
+                          const textarea = document.createElement('textarea');
+                          textarea.value = shareUrl;
+                          textarea.style.position = 'fixed';
+                          textarea.style.opacity = '0';
+                          document.body.appendChild(textarea);
+                          textarea.select();
+                          textarea.setSelectionRange(0, textarea.value.length);
+                          
+                          const success = document.execCommand('copy');
+                          document.body.removeChild(textarea);
+                          
+                          if (success) {
+                            handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
+                          } else {
+                            handleToast("Copy to clipboard manually", shareUrl);
+                          }
+                        }
+                      } catch (error) {
+                        handleToast("Share failed", "Could not create shareable link");
+                      }
+                    } else {
+                      // Non-Safari browsers - use existing flow
+                      try {
+                        handleToast("Creating secure share link...", "Encrypting and storing data");
+                        const { id, key: encryptionKey } = await storeJsonData(value);
+                        const shareUrl = createShareableUrl(id, encryptionKey);
+                        await copyToClipboard(shareUrl);
+                        handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
+                      } catch (error) {
+                        handleToast("Share failed", "Could not create shareable link");
+                      }
                     }
                   }}
                   className="h-7 w-7 p-0 hover:bg-white/15 rounded-lg transition-colors"
