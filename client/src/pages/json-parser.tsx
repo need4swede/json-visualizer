@@ -215,8 +215,16 @@ export default function JsonParser() {
       // Copy URL to clipboard
       await copyToClipboard(shareableUrl);
 
-      // Open in new tab
-      window.open(shareableUrl, '_blank');
+      // Open in new tab with popup blocking detection
+      const newWindow = window.open(shareableUrl, '_blank');
+      
+      // Check if popup was blocked
+      if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+        toast({
+          title: "Pop-up blocked",
+          description: "Please allow pop-ups for this site and try again, or manually copy the URL.",
+        });
+      }
 
       const expirationText = expirationHours === "24" ? "24 hours" :
                            expirationHours === "48" ? "48 hours" :

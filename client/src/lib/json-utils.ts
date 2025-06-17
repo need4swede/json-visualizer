@@ -278,9 +278,40 @@ function showSafariShareModal(url: string): void {
   const urlInput = modal.querySelector('input') as HTMLInputElement;
 
   openInNewTab.addEventListener('click', () => {
-    window.open(url, '_blank');
-    document.body.removeChild(overlay);
-    document.head.removeChild(style);
+    const newWindow = window.open(url, '_blank');
+    
+    // Check if popup was blocked
+    if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+      // Show feedback that popup was blocked
+      openInNewTab.textContent = 'Pop-up Blocked';
+      openInNewTab.style.background = 'linear-gradient(135deg, hsl(6, 100%, 59%) 0%, hsl(6, 100%, 53%) 100%)';
+      openInNewTab.style.boxShadow = '0 4px 16px rgba(255, 59, 48, 0.3)';
+      
+      // Create instruction text
+      const instruction = document.createElement('div');
+      instruction.style.cssText = `
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        text-align: center;
+        margin-top: 8px;
+        line-height: 1.4;
+      `;
+      instruction.textContent = 'Please allow pop-ups for this site in Safari settings, then try again';
+      openInNewTab.parentNode?.insertBefore(instruction, openInNewTab.nextSibling);
+      
+      setTimeout(() => {
+        openInNewTab.textContent = 'Open in New Tab';
+        openInNewTab.style.background = 'linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(207, 90%, 48%) 100%)';
+        openInNewTab.style.boxShadow = '0 4px 16px rgba(0, 122, 255, 0.3)';
+        if (instruction.parentNode) {
+          instruction.parentNode.removeChild(instruction);
+        }
+      }, 3000);
+    } else {
+      // Success - close modal
+      document.body.removeChild(overlay);
+      document.head.removeChild(style);
+    }
   });
 
   tryToCopy.addEventListener('click', async () => {
