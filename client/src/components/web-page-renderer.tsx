@@ -875,59 +875,16 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
                     
                     if (isSafari) {
+                      // Safari approach: Skip automatic copying, go straight to the modal
                       try {
                         handleToast("Creating secure share link...", "Encrypting and storing data");
-                        
-                        // Start encryption process while we have user interaction
-                        const encryptionPromise = storeJsonData(value);
-                        
-                        // Try to write placeholder to claim clipboard permission immediately
-                        let clipboardPermissionClaimed = false;
-                        try {
-                          await navigator.clipboard.writeText("Loading...");
-                          clipboardPermissionClaimed = true;
-                          console.log('Safari: Clipboard permission claimed with placeholder');
-                        } catch (clipError) {
-                          console.log('Safari: Failed to claim clipboard permission');
-                        }
-                        
-                        // Wait for encryption to complete
-                        const { id, key: encryptionKey } = await encryptionPromise;
+                        const { id, key: encryptionKey } = await storeJsonData(value);
                         const shareUrl = createShareableUrl(id, encryptionKey);
                         
-                        // Now try to copy the actual URL
-                        let copySuccess = false;
+                        // Use the copyToClipboard function which will show the Safari modal
+                        await copyToClipboard(shareUrl);
+                        handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" - sharing options shown`)
                         
-                        if (clipboardPermissionClaimed) {
-                          try {
-                            await navigator.clipboard.writeText(shareUrl);
-                            copySuccess = true;
-                            console.log('Safari: Successfully copied actual URL using claimed permission');
-                          } catch (copyError) {
-                            console.log('Safari: Failed to copy actual URL, trying execCommand');
-                          }
-                        }
-                        
-                        if (!copySuccess) {
-                          // Fallback to execCommand
-                          const textarea = document.createElement('textarea');
-                          textarea.value = shareUrl;
-                          textarea.style.position = 'fixed';
-                          textarea.style.opacity = '0';
-                          document.body.appendChild(textarea);
-                          textarea.select();
-                          textarea.setSelectionRange(0, textarea.value.length);
-                          
-                          copySuccess = document.execCommand('copy');
-                          document.body.removeChild(textarea);
-                          console.log('Safari: execCommand copy result:', copySuccess);
-                        }
-                        
-                        if (copySuccess) {
-                          handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
-                        } else {
-                          handleToast("Copy to clipboard manually", shareUrl);
-                        }
                       } catch (error) {
                         handleToast("Share failed", "Could not create shareable link");
                       }
