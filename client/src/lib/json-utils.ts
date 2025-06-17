@@ -63,6 +63,160 @@ export function downloadJson(data: any, filename: string = 'parsed.json') {
   URL.revokeObjectURL(url);
 }
 
+// Safari share modal for when clipboard is blocked
+function showSafariShareModal(url: string): void {
+  // Create modal overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  `;
+
+  // Create modal content
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    animation: slideUp 0.3s ease-out;
+  `;
+
+  modal.innerHTML = `
+    <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Share Encrypted JSON</h3>
+    <p style="color: #ccc; margin: 0 0 20px 0; font-size: 14px;">Safari blocked automatic copying. Use one of these options:</p>
+    
+    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+      <button id="openInNewTab" style="
+        flex: 1;
+        background: #007AFF;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+      ">Open in New Tab</button>
+      
+      <button id="tryToCopy" style="
+        flex: 1;
+        background: #34C759;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+      ">Try to Copy</button>
+    </div>
+    
+    <div style="background: #2a2a2a; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+      <div style="color: #888; font-size: 12px; margin-bottom: 8px;">Shareable URL:</div>
+      <input type="text" readonly value="${url}" style="
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 12px;
+        font-family: monospace;
+        outline: none;
+        user-select: all;
+      " onclick="this.select()">
+    </div>
+    
+    <button id="closeModal" style="
+      width: 100%;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    ">Close</button>
+  `;
+
+  // Add CSS animations
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Add event listeners
+  const openInNewTab = modal.querySelector('#openInNewTab') as HTMLButtonElement;
+  const tryToCopy = modal.querySelector('#tryToCopy') as HTMLButtonElement;
+  const closeModal = modal.querySelector('#closeModal') as HTMLButtonElement;
+  const urlInput = modal.querySelector('input') as HTMLInputElement;
+
+  openInNewTab.addEventListener('click', () => {
+    window.open(url, '_blank');
+    document.body.removeChild(overlay);
+    document.head.removeChild(style);
+  });
+
+  tryToCopy.addEventListener('click', async () => {
+    urlInput.select();
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) {
+        tryToCopy.textContent = '✓ Copied!';
+        tryToCopy.style.background = '#34C759';
+        setTimeout(() => {
+          document.body.removeChild(overlay);
+          document.head.removeChild(style);
+        }, 1000);
+      } else {
+        tryToCopy.textContent = 'Copy Failed';
+        tryToCopy.style.background = '#FF3B30';
+      }
+    } catch (error) {
+      tryToCopy.textContent = 'Copy Failed';
+      tryToCopy.style.background = '#FF3B30';
+    }
+  });
+
+  closeModal.addEventListener('click', () => {
+    document.body.removeChild(overlay);
+    document.head.removeChild(style);
+  });
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      document.body.removeChild(overlay);
+      document.head.removeChild(style);
+    }
+  });
+}
+
 export function copyToClipboard(text: string): Promise<void> {
   // Safari requires user interaction for clipboard access
   if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
@@ -108,22 +262,14 @@ function fallbackCopyToClipboard(text: string): Promise<void> {
         console.log('Safari: Fallback copy successful');
         resolve();
       } else {
-        console.log('Safari: Copy command failed, showing manual copy option');
-        // Show the URL for manual copying in Safari
-        const shouldShow = confirm('Safari blocked automatic copying. Click OK to see the shareable URL for manual copying.');
-        if (shouldShow) {
-          prompt('Copy this shareable URL:', text);
-        }
-        resolve(); // Still resolve since we provided the URL
+        console.log('Safari: Copy command failed, showing share modal');
+        showSafariShareModal(text);
+        resolve();
       }
     } catch (error) {
-      console.log('Safari: Copy error, showing manual copy option');
-      // Show the URL for manual copying in Safari
-      const shouldShow = confirm('Safari blocked automatic copying. Click OK to see the shareable URL for manual copying.');
-      if (shouldShow) {
-        prompt('Copy this shareable URL:', text);
-      }
-      resolve(); // Still resolve since we provided the URL
+      console.log('Safari: Copy error, showing share modal');
+      showSafariShareModal(text);
+      resolve()
     } finally {
       document.body.removeChild(textArea);
     }
