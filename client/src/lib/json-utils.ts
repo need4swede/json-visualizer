@@ -348,12 +348,13 @@ function showSafariShareModal(url: string): void {
   });
 }
 
-export function copyToClipboard(text: string): Promise<void> {
+export function copyToClipboard(text: string, options: { showSafariModal?: boolean } = {}): Promise<void> {
   // Safari detection
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const { showSafariModal = true } = options;
   
-  if (isSafari) {
-    // For Safari, try direct clipboard access first with immediate fallback
+  if (isSafari && showSafariModal) {
+    // For Safari with modal enabled, try direct clipboard access first with immediate fallback
     return new Promise((resolve) => {
       if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
         navigator.clipboard.writeText(text)
@@ -374,7 +375,7 @@ export function copyToClipboard(text: string): Promise<void> {
     });
   }
   
-  // Non-Safari browsers
+  // For Safari without modal or non-Safari browsers - use standard clipboard behavior
   if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
     return navigator.clipboard.writeText(text).catch((error) => {
       console.warn('Clipboard API failed, using fallback:', error);
