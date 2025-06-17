@@ -105,12 +105,25 @@ function fallbackCopyToClipboard(text: string): Promise<void> {
     try {
       const successful = document.execCommand('copy');
       if (successful) {
+        console.log('Safari: Fallback copy successful');
         resolve();
       } else {
-        reject(new Error('Copy command failed'));
+        console.log('Safari: Copy command failed, showing manual copy option');
+        // Show the URL for manual copying in Safari
+        const shouldShow = confirm('Safari blocked automatic copying. Click OK to see the shareable URL for manual copying.');
+        if (shouldShow) {
+          prompt('Copy this shareable URL:', text);
+        }
+        resolve(); // Still resolve since we provided the URL
       }
     } catch (error) {
-      reject(error);
+      console.log('Safari: Copy error, showing manual copy option');
+      // Show the URL for manual copying in Safari
+      const shouldShow = confirm('Safari blocked automatic copying. Click OK to see the shareable URL for manual copying.');
+      if (shouldShow) {
+        prompt('Copy this shareable URL:', text);
+      }
+      resolve(); // Still resolve since we provided the URL
     } finally {
       document.body.removeChild(textArea);
     }

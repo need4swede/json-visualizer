@@ -1,0 +1,33 @@
+[Info] Successfully preconnected to https://fonts.googleapis.com/
+[Info] Successfully preconnected to https://fonts.gstatic.com/
+[Debug] [vite] connecting... (client, line 495)
+[Debug] [vite] connected. (client, line 618)
+[Log] Generated ID: – "856634444" – "Type:" – "string" (json-utils.ts, line 283)
+[Log] Safari detected - checking crypto availability... (json-utils.ts, line 148)
+[Log] Crypto: – true – "Subtle:" – true – "Secure:" – true (json-utils.ts, line 149)
+[Log] Location origin: – "https://db5c9930-b558-4ec1-a73c-5716ffe40935-00-303lyqpr18vs8.picard.replit.dev" (json-utils.ts, line 150)
+[Log] Is localhost: – false (json-utils.ts, line 151)
+[Log] Safari: Basic crypto checks passed (json-utils.ts, line 162)
+[Log] Safari detected - checking crypto availability... (json-utils.ts, line 148)
+[Log] Crypto: – true – "Subtle:" – true – "Secure:" – true (json-utils.ts, line 149)
+[Log] Location origin: – "https://db5c9930-b558-4ec1-a73c-5716ffe40935-00-303lyqpr18vs8.picard.replit.dev" (json-utils.ts, line 150)
+[Log] Is localhost: – false (json-utils.ts, line 151)
+[Log] Safari: Basic crypto checks passed (json-utils.ts, line 162)
+[Log] Safari: Attempting to generate AES-GCM key... (json-utils.ts, line 177)
+[Log] Safari: Crypto subtle object: – SubtleCrypto {encrypt: function, decrypt: function, sign: function, …} (json-utils.ts, line 178)
+SubtleCrypto {encrypt: function, decrypt: function, sign: function, verify: function, digest: function, …}SubtleCrypto
+[Log] Safari: generateKey method exists: – "function" (json-utils.ts, line 179)
+[Log] Safari: Successfully generated encryption key (json-utils.ts, line 188)
+[Log] Safari: Key type: – "secret" (json-utils.ts, line 189)
+[Log] Safari: Key algorithm: – {name: "AES-GCM", length: 256} (json-utils.ts, line 190)
+[Log] Exported key length: – 44 (json-utils.ts, line 210)
+[Log] Generated key string: – "tyQrX/OOEH69NuJQuglJL9ng8e5Jj+nwgOFOg70qJZA=" – "Type:" – "string" (json-utils.ts, line 309)
+[Log] Key string length: – 44 (json-utils.ts, line 310)
+[Log] Final result: – {id: "856634444", key: "tyQrX/OOEH69NuJQuglJL9ng8e5Jj+nwgOFOg70qJZA="} (json-utils.ts, line 328)
+[Log] Result type: – "object" (json-utils.ts, line 329)
+[Log] Result keys: – ["id", "key"] (2) (json-utils.ts, line 330)
+[Warning] Clipboard API failed, using fallback: (json-utils.ts, line 56)
+NotAllowedError: The request is not allowed by the user agent or the platform in the current context, possibly because the user denied permission.
+writeText
+copyToClipboard — json-utils.ts:69
+(anonymous function) — web-page-renderer.tsx:878
