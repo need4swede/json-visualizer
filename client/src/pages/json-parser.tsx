@@ -284,8 +284,42 @@ export default function JsonParser() {
       console.log('URL length:', shareableUrl.length);
       
       console.log('Attempting clipboard write...');
-      await navigator.clipboard.writeText(shareableUrl);
-      console.log('✅ URL copied to clipboard successfully');
+      
+      // Safari-specific clipboard handling
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+      
+      if (isSafari) {
+        console.log('Using Safari clipboard method...');
+        
+        // Safari requires user interaction for clipboard access
+        try {
+          // Try standard method first
+          await navigator.clipboard.writeText(shareableUrl);
+          console.log('Safari clipboard success (standard method)');
+        } catch (clipboardError) {
+          console.log('Safari clipboard fallback needed:', clipboardError);
+          
+          // Fallback: create temporary textarea
+          const textarea = document.createElement('textarea');
+          textarea.value = shareableUrl;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          
+          try {
+            const success = document.execCommand('copy');
+            console.log('Safari fallback clipboard result:', success);
+          } catch (fallbackError) {
+            console.error('Safari clipboard fallback failed:', fallbackError);
+          }
+          
+          document.body.removeChild(textarea);
+        }
+      } else {
+        await navigator.clipboard.writeText(shareableUrl);
+        console.log('Non-Safari clipboard success');
+      }
       
       toast({
         title: "URL copied to clipboard!",
