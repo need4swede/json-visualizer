@@ -349,6 +349,7 @@ export async function storeJsonData(data: any, expirationHours: number = 48): Pr
       throw new Error('Failed to store JSON data');
     }
 
+    console.log('SAFARI FALLBACK: Using unencrypted storage');
     return { id, key: 'no-encryption' };
   }
 

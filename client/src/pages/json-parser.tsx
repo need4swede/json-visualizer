@@ -274,9 +274,54 @@ export default function JsonParser() {
       console.log('Encryption result:', result);
       console.log('Result type:', typeof result);
       console.log('Result keys:', Object.keys(result || {}));
+      console.log('Result ID:', result?.id);
+      console.log('Result key:', result?.key);
+      console.log('Key type:', typeof result?.key);
+      console.log('Key length:', result?.key?.length);
       
       if (!result || !result.id || !result.key) {
-        throw new Error('Invalid encryption result');
+        console.error('INVALID RESULT DETAILS:');
+        console.error('Result exists:', !!result);
+        console.error('ID exists:', !!result?.id);
+        console.error('Key exists:', !!result?.key);
+        console.error('Key value:', result?.key);
+        throw new Error(`Invalid encryption result - ID: ${!!result?.id}, Key: ${!!result?.key}`);
+      }
+
+      // Check if Safari used the unencrypted fallback
+      if (result.key === 'no-encryption') {
+        console.log('Safari used unencrypted fallback - creating simple URL');
+        const simpleUrl = `${window.location.origin}/${result.id}`;
+        console.log('Simple URL:', simpleUrl);
+        
+        // Copy simple URL instead
+        const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        
+        if (isSafari) {
+          try {
+            await navigator.clipboard.writeText(simpleUrl);
+            console.log('Safari simple URL copied successfully');
+          } catch (clipboardError) {
+            console.log('Safari clipboard fallback for simple URL');
+            const textarea = document.createElement('textarea');
+            textarea.value = simpleUrl;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+          }
+        } else {
+          await navigator.clipboard.writeText(simpleUrl);
+        }
+        
+        toast({
+          title: "URL copied to clipboard!",
+          description: "Shareable URL created (unencrypted - Safari limitation)",
+        });
+        
+        return; // Exit early for unencrypted case
       }
 
       const shareableUrl = `${window.location.origin}/${result.id}#key=${result.key}`;
@@ -321,10 +366,14 @@ export default function JsonParser() {
         console.log('Non-Safari clipboard success');
       }
       
+      console.log('About to show success toast...');
+      
       toast({
         title: "URL copied to clipboard!",
         description: "Encrypted shareable URL created (expires in 48 hours)",
       });
+      
+      console.log('Success toast shown');
       
     } catch (error) {
       console.error('🚨 SAFARI LOCK BUTTON ERROR 🚨');
