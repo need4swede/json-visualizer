@@ -194,13 +194,25 @@ function isCryptoAvailable(): boolean {
   if (isSafari) {
     console.log('Safari detected - checking crypto availability...');
     console.log('Crypto:', hasCrypto, 'Subtle:', hasSubtle, 'Secure:', isSecure);
+    console.log('Location origin:', window.location.origin);
+    console.log('Is localhost:', window.location.hostname === 'localhost');
     
-    // Safari sometimes reports crypto as available but fails during actual use
-    // This is often due to iframe restrictions or strict security policies
+    // Safari blocks crypto in certain contexts
+    if (!isSecure) {
+      console.log('Safari: Not secure context - crypto blocked');
+      return false;
+    }
+    
+    if (!hasSubtle) {
+      console.log('Safari: No subtle crypto API');
+      return false;
+    }
+    
+    // Safari sometimes has crypto available but restricted
     try {
-      // Quick test to see if crypto.subtle actually works
+      // Test if we can actually use the crypto API
       if (hasSubtle && isSecure) {
-        // Don't do full test here, just basic availability check
+        console.log('Safari: Basic crypto checks passed');
         return true;
       }
     } catch (error) {
@@ -220,7 +232,10 @@ async function generateEncryptionKey(): Promise<CryptoKey> {
   }
   
   try {
-    console.log('Attempting to generate AES-GCM key...');
+    console.log('Safari: Attempting to generate AES-GCM key...');
+    console.log('Safari: Crypto subtle object:', crypto.subtle);
+    console.log('Safari: generateKey method exists:', typeof crypto.subtle.generateKey);
+    
     const key = await crypto.subtle.generateKey(
       {
         name: 'AES-GCM',
@@ -229,12 +244,19 @@ async function generateEncryptionKey(): Promise<CryptoKey> {
       true,
       ['encrypt', 'decrypt']
     );
-    console.log('Successfully generated encryption key:', key);
+    
+    console.log('Safari: Successfully generated encryption key');
+    console.log('Safari: Key type:', key.type);
+    console.log('Safari: Key algorithm:', key.algorithm);
     return key;
   } catch (error) {
-    console.error('Safari crypto generation error:', error);
+    console.error('Safari: Crypto generation failed');
+    console.error('Safari: Error name:', error instanceof Error ? error.name : 'Unknown');
+    console.error('Safari: Error message:', error instanceof Error ? error.message : String(error));
+    console.error('Safari: Full error:', error);
+    
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Encryption key generation failed: ${message}`);
+    throw new Error(`Safari encryption blocked: ${message}`);
   }
 }
 
@@ -404,10 +426,17 @@ export async function storeJsonData(data: any, expirationHours: number = 48): Pr
 
 // Retrieve and decrypt JSON data by ID and key
 export async function retrieveJsonData(id: string, key?: string): Promise<any | null> {
+  console.log('SAFARI RETRIEVE DEBUG:');
+  console.log('Fetching ID:', id);
+  console.log('With key:', key ? 'YES' : 'NO');
+  console.log('Key value:', key);
+  
   try {
     const response = await fetch(`/api/json/${id}`);
+    console.log('Server response status:', response.status);
 
     if (!response.ok) {
+      console.log('Server request failed, trying localStorage');
       if (response.status === 404) {
         // Try localStorage fallback with decryption
         return await getFromLocalStorageWithExpiration(id, key);
@@ -416,7 +445,9 @@ export async function retrieveJsonData(id: string, key?: string): Promise<any | 
     }
 
     const result = await response.json();
+    console.log('Server response:', result);
     const encryptedPayload = result.data;
+    console.log('Encrypted payload:', encryptedPayload);
     
     // If no key provided or data is not encrypted, return just the data content (backward compatibility)
     if (!key || !encryptedPayload.encryptedData || !encryptedPayload.iv) {
@@ -497,8 +528,22 @@ export async function encodeJsonForUrl(data: any): Promise<string> {
 }
 
 export async function decodeJsonFromUrl(id: string): Promise<any> {
+  console.log('SAFARI DECRYPTION DEBUG:');
+  console.log('URL:', window.location.href);
+  console.log('Hash:', window.location.hash);
+  console.log('ID:', id);
+  
   const key = extractKeyFromUrl();
-  return await retrieveJsonData(id, key || undefined);
+  console.log('Extracted key:', key);
+  console.log('Key length:', key?.length);
+  
+  if (!key) {
+    console.log('No key found in URL - trying unencrypted data');
+  }
+  
+  const result = await retrieveJsonData(id, key || undefined);
+  console.log('Decryption result:', result ? 'SUCCESS' : 'FAILED');
+  return result;
 }
 
 // Extract encryption key from URL fragment

@@ -376,24 +376,61 @@ export default function JsonParser() {
       console.log('Success toast shown');
       
     } catch (error) {
-      console.error('🚨 SAFARI LOCK BUTTON ERROR 🚨');
-      console.error('Error object:', error);
-      console.error('Error name:', error instanceof Error ? error.name : 'Unknown');
+      console.error('SAFARI ENCRYPTION ERROR:');
+      console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
       console.error('Error message:', error instanceof Error ? error.message : String(error));
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
-      console.error('🚨 END ERROR DETAILS 🚨');
+      console.error('Error details:', error);
       
-      // Fallback to sessionStorage
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Check if this is a specific Safari crypto error
+      if (errorMessage.includes('Safari encryption blocked') || 
+          errorMessage.includes('crypto') || 
+          errorMessage.includes('subtle')) {
+        
+        console.log('Safari crypto blocked - using unencrypted fallback');
+        
+        // Try to create unencrypted shareable link as fallback
+        try {
+          const fallbackId = Math.floor(Math.random() * 900000000 + 100000000).toString();
+          const response = await fetch('/api/json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              id: fallbackId,
+              data: { unencryptedData: parsedData },
+              expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
+            }),
+          });
+          
+          if (response.ok) {
+            const fallbackUrl = `${window.location.origin}/${fallbackId}`;
+            
+            // Try to copy fallback URL
+            try {
+              await navigator.clipboard.writeText(fallbackUrl);
+              toast({
+                title: "Unencrypted URL copied",
+                description: "Safari blocked encryption - created unencrypted shareable link",
+              });
+              return;
+            } catch (clipboardError) {
+              console.log('Clipboard failed, opening in new tab');
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Fallback creation failed:', fallbackError);
+        }
+      }
+      
+      // Final fallback to sessionStorage
       sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
       const fullscreenUrl = `${window.location.origin}/fullscreen`;
       window.open(fullscreenUrl, '_blank');
 
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const isCryptoError = errorMessage.includes('crypto') || errorMessage.includes('subtle') || errorMessage.includes('Encryption');
-      
       toast({
-        title: isCryptoError ? "Encryption blocked in Safari" : "Using local storage",
-        description: isCryptoError ? "Safari blocked encryption - opened in new tab instead" : "JSON opened in full-screen mode",
+        title: "Share failed",
+        description: "Could not create shareable link",
       });
     }
   };
