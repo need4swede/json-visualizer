@@ -133,7 +133,7 @@ function showSafariShareModal(url: string): void {
         margin: 0;
         font-size: 14px;
         line-height: 1.4;
-      ">Safari's security blocked automatic copying.<br>Choose your preferred sharing method:</p>
+      ">Safari requires an additional step to copy the link</p>
     </div>
     
     <div style="display: flex; gap: 12px; margin-bottom: 24px;">
@@ -165,7 +165,7 @@ function showSafariShareModal(url: string): void {
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
         letter-spacing: -0.01em;
-      ">Try to Copy</button>
+      ">Copy Link</button>
     </div>
     
     <div style="
