@@ -77,6 +77,12 @@
     @apply font-sans antialiased text-white transition-colors duration-300;
     background-color: #080808;
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /* Safari font rendering optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Safari memory optimization */
+    -webkit-text-size-adjust: 100%;
   }
 }
 
@@ -182,11 +188,27 @@
     .apple-card {
       /* Reduce animation complexity on Safari */
       animation-duration: 0.4s;
+      /* Force hardware acceleration */
+      -webkit-transform: translate3d(0,0,0);
+      /* Optimize repainting */
+      -webkit-perspective: 1000;
+      -webkit-backface-visibility: hidden;
     }
     
     .apple-card::before {
       /* Slower shimmer on Safari for better performance */
       animation-duration: 4s;
+      /* Reduce paint complexity */
+      contain: layout style;
+    }
+    
+    /* Limit simultaneous animations to prevent performance issues */
+    .apple-card:nth-child(n+20) {
+      animation: none;
+    }
+    
+    .apple-card:nth-child(n+20)::before {
+      animation: none;
     }
   }
   

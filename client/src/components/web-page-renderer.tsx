@@ -754,19 +754,53 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
               e.stopPropagation();
               const target = e.currentTarget;
               
-              // Remove direct-hover from all other cards first
-              document.querySelectorAll('.apple-card.direct-hover').forEach(el => {
-                if (el !== target) {
-                  el.classList.remove('direct-hover');
-                }
+              // Safari optimization: use requestAnimationFrame for DOM updates
+              requestAnimationFrame(() => {
+                // Remove direct-hover from all other cards first
+                document.querySelectorAll('.apple-card.direct-hover').forEach(el => {
+                  if (el !== target) {
+                    el.classList.remove('direct-hover');
+                  }
+                });
+                
+                target.classList.add('direct-hover');
               });
-              
-              target.classList.add('direct-hover');
             }}
             onMouseLeave={(e) => {
               e.stopPropagation();
               const target = e.currentTarget;
-              target.classList.remove('direct-hover');
+              
+              // Safari optimization: use requestAnimationFrame for DOM updates
+              requestAnimationFrame(() => {
+                target.classList.remove('direct-hover');
+              });
+            }}
+            onTouchStart={(e) => {
+              // Safari/iOS touch support
+              e.stopPropagation();
+              const target = e.currentTarget;
+              
+              requestAnimationFrame(() => {
+                document.querySelectorAll('.apple-card.direct-hover').forEach(el => {
+                  if (el !== target) {
+                    el.classList.remove('direct-hover');
+                  }
+                });
+                
+                target.classList.add('direct-hover');
+              });
+            }}
+            onTouchEnd={(e) => {
+              // Safari/iOS touch support
+              e.stopPropagation();
+              const target = e.currentTarget;
+              
+              // Delay touch end to allow users to see the hover effect
+              setTimeout(() => {
+                requestAnimationFrame(() => {
+                  target.classList.remove('direct-hover');
+                });
+              }, 150);
             }}
           >
             <div className="flex items-start justify-between mb-4">
