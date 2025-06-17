@@ -213,9 +213,6 @@ export default function JsonParser() {
       // Create shareable URL with encryption key in fragment
       const shareableUrl = `${window.location.origin}/${id}#key=${key}`;
 
-      // Copy URL to clipboard first
-      await copyToClipboard(shareableUrl, { showSafariModal: false });
-
       // Attempt to open in new tab for all browsers
       const newWindow = window.open(shareableUrl, '_blank');
       
