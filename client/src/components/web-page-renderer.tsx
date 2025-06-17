@@ -871,34 +871,14 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                   variant="ghost"
                   size="sm"
                   onClick={async (e) => {
-                    // Safari detection
-                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-                    
-                    if (isSafari) {
-                      // Safari approach: Skip automatic copying, go straight to the modal
-                      try {
-                        handleToast("Creating secure share link...", "Encrypting and storing data");
-                        const { id, key: encryptionKey } = await storeJsonData(value);
-                        const shareUrl = createShareableUrl(id, encryptionKey);
-                        
-                        // Use the copyToClipboard function which will show the Safari modal
-                        await copyToClipboard(shareUrl);
-                        handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" - sharing options shown`)
-                        
-                      } catch (error) {
-                        handleToast("Share failed", "Could not create shareable link");
-                      }
-                    } else {
-                      // Non-Safari browsers - use existing flow
-                      try {
-                        handleToast("Creating secure share link...", "Encrypting and storing data");
-                        const { id, key: encryptionKey } = await storeJsonData(value);
-                        const shareUrl = createShareableUrl(id, encryptionKey);
-                        await copyToClipboard(shareUrl);
-                        handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
-                      } catch (error) {
-                        handleToast("Share failed", "Could not create shareable link");
-                      }
+                    try {
+                      handleToast("Creating secure share link...", "Encrypting and storing data");
+                      const { id, key: encryptionKey } = await storeJsonData(value);
+                      const shareUrl = createShareableUrl(id, encryptionKey);
+                      await copyToClipboard(shareUrl);
+                      handleToast("Element shared", `Secure link for "${key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ')}" copied to clipboard`);
+                    } catch (error) {
+                      handleToast("Share failed", "Could not create shareable link");
                     }
                   }}
                   className="h-7 w-7 p-0 hover:bg-white/15 rounded-lg transition-colors"
