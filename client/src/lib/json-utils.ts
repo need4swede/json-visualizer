@@ -65,7 +65,7 @@ export function downloadJson(data: any, filename: string = 'parsed.json') {
 
 // Safari share modal for when clipboard is blocked
 function showSafariShareModal(url: string): void {
-  // Create modal overlay
+  // Create modal overlay with app's glassmorphism styling
   const overlay = document.createElement('div');
   overlay.style.cssText = `
     position: fixed;
@@ -73,97 +73,197 @@ function showSafariShareModal(url: string): void {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px);
+    background: rgba(8, 8, 8, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: fadeIn 0.2s ease-out;
+    animation: safariModalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   `;
 
-  // Create modal content
+  // Create modal content with dark glassmorphism
   const modal = document.createElement('div');
   modal.style.cssText = `
-    background: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 24px;
-    max-width: 500px;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 520px;
     width: 90%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    animation: slideUp 0.3s ease-out;
+    max-height: 80vh;
+    box-shadow: 
+      0 32px 64px rgba(0, 0, 0, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    animation: safariModalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
   `;
 
   modal.innerHTML = `
-    <h3 style="color: #fff; margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">Share Encrypted JSON</h3>
-    <p style="color: #ccc; margin: 0 0 20px 0; font-size: 14px;">Safari blocked automatic copying. Use one of these options:</p>
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, hsl(273, 67%, 59%) 0%, hsl(207, 90%, 54%) 100%);
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 32px rgba(159, 122, 234, 0.3);
+      ">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </div>
+      <h3 style="
+        color: rgba(255, 255, 255, 0.95);
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      ">Share Encrypted JSON</h3>
+      <p style="
+        color: rgba(255, 255, 255, 0.6);
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.4;
+      ">Safari's security blocked automatic copying.<br>Choose your preferred sharing method:</p>
+    </div>
     
-    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
       <button id="openInNewTab" style="
         flex: 1;
-        background: #007AFF;
+        background: linear-gradient(135deg, hsl(207, 90%, 54%) 0%, hsl(207, 90%, 48%) 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 12px 16px;
+        border-radius: 12px;
+        padding: 14px 16px;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+        letter-spacing: -0.01em;
       ">Open in New Tab</button>
       
       <button id="tryToCopy" style="
         flex: 1;
-        background: #34C759;
+        background: linear-gradient(135deg, hsl(145, 83%, 44%) 0%, hsl(145, 83%, 38%) 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        padding: 12px 16px;
+        border-radius: 12px;
+        padding: 14px 16px;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+        letter-spacing: -0.01em;
       ">Try to Copy</button>
     </div>
     
-    <div style="background: #2a2a2a; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
-      <div style="color: #888; font-size: 12px; margin-bottom: 8px;">Shareable URL:</div>
+    <div style="
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    ">
+      <div style="
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      ">Encrypted Shareable URL</div>
       <input type="text" readonly value="${url}" style="
         width: 100%;
-        background: transparent;
-        border: none;
-        color: #fff;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 12px;
-        font-family: monospace;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
         outline: none;
         user-select: all;
-      " onclick="this.select()">
+        transition: all 0.2s ease;
+      " onclick="this.select(); this.style.borderColor = 'rgba(159, 122, 234, 0.5)'; this.style.background = 'rgba(159, 122, 234, 0.1)';">
     </div>
     
     <button id="closeModal" style="
       width: 100%;
-      background: #444;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
       font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     ">Close</button>
   `;
 
-  // Add CSS animations
+  // Add CSS animations matching app's style
   const style = document.createElement('style');
   style.textContent = `
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    @keyframes safariModalFadeIn {
+      from { 
+        opacity: 0;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+      }
+      to { 
+        opacity: 1;
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
     }
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    @keyframes safariModalSlideUp {
+      from { 
+        transform: translateY(32px) scale(0.96);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+    
+    /* Button hover effects */
+    #openInNewTab:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4) !important;
+    }
+    
+    #tryToCopy:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4) !important;
+    }
+    
+    #closeModal:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* Focus styles for accessibility */
+    #openInNewTab:focus,
+    #tryToCopy:focus,
+    #closeModal:focus {
+      outline: 2px solid rgba(159, 122, 234, 0.6);
+      outline-offset: 2px;
     }
   `;
   document.head.appendChild(style);
