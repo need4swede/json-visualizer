@@ -609,7 +609,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                     <h3 className="text-lg font-semibold text-white/95 mb-1 tracking-tight">
                       Item {index + 1}
                     </h3>
-                    {typeof item === 'object' && Object.keys(item).length > 0 && (
+                    {typeof item === 'object' && item !== null && Object.keys(item).length > 0 && (
                       <p className="text-sm text-white/60 font-medium">
                         {Object.keys(item).length} properties
                       </p>
@@ -792,7 +792,7 @@ function renderCompleteData(data: any, searchQuery?: string, level: number = 0, 
                         📋 {value.length} items
                       </span>
                     )}
-                    {isObject && !isArray && (
+                    {isObject && !isArray && value !== null && (
                       <span className={cn(
                         "text-xs px-3 py-1.5 rounded-full font-bold border-2 animate-color-pulse shadow-lg text-white",
                         `bg-gradient-to-r ${colorParts.slice(0, 2).join(' ')} ${colorParts[3]}`
