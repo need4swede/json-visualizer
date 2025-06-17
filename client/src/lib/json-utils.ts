@@ -188,15 +188,26 @@ function isCryptoAvailable(): boolean {
   const hasSubtle = crypto && crypto.subtle !== undefined;
   const isSecure = window.isSecureContext;
   
-  console.log('🔐 SAFARI CRYPTO ANALYSIS 🔐');
-  console.log('✓ Crypto Object:', hasCrypto);
-  console.log('✓ Subtle API:', hasSubtle);
-  console.log('✓ Secure Context:', isSecure);
-  console.log('🌐 Browser:', navigator.userAgent.includes('Safari') ? 'Safari' : 'Other');
-  console.log('🔒 Protocol:', window.location.protocol);
-  console.log('🏠 Host:', window.location.host);
-  console.log('⚡ Crypto Available:', hasCrypto && hasSubtle && isSecure);
-  console.log('🔐 END ANALYSIS 🔐');
+  // Safari-specific checks
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  
+  if (isSafari) {
+    console.log('Safari detected - checking crypto availability...');
+    console.log('Crypto:', hasCrypto, 'Subtle:', hasSubtle, 'Secure:', isSecure);
+    
+    // Safari sometimes reports crypto as available but fails during actual use
+    // This is often due to iframe restrictions or strict security policies
+    try {
+      // Quick test to see if crypto.subtle actually works
+      if (hasSubtle && isSecure) {
+        // Don't do full test here, just basic availability check
+        return true;
+      }
+    } catch (error) {
+      console.warn('Safari crypto test failed:', error);
+      return false;
+    }
+  }
   
   return hasCrypto && hasSubtle && isSecure;
 }

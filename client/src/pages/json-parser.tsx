@@ -293,15 +293,24 @@ export default function JsonParser() {
       });
       
     } catch (error) {
-      console.error('Share error:', error);
+      console.error('🚨 SAFARI LOCK BUTTON ERROR 🚨');
+      console.error('Error object:', error);
+      console.error('Error name:', error instanceof Error ? error.name : 'Unknown');
+      console.error('Error message:', error instanceof Error ? error.message : String(error));
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+      console.error('🚨 END ERROR DETAILS 🚨');
+      
       // Fallback to sessionStorage
       sessionStorage.setItem('fullscreen-json-data', JSON.stringify(parsedData));
       const fullscreenUrl = `${window.location.origin}/fullscreen`;
       window.open(fullscreenUrl, '_blank');
 
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const isCryptoError = errorMessage.includes('crypto') || errorMessage.includes('subtle') || errorMessage.includes('Encryption');
+      
       toast({
-        title: "Opened in new tab",
-        description: "JSON is now displayed in full-screen mode",
+        title: isCryptoError ? "Encryption blocked in Safari" : "Using local storage",
+        description: isCryptoError ? "Safari blocked encryption - opened in new tab instead" : "JSON opened in full-screen mode",
       });
     }
   };
